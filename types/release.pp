@@ -1,0 +1,1 @@
+type Openstack::Release  = Enum['ocata', 'pike', 'queens', 'rocky', 'stein', 'train', 'ussuri']
