@@ -12,7 +12,7 @@ describe 'openstack::repository' do
 
       it { is_expected.to compile }
 
-      ['ocata', 'pike', 'queens', 'rocky', 'stein', 'ussuri'].each { |cycle|
+      ['ocata', 'pike', 'queens', 'rocky', 'stein', 'ussuri'].each do |cycle|
         it {
           is_expected.to contain_file("/etc/yum.repos.d/CentOS-OpenStack-#{cycle}.repo")
             .with_ensure('absent')
@@ -23,7 +23,7 @@ describe 'openstack::repository' do
             .with_ensure('absent')
             .that_notifies('Exec[yum-reload-c01e6ce]')
         }
-      }
+      end
 
       it {
         is_expected.to contain_package('centos-release-openstack-train')
