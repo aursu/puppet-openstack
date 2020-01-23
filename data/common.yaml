@@ -1,1 +1,3 @@
 ---
+openstack::cycle: 'train'
+openstack::database_tag: 'openstack'

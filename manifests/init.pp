@@ -4,5 +4,8 @@
 #
 # @example
 #   include openstack
-class openstack {
+class openstack (
+  Openstack::Release $cycle,
+  String  $database_tag,
+){
 }
