@@ -7,5 +7,7 @@
 class openstack (
   Openstack::Release $cycle,
   String  $database_tag,
+  String  $rabbitmq_user,
+  Optional[String]  $rabbit_pass,
 ){
 }

@@ -6,3 +6,9 @@ fixtures:
     mysql:
       repo: "puppetlabs/mysql"
       ref: "10.1.0"
+    rabbitmq:
+      repo: "puppet/rabbitmq"
+      ref: "10.0.0"
+    stdlib:
+      repo: "puppetlabs/stdlib"
+      ref: "6.2.0"

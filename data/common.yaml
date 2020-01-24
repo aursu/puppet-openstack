@@ -1,3 +1,5 @@
 ---
 openstack::cycle: 'train'
 openstack::database_tag: 'openstack'
+openstack::rabbitmq_user: 'openstack'
+openstack::rabbit_pass: ~
