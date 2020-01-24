@@ -9,15 +9,15 @@ class openstack::mysql (
 )
 {
 
-  if $::operatingsystem == 'Ubuntu' {
-    # https://docs.openstack.org/install-guide/environment-sql-database-ubuntu.html
-    package { 'python-pymysql':
+  if $::osfamily == 'RedHat' {
+    # https://docs.openstack.org/install-guide/environment-sql-database-rdo.html
+    package { 'python2-PyMySQL':
       ensure  => 'present',
     }
   }
-  elsif $::osfamily == 'RedHat' {
-    # https://docs.openstack.org/install-guide/environment-sql-database-rdo.html
-    package { 'python2-PyMySQL':
+  elsif $::operatingsystem == 'Ubuntu' {
+    # https://docs.openstack.org/install-guide/environment-sql-database-ubuntu.html
+    package { 'python-pymysql':
       ensure  => 'present',
     }
   }
