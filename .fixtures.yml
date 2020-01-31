@@ -6,6 +6,9 @@ fixtures:
     archive:
       repo: "puppet/archive"
       ref: "4.4.0"
+    inifile:
+      repo: 'puppetlabs/inifile'
+      ref: '4.1.0'
     mysql:
       repo: "puppetlabs/mysql"
       ref: "10.3.0"
