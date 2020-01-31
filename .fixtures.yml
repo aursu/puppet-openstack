@@ -18,3 +18,8 @@ fixtures:
     stdlib:
       repo: "puppetlabs/stdlib"
       ref: "6.2.0"
+  repositories:
+    yumrepo_core:
+      repo: https://github.com/puppetlabs/puppetlabs-yumrepo_core.git
+      ref: "tags/1.0.6"
+      puppet_version: ">= 6.0.0"
