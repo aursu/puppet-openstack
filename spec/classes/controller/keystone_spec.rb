@@ -26,7 +26,7 @@ describe 'openstack::controller::keystone' do
           .with_command(%r{--bootstrap-admin-url http://controller:5000/v3/})
       }
 
-      context "when release cycle is before the Queens release" do
+      context 'when release cycle is before the Queens release' do
         let(:pre_condition) do
           <<-PRECOND
           include openstack
