@@ -21,8 +21,9 @@ class openstack::controller::keystoneweb (
   $keystone_web_data = {
     ensure                      => 'present',
     manage_docroot              => false,
-    docroot                     => '/var/www/html',
+    docroot                     => false,
     servername                  => '',
+    limitreqbody                => 114688,
     wsgi_daemon_process_options => {
       'processes'    => '5',
       'threads'      => '1',
