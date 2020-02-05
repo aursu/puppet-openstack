@@ -15,6 +15,11 @@ describe 'openstack::controller::keystoneweb' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
+
+      it {
+        is_expected.to contain_concat__fragment('keystone-public-apache-header')
+          .with_content(%r{^\s+LimitRequestBody 114688$})
+      }
     end
   end
 end
