@@ -20,6 +20,10 @@ describe 'openstack::controller::keystoneweb' do
         is_expected.to contain_concat__fragment('keystone-public-apache-header')
           .with_content(%r{^\s+LimitRequestBody 114688$})
       }
+
+      it {
+        is_expected.not_to contain_concat__fragment('keystone-public-apache-docroot')
+      }
     end
   end
 end
