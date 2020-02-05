@@ -22,7 +22,12 @@ describe 'openstack::controller::keystoneweb' do
       }
 
       it {
-        is_expected.not_to contain_concat__fragment('keystone-public-apache-docroot')
+        is_expected.not_to contain_concat__fragment('keystone-public-docroot')
+      }
+
+      it {
+        is_expected.to contain_concat__fragment('keystone-public-logging')
+          .with_content(%r{^\s+ErrorLogFormat "%\{cu\}t %M"$})
       }
     end
   end
