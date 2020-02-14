@@ -28,16 +28,18 @@ describe 'openstack::command' do
       it {
         is_expected.to contain_exec('openstack-command')
           .with_command('openstack')
-          .with_environment([
-            'OS_PROJECT_DOMAIN_NAME=Default',
-            'OS_USER_DOMAIN_NAME=Default',
-            'OS_PROJECT_NAME=admin',
-            'OS_USERNAME=admin',
-            'OS_PASSWORD=secret',
-            'OS_AUTH_URL=http://controller:5000/v3',
-            'OS_IDENTITY_API_VERSION=3',
-            'OS_IMAGE_API_VERSION=2',
-          ])
+          .with_environment(
+            [
+              'OS_PROJECT_DOMAIN_NAME=Default',
+              'OS_USER_DOMAIN_NAME=Default',
+              'OS_PROJECT_NAME=admin',
+              'OS_USERNAME=admin',
+              'OS_PASSWORD=secret',
+              'OS_AUTH_URL=http://controller:5000/v3',
+              'OS_IDENTITY_API_VERSION=3',
+              'OS_IMAGE_API_VERSION=2',
+            ],
+          )
       }
 
       context 'create admin role' do
