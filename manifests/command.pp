@@ -45,7 +45,10 @@ define openstack::command (
     path        => '/bin:/sbin:/usr/bin:/usr/sbin',
     unless      => $unless,
     environment => $env,
-    require     => Package['openstack-keystone'],
+    require     => [
+      Package['openstack-keystone'],
+      Exec['keystone-manage-bootstrap'],
+    ]
   }
 
   if defined(Class['Apache::Service']) {
