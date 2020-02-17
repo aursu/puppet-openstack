@@ -131,14 +131,10 @@ class openstack::controller::glance (
     notify  => Exec['glance-db-sync'],
   }
 
-  service {
-    default:
-      ensure  => running,
-      enable  => true,
-      require => Exec['glance-db-sync'],
-    ;
-    'openstack-glance-api': ;
-    'openstack-glance-registry': ;
+  service { 'openstack-glance-api':
+    ensure  => running,
+    enable  => true,
+    require => Exec['glance-db-sync'],
   }
 
   Mysql_database <| title == $glance_dbname |> ~> Exec['glance-db-sync']
