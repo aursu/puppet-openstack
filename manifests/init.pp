@@ -7,7 +7,6 @@
 class openstack (
   Openstack::Release  $cycle,
   String              $database_tag,
-  Boolean             $local_database,
   String              $rabbitmq_user,
   Optional[String]    $rabbit_pass,
   # Keystone
@@ -16,5 +15,13 @@ class openstack (
   Optional[String]
                       $keystone_dbpass,
   Optional[String]    $admin_pass,
+  # Glance
+  String              $glance_dbname,
+  String              $glance_dbuser,
+  Optional[String]
+                      $glance_dbpass,
+  Optional[String]    $glance_pass,
+  Stdlib::Host        $memcached_host,
+  Integer             $memcached_port,
 ){
 }

@@ -1,10 +1,15 @@
 ---
 openstack::cycle: 'train'
 openstack::database_tag: 'openstack'
-openstack::local_database: false
 openstack::rabbitmq_user: 'openstack'
 openstack::rabbit_pass: ~
 openstack::keystone_dbname: 'keystone'
 openstack::keystone_dbuser: 'keystone'
 openstack::keystone_dbpass: ~
 openstack::admin_pass: ~
+openstack::glance_dbname: 'glance'
+openstack::glance_dbuser: 'glance'
+openstack::glance_dbpass: ~
+openstack::glance_pass: ~
+openstack::memcached_host: 'controller'
+openstack::memcached_port: 11211
