@@ -57,6 +57,22 @@ describe 'openstack::command' do
             .with_unless('openstack role show admin')
         }
       end
+
+      context 'assign role to openstack user (refresh only)' do
+        let(:title) { 'openstack-user-glance-role' }
+        let(:params) do
+          super().merge(
+            command: 'openstack role add --user glance --project service admin',
+            refreshonly: true,
+          )
+        end
+
+        it {
+          is_expected.to contain_exec('openstack-user-glance-role')
+            .with_command('openstack role add --user glance --project service admin')
+            .with_refreshonly(true)
+        }
+      end
     end
   end
 end

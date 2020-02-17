@@ -10,6 +10,7 @@ define openstack::command (
   String  $admin_pass,
   String  $command,
   String  $exec_title     = $name,
+  Boolean $refreshonly    = false,
   Optional[String]
           $unless         = undef,
   Enum['present', 'absent']
@@ -45,6 +46,7 @@ define openstack::command (
     path        => '/bin:/sbin:/usr/bin:/usr/sbin',
     unless      => $unless,
     environment => $env,
+    refreshonly => $refreshonly,
     require     => [
       Package['openstack-keystone'],
       Exec['keystone-manage-bootstrap'],
