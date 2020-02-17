@@ -27,7 +27,7 @@ define openstack::user (
   if $ensure == 'present' {
     openstack::command { "openstack-user-${name}":
       admin_pass => $admin_pass,
-      command    => "openstack user create --domain ${project_domain} --description ${defined_description} --password ${shell_user_pass} ${name}",
+      command    => "openstack user create --domain ${project_domain} --description ${defined_description} --password ${shell_user_pass} ${name}", # lint:ignore:140chars
       unless     => "openstack user show ${name}",
     }
 
