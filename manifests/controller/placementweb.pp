@@ -10,6 +10,18 @@ class openstack::controller::placementweb (
   String $httpd_tag = 'openstack',
 )
 {
+  include apache::params
+  $confd_dir = $::apache::params::confd_dir
+
+  # RPM openstack-placement-api provides HTTPd config which must be cleaned up
+  # 1)
+  file { "${confd_dir}/00-placement-api.conf":
+    ensure    => absent,
+    subscribe => Package['openstack-placement-api'],
+  }
+  # 2) in case if 1) does not work
+  Package['openstack-placement-api'] ~> File <| title == $confd_dir |>
+
   apache::vhost { 'placement-api':
     ensure                      => 'present',
     manage_docroot              => false,
