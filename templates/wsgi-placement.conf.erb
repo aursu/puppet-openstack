@@ -1,0 +1,8 @@
+Alias /placement-api /usr/bin/placement-api
+<Location /placement-api>
+  SetHandler wsgi-script
+  Options +ExecCGI
+  WSGIProcessGroup placement-api
+  WSGIApplicationGroup %{GLOBAL}
+  WSGIPassAuthorization On
+</Location>
