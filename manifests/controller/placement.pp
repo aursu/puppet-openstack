@@ -90,13 +90,22 @@ class openstack::controller::placement (
   }
 
   user { 'placement':
-    ensure  => present,
-    system  => true,
-    gid     => 'placement',
-    comment => 'OpenStack Placement Daemons',
-    home    => '/var/lib/placement',
-    shell   => '/sbin/nologin',
-    require => Group['placement'],
+    ensure     => present,
+    system     => true,
+    gid        => 'placement',
+    comment    => 'OpenStack Placement Daemons',
+    home       => '/var/lib/placement',
+    shell      => '/sbin/nologin',
+    managehome => true,
+    require    => Group['placement'],
+  }
+
+  file { '/var/lib/placement':
+    ensure  => directory,
+    owner   => 'placement',
+    group   => 'placement',
+    mode    => '0711',
+    require => User['placement'],
   }
 
   exec { 'placement-db-sync':
@@ -106,7 +115,7 @@ class openstack::controller::placement (
     user        => 'placement',
     refreshonly => true,
     require     => [
-      User['placement'],
+      File['/var/lib/placement'],
       Openstack::Service['placement'],
     ],
   }

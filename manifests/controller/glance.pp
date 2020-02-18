@@ -60,13 +60,22 @@ class openstack::controller::glance (
   }
 
   user { 'glance':
-    ensure  => present,
-    system  => true,
-    gid     => 'glance',
-    comment => 'OpenStack Glance Daemons',
-    home    => '/var/lib/glance',
-    shell   => '/sbin/nologin',
-    require => Group['glance'],
+    ensure     => present,
+    system     => true,
+    gid        => 'glance',
+    comment    => 'OpenStack Glance Daemons',
+    home       => '/var/lib/glance',
+    managehome => true,
+    shell      => '/sbin/nologin',
+    require    => Group['glance'],
+  }
+
+  file { '/var/lib/glance':
+    ensure  => directory,
+    owner   => 'glance',
+    group   => 'glance',
+    mode    => '0711',
+    require => User['glance'],
   }
 
   # reported bug: https://bugs.launchpad.net/glance/+bug/1672778
@@ -77,7 +86,7 @@ class openstack::controller::glance (
     user        => 'glance',
     refreshonly => true,
     require     => [
-      User['glance'],
+      File['/var/lib/glance'],
       Openstack::Service['glance'],
     ],
   }

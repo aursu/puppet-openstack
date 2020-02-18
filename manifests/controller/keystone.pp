@@ -21,16 +21,17 @@ class openstack::controller::keystone (
   }
 
   user { 'keystone':
-    ensure  => present,
-    system  => true,
-    gid     => 'keystone',
-    comment => 'OpenStack Keystone Daemons',
-    home    => '/var/lib/keystone',
-    shell   => '/sbin/nologin',
-    require => Group['keystone'],
+    ensure     => present,
+    system     => true,
+    gid        => 'keystone',
+    comment    => 'OpenStack Keystone Daemons',
+    home       => '/var/lib/keystone',
+    managehome => true,
+    shell      => '/sbin/nologin',
+    require    => Group['keystone'],
   }
 
-  file { '/var/log/keystone':
+  file { ['/var/lib/keystone', '/var/log/keystone']:
     ensure  => directory,
     owner   => 'keystone',
     group   => 'keystone',
@@ -77,6 +78,7 @@ class openstack::controller::keystone (
       path    => '/bin:/sbin:/usr/bin:/usr/sbin',
       cwd     => '/var/lib/keystone',
       require => [
+        File['/var/lib/keystone'],
         File['/var/log/keystone'],
         Openstack::Package['openstack-keystone'],
       ],
