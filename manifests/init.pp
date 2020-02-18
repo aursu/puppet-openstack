@@ -9,6 +9,8 @@ class openstack (
   String              $database_tag,
   String              $rabbitmq_user,
   Optional[String]    $rabbit_pass,
+  Stdlib::Host        $memcached_host,
+  Integer             $memcached_port,
   # Keystone
   String              $keystone_dbname,
   String              $keystone_dbuser,
@@ -21,7 +23,11 @@ class openstack (
   Optional[String]
                       $glance_dbpass,
   Optional[String]    $glance_pass,
-  Stdlib::Host        $memcached_host,
-  Integer             $memcached_port,
+  # Placement
+  String              $placement_dbname,
+  String              $placement_dbuser,
+  Optional[String]
+                      $placement_dbpass,
+  Optional[String]    $placement_pass,
 ){
 }

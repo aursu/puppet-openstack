@@ -3,6 +3,8 @@ openstack::cycle: 'train'
 openstack::database_tag: 'openstack'
 openstack::rabbitmq_user: 'openstack'
 openstack::rabbit_pass: ~
+openstack::memcached_host: 'controller'
+openstack::memcached_port: 11211
 openstack::keystone_dbname: 'keystone'
 openstack::keystone_dbuser: 'keystone'
 openstack::keystone_dbpass: ~
@@ -11,5 +13,8 @@ openstack::glance_dbname: 'glance'
 openstack::glance_dbuser: 'glance'
 openstack::glance_dbpass: ~
 openstack::glance_pass: ~
-openstack::memcached_host: 'controller'
-openstack::memcached_port: 11211
+openstack::placement_dbname: 'placement'
+openstack::placement_dbuser: 'placement'
+openstack::placement_dbpass: ~
+openstack::placement_pass: ~
+
