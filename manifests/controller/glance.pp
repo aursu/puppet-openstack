@@ -19,7 +19,7 @@ class openstack::controller::glance (
 )
 {
   # https://docs.openstack.org/glance/train/install/install-rdo.html
-
+  # verification: https://docs.openstack.org/glance/train/install/verify.html
   openstack::database { $glance_dbname:
     dbuser       => $glance_dbuser,
     dbpass       => $glance_dbpass,

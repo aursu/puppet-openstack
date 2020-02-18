@@ -7,7 +7,7 @@
 define openstack::service (
   Enum[ 'identity', 'image', 'compute', 'placement', 'network', 'volume',
     'volumev2', 'volumev3', 'share', 'sharev2', 'object-store',
-    'orchestration', 'cloudformation']
+    'orchestration', 'cloudformation', 'placement']
           $service,
   Openstack::Service::Url $endpoint,
 
