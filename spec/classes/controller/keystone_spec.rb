@@ -26,6 +26,16 @@ describe 'openstack::controller::keystone' do
           .with_command(%r{--bootstrap-admin-url http://controller:5000/v3/})
       }
 
+      it {
+        is_expected.to contain_user('keystone')
+          .with_managehome(true)
+      }
+
+      it {
+        is_expected.to contain_file('/var/lib/keystone')
+          .with_ensure('directory')
+      }
+
       context 'when release cycle is before the Queens release' do
         let(:pre_condition) do
           <<-PRECOND

@@ -24,6 +24,19 @@ describe 'openstack::controller::placement' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
+
+      it {
+        is_expected.to contain_user('placement')
+          .with_managehome(true)
+      }
+
+      it {
+        is_expected.to contain_file('/var/lib/placement')
+          .with(
+            'ensure' => 'directory',
+            'owner'  => 'placement',
+          )
+      }
     end
   end
 end

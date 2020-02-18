@@ -22,6 +22,19 @@ describe 'openstack::controller::glance' do
       let(:facts) { os_facts }
 
       it { is_expected.to compile }
+
+      it {
+        is_expected.to contain_user('glance')
+          .with_managehome(true)
+      }
+
+      it {
+        is_expected.to contain_file('/var/lib/glance')
+          .with(
+            'ensure' => 'directory',
+            'owner'  => 'glance',
+          )
+      }
     end
   end
 end
