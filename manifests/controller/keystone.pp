@@ -46,14 +46,11 @@ class openstack::controller::keystone (
 
   openstack::config { '/etc/keystone/keystone.conf':
     content => {
-      'database/connection' => {
-          value  => "mysql+pymysql://${keystone_dbuser}:${keystone_dbpass}@controller/${keystone_dbname}",
-          notify => Exec['keystone-db-sync'],
-      },
-
+      'database/connection' => "mysql+pymysql://${keystone_dbuser}:${keystone_dbpass}@controller/${keystone_dbname}",
       # configure the Fernet token provider
       'token/provider'      => 'fernet',
     },
+    notify  => Exec['keystone-db-sync'],
   }
 
   openstack::package { 'openstack-keystone':

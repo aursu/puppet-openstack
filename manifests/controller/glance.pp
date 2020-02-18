@@ -31,6 +31,7 @@ class openstack::controller::glance (
     project    => 'service',
     user_pass  => $glance_pass,
     admin_pass => $admin_pass,
+    require    => Openstack::Project['service'],
   }
 
   openstack::service { 'glance':
@@ -75,7 +76,10 @@ class openstack::controller::glance (
     cwd         => '/var/lib/glance',
     user        => 'glance',
     refreshonly => true,
-    require     => User['glance'],
+    require     => [
+      User['glance'],
+      Openstack::Service['glance'],
+    ],
   }
 
   $conf_default = {
@@ -121,11 +125,7 @@ class openstack::controller::glance (
 
   openstack::config { '/etc/glance/glance-api.conf':
     content => $conf_default + $glance_store_default,
-    require => [
-      Openstack::Project['service'],
-      Openstack::User['glance'],
-      Openstack::Package['openstack-glance'],
-    ],
+    require => Openstack::Package['openstack-glance'],
     notify  => Exec['glance-db-sync'],
   }
 
