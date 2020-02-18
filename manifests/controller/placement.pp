@@ -54,6 +54,11 @@ class openstack::controller::placement (
     notify  => Class['Apache::Service'],
   }
 
+  # OpenStack Placement plugin
+  package { 'python2-osc-placement':
+    ensure => 'installed',
+  }
+
   $conf_default = {
     # [placement_database]
     # # ...
@@ -73,13 +78,13 @@ class openstack::controller::placement (
     # project_name = service
     # username = placement
     # password = PLACEMENT_PASS
-    'keystone_authtoken/auth_url'            => 'http://controller:5000',
+    'keystone_authtoken/auth_url'            => 'hhttp://controller:5000/v3',
     'keystone_authtoken/memcached_servers'   => "${memcached_host}:${memcached_port}",
     'keystone_authtoken/auth_type'           => 'password',
     'keystone_authtoken/project_domain_name' => 'Default',
     'keystone_authtoken/user_domain_name'    => 'Default',
     'keystone_authtoken/project_name'        => 'service',
-    'keystone_authtoken/username'            => 'glance',
+    'keystone_authtoken/username'            => 'placement',
     'keystone_authtoken/password'            => $placement_pass,
   }
 
