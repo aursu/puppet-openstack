@@ -70,15 +70,12 @@ class openstack::controller::glance (
 
   # reported bug: https://bugs.launchpad.net/glance/+bug/1672778
   exec { 'glance-db-sync':
-      command     => 'glance-manage db_sync',
-      path        => '/bin:/sbin:/usr/bin:/usr/sbin',
-      cwd         => '/var/lib/glance',
-      user        => 'glance',
-      refreshonly => true,
-      require     => [
-        Openstack::Package['openstack-glance'],
-        User['glance'],
-      ],
+    command     => 'glance-manage db_sync',
+    path        => '/bin:/sbin:/usr/bin:/usr/sbin',
+    cwd         => '/var/lib/glance',
+    user        => 'glance',
+    refreshonly => true,
+    require     => User['glance'],
   }
 
   $conf_default = {
@@ -127,6 +124,7 @@ class openstack::controller::glance (
     require => [
       Openstack::Project['service'],
       Openstack::User['glance'],
+      Openstack::Package['openstack-glance'],
     ],
     notify  => Exec['glance-db-sync'],
   }

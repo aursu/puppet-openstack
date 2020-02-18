@@ -35,9 +35,7 @@ class openstack::controller::keystone (
     owner   => 'keystone',
     group   => 'keystone',
     mode    => '0711',
-    require => [
-      User['keystone'],
-    ],
+    require => User['keystone'],
   }
 
   openstack::database { $keystone_dbname:
@@ -82,9 +80,8 @@ class openstack::controller::keystone (
       path    => '/bin:/sbin:/usr/bin:/usr/sbin',
       cwd     => '/var/lib/keystone',
       require => [
-        User['keystone'],
-        Package['openstack-keystone'],
         File['/var/log/keystone'],
+        Openstack::Package['openstack-keystone'],
       ],
     ;
 
@@ -93,14 +90,6 @@ class openstack::controller::keystone (
       command     => 'keystone-manage db_sync',
       user        => 'keystone',
       refreshonly => true,
-      subscribe   => [
-        Package['openstack-keystone'],
-        Openstack::Database[$keystone_dbname],
-      ],
-      require     => [
-        User['keystone'],
-        File['/var/log/keystone'],
-      ],
     ;
 
     # setup a fernet key repository for token encryption
@@ -134,6 +123,8 @@ class openstack::controller::keystone (
       'OS_IDENTITY_API_VERSION' => '3',
       'OS_IMAGE_API_VERSION'    => '2'
     },
-    require => Package['openstack-keystone'],
+    require => Openstack::Package['openstack-keystone'],
   }
+
+  Mysql_database <| title == $keystone_dbname |> ~> Exec['keystone-db-sync']
 }
