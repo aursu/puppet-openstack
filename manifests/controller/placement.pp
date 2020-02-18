@@ -119,4 +119,6 @@ class openstack::controller::placement (
       Class['Apache::Service'],
     ],
   }
+
+  Mysql_database <| title == $placement_dbname |> ~> Exec['placement-db-sync']
 }
