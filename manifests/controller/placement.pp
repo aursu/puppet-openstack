@@ -78,7 +78,7 @@ class openstack::controller::placement (
     # project_name = service
     # username = placement
     # password = PLACEMENT_PASS
-    'keystone_authtoken/auth_url'            => 'hhttp://controller:5000/v3',
+    'keystone_authtoken/auth_url'            => 'http://controller:5000/v3',
     'keystone_authtoken/memcached_servers'   => "${memcached_host}:${memcached_port}",
     'keystone_authtoken/auth_type'           => 'password',
     'keystone_authtoken/project_domain_name' => 'Default',
