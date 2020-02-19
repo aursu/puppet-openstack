@@ -249,7 +249,12 @@ class openstack::controller::nova (
       ensure    => running,
       enable    => true,
       require   => File['/var/lib/nova'],
-      subscribe => Openstack::Config['/etc/nova/nova.conf'],
+      subscribe => [
+        Openstack::Config['/etc/nova/nova.conf'],
+        Exec['nova-api_db-sync'],
+        Exec['nova-db-sync'],
+        Exec['nova-map_cell0'],
+      ],
     ;
     'openstack-nova-api':
     ;
