@@ -19,7 +19,7 @@ class openstack::controller::placement (
 )
 {
   # https://docs.openstack.org/placement/train/install/install-rdo.html
-  # Verification: https://docs.openstack.org/placement/train/install/verify.html
+  # Verify Installation: https://docs.openstack.org/placement/train/install/verify.html
   openstack::database { $placement_dbname:
     dbuser       => $placement_dbuser,
     dbpass       => $placement_dbpass,
