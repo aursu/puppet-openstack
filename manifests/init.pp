@@ -8,9 +8,12 @@ class openstack (
   Openstack::Release  $cycle,
   String              $database_tag,
   String              $rabbitmq_user,
+  Integer             $rabbitmq_port,
   Optional[String]    $rabbit_pass,
   Stdlib::Host        $memcached_host,
   Integer             $memcached_port,
+  Optional[Stdlib::IP::Address]
+                      $mgmt_interface_ip_address,
   # Keystone
   String              $keystone_dbname,
   String              $keystone_dbuser,
@@ -29,5 +32,10 @@ class openstack (
   Optional[String]
                       $placement_dbpass,
   Optional[String]    $placement_pass,
+  # Nova (Compute)
+  String              $nova_dbname,
+  String              $nova_dbuser,
+  Optional[String]    $nova_pass,
+  Optional[String]    $nova_dbpass,
 ){
 }

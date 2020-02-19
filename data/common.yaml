@@ -2,9 +2,11 @@
 openstack::cycle: 'train'
 openstack::database_tag: 'openstack'
 openstack::rabbitmq_user: 'openstack'
+openstack::rabbitmq_port: 5672
 openstack::rabbit_pass: ~
 openstack::memcached_host: 'controller'
 openstack::memcached_port: 11211
+openstack::mgmt_interface_ip_address: ~
 openstack::keystone_dbname: 'keystone'
 openstack::keystone_dbuser: 'keystone'
 openstack::keystone_dbpass: ~
@@ -17,4 +19,8 @@ openstack::placement_dbname: 'placement'
 openstack::placement_dbuser: 'placement'
 openstack::placement_dbpass: ~
 openstack::placement_pass: ~
+openstack::nova_dbname: 'nova'
+openstack::nova_dbuser: 'nova'
+openstack::nova_dbpass: ~
+openstack::nova_pass: ~
 
