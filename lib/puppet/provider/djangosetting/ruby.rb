@@ -145,6 +145,8 @@ def _astType(v, dq = False):
     return o
   elif type(v) == _ast.ImportFrom:
     return "from %s import " % v.module + ','.join(map(lambda x: _astType(x, dq), v.names))
+  elif type(v) == _ast.IfExp:
+    return "%s if %s else %s" % (_astType(v.body, dq), _astType(v.test, dq), _astType(v.orelse, dq))
   else:
     return str([ v, v.__dict__ ])
 config   = sys.argv[1] if len(sys.argv) > 1 else None
