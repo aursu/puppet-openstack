@@ -30,8 +30,13 @@ default_facts.each do |fact, value|
   add_custom_fact fact, value
 end
 
+def fixture_path
+  File.expand_path(File.join(__FILE__, '..', 'fixtures'))
+end
+
 RSpec.configure do |c|
   c.default_facts = default_facts
+  c.hiera_config = File.join(fixture_path, '/hiera/hiera.yaml')
   c.before :each do
     # set to strictest setting for testing
     # by default Puppet runs at warning level

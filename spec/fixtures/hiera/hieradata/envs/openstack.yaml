@@ -1,0 +1,14 @@
+---
+openstack::rabbit_pass: secret
+# Keystone
+openstack::keystone_dbpass: secret
+openstack::admin_pass: secret
+# Glance
+openstack::glance_pass: secret
+openstack::glance_dbpass: secret
+# Placement
+openstack::placement_dbpass: secret
+openstack::placement_pass: secret
+# Nova
+openstack::nova_dbpass: secret
+openstack::nova_pass: secret
