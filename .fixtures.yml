@@ -12,6 +12,9 @@ fixtures:
     inifile:
       repo: 'puppetlabs/inifile'
       ref: '4.1.0'
+    kmod:
+      repo: 'camptocamp/kmod'
+      ref: '2.4.0'
     mysql:
       repo: "puppetlabs/mysql"
       ref: "10.3.0"
@@ -21,6 +24,9 @@ fixtures:
     stdlib:
       repo: "puppetlabs/stdlib"
       ref: "6.2.0"
+    sysctl:
+      repo: "thias/sysctl"
+      ref: "1.0.6"
   repositories:
     yumrepo_core:
       repo: https://github.com/puppetlabs/puppetlabs-yumrepo_core.git

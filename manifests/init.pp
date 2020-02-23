@@ -37,5 +37,13 @@ class openstack (
   String              $nova_dbuser,
   Optional[String]    $nova_pass,
   Optional[String]    $nova_dbpass,
+  # Neutron
+  String              $neutron_dbname,
+  String              $neutron_dbuser,
+  Optional[String]    $neutron_dbpass,
+  Optional[String]    $neutron_pass,
+  Optional[String]    $metadata_secret,
+  String              $provider_physical_network,
+  Optional[String]    $provider_interface_name,
 ){
 }
