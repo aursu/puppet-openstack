@@ -84,7 +84,7 @@ Puppet::Type.type(:djangosetting).provide(:ruby) do
                   else
                     true
                   end
-      elsif lines.last.index("#{name}=") == 0
+      elsif lines.last && lines.last.index("#{name}=") == 0
         @exists = false
         @line = lines.last
       end
