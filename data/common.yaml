@@ -30,3 +30,6 @@ openstack::neutron_pass:  ~
 openstack::metadata_secret: ~
 openstack::provider_physical_network: 'provider'
 openstack::provider_interface_name: ~
+openstack::dashboard_allowed_hosts: ~
+openstack::dashboard_time_zone: 'Europe/Berlin'
+openstack::self_service_network: true

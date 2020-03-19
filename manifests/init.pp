@@ -14,6 +14,7 @@ class openstack (
   Integer             $memcached_port,
   Optional[Stdlib::IP::Address]
                       $mgmt_interface_ip_address,
+  Boolean             $self_service_network,
   # Keystone
   String              $keystone_dbname,
   String              $keystone_dbuser,
@@ -45,5 +46,9 @@ class openstack (
   Optional[String]    $metadata_secret,
   String              $provider_physical_network,
   Optional[String]    $provider_interface_name,
+  # Dashboard
+  Optional[Array[Stdlib::Host]]
+                      $dashboard_allowed_hosts,
+  String              $dashboard_time_zone,
 ){
 }
