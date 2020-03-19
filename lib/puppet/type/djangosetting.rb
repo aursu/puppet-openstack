@@ -41,14 +41,13 @@ Puppet::Type.newtype(:djangosetting) do
     end
   end
 
-  newparam(:after) do
+  newparam(:order_after) do
     desc 'An optional variable name used to specify the variable after which we will add any new.'
     validate do |value|
       raise ArgumentError, 'after should be valid python identifier' unless value =~ %r{^[a-zA-Z_][a-zA-Z0-9_]*}
     end
 
-    newvalues(%r{[a-zA-Z_][a-zA-Z0-9_]*}, :false)
-    defaultto :false
+    newvalues(%r{[a-zA-Z_][a-zA-Z0-9_]*})
   end
 
   newparam(:path) do
@@ -77,6 +76,12 @@ Puppet::Type.newtype(:djangosetting) do
 
   newparam(:value) do
     desc 'Value of the variable'
+  end
+
+  autorequire(:djangosetting) do
+    req = []
+    req << File.join(self[:config], self[:order_after]) if self[:order_after]
+    req
   end
 
   validate do

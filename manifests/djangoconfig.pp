@@ -12,9 +12,9 @@ define openstack::djangoconfig (
       Struct[{
         value             => String,
         Optional[ensure]  => Enum[present, absent],
+        Optional[order_after]   => String,
         Optional[require] => Type,
         Optional[notify]  => Type,
-        Optional[after]   => String
       }]
     ], 1] $content,
   String  $path = $name
