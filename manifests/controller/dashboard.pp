@@ -27,6 +27,7 @@ class openstack::controller::dashboard (
 
   $dashboard_data = {
     'OPENSTACK_HOST'                         => "'controller'",
+    'WEBROOT'                                => "'/dashboard/'",
     'ALLOWED_HOSTS'                          => $allowed_hosts_list,
     'SESSION_ENGINE'                         => "'django.contrib.sessions.backends.cache'",
     'CACHES'                                 => {
