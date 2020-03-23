@@ -12,3 +12,6 @@ openstack::placement_pass: secret
 # Nova
 openstack::nova_dbpass: secret
 openstack::nova_pass: secret
+# Cinder
+openstack::cinder_pass: secret
+openstack::cinder_dbpass: secret

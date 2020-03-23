@@ -33,3 +33,10 @@ openstack::provider_interface_name: ~
 openstack::dashboard_allowed_hosts: ~
 openstack::dashboard_time_zone: 'Europe/Berlin'
 openstack::self_service_network: true
+openstack::cinder_dbname: 'cinder'
+openstack::cinder_dbuser: 'cinder'
+openstack::cinder_dbpass: ~
+openstack::cinder_pass:  ~
+openstack::cinder_storage: true
+openstack::cinder_volume_group: 'cinder-volumes'
+openstack::lvm_devices_filter: ~

@@ -50,5 +50,14 @@ class openstack (
   Optional[Array[Stdlib::Host]]
                       $dashboard_allowed_hosts,
   String              $dashboard_time_zone,
+  # Cinder
+  String              $cinder_dbname,
+  String              $cinder_dbuser,
+  Optional[String]    $cinder_dbpass,
+  Optional[String]    $cinder_pass,
+  Boolean             $cinder_storage,
+  String              $cinder_volume_group,
+  Optional[Array[String]]
+                      $lvm_devices_filter,
 ){
 }
