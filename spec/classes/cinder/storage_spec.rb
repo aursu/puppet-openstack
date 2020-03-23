@@ -23,7 +23,7 @@ describe 'openstack::cinder::storage' do
         let(:params) do
           {
             'lvm_devices_filter' => [
-              '/dev/sda'
+              '/dev/sda',
             ],
           }
         end
@@ -49,7 +49,7 @@ describe 'openstack::cinder::storage' do
         }
 
         it {
-          is_expected.to contain_physical_volume('/dev/sda4')
+          is_expected.to contain_physical_volume('/dev/sda5')
         }
 
         it {
