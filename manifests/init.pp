@@ -59,5 +59,7 @@ class openstack (
   String              $cinder_volume_group,
   Optional[Array[String]]
                       $lvm_devices_filter,
+  Optional[Array[Stdlib::Unixpath]]
+                      $cinder_physical_volumes,
 ){
 }

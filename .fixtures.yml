@@ -15,6 +15,9 @@ fixtures:
     kmod:
       repo: 'camptocamp/kmod'
       ref: '2.4.0'
+    lvm:
+      repo: 'puppetlabs/lvm'
+      ref: '1.4.0'
     mysql:
       repo: "puppetlabs/mysql"
       ref: "10.3.0"

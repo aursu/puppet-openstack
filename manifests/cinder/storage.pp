@@ -8,6 +8,8 @@ class openstack::cinder::storage (
   String  $volume_group       = $openstack::cinder_volume_group,
   Optional[Array[String, 1]]
           $lvm_devices_filter = $openstack::lvm_devices_filter,
+  Optional[Array[Stdlib::Unixpath, 1]]
+          $physical_volumes   = $openstack::cinder_physical_volumes,
 ){
   include openstack::cinder::core
 
@@ -22,6 +24,19 @@ class openstack::cinder::storage (
           indent_char    => "\t",
         }
       },
+    }
+  }
+
+  if  $physical_volumes {
+    $physical_volumes.each | String $pv | {
+      physical_volume { $pv:
+        ensure => present,
+      }
+    }
+
+    volume_group { $volume_group:
+      ensure           => present,
+      physical_volumes => $physical_volumes,
     }
   }
 
