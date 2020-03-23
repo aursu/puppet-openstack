@@ -5,14 +5,19 @@ describe 'openstack::controller::keystoneweb' do
     <<-PRECOND
     include openstack
     include apache
-    openstack::repository { 'train': }
-    class { 'openstack::controller::keystone': keystone_dbpass => 'secret', admin_pass => 'secret' }
+    include openstack::install
+    include openstack::controller::keystone
     PRECOND
   end
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+      let(:facts) do
+        os_facts.merge(
+          hostname: 'controller',
+          stype: 'openstack',
+        )
+      end
 
       it { is_expected.to compile }
 

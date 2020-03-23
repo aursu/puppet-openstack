@@ -6,15 +6,20 @@ describe 'openstack::controller::placementweb' do
     include openstack
     include apache
     include openstack::install
-    class { 'openstack::controller::keystone': keystone_dbpass => 'secret', admin_pass => 'secret' }
-    class { 'openstack::controller::users': admin_pass => 'secret', }
-    class { 'openstack::controller::placement': placement_dbpass => 'secret', placement_pass => 'secret', admin_pass => 'secret' }
+    include openstack::controller::keystone
+    include openstack::controller::users
+    include openstack::controller::placement
     PRECOND
   end
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+      let(:facts) do
+        os_facts.merge(
+          hostname: 'controller',
+          stype: 'openstack',
+        )
+      end
 
       it { is_expected.to compile }
 

@@ -5,18 +5,18 @@ describe 'openstack::controller::users' do
     <<-PRECOND
     include openstack
     include openstack::install
-    class { 'openstack::controller::keystone': keystone_dbpass => 'secret', admin_pass => 'secret' }
+    include openstack::controller::keystone
     PRECOND
-  end
-  let(:params) do
-    {
-      admin_pass: 'secret',
-    }
   end
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) { os_facts }
+      let(:facts) do
+        os_facts.merge(
+          hostname: 'controller',
+          stype: 'openstack',
+        )
+      end
 
       it { is_expected.to compile }
     end
