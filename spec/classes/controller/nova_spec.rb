@@ -13,7 +13,6 @@ describe 'openstack::controller::nova' do
     {
       nova_pass: 'secret',
       nova_dbpass: 'secret',
-      placement_pass: 'secret',
     }
   end
 
@@ -27,6 +26,18 @@ describe 'openstack::controller::nova' do
       end
 
       it { is_expected.to compile }
+
+      it {
+        is_expected.to contain_openstack__config('/etc/nova/nova.conf/controller')
+          .that_requires('Openstack::Package[openstack-nova-api]')
+          .that_notifies('Exec[nova-api_db-sync]')
+          .that_notifies('Exec[nova-db-sync]')
+          .that_notifies('Exec[nova-map_cell0]')
+      }
+
+      it { is_expected.to contain_group('nova') }
+      it { is_expected.to contain_user('nova') }
+      it { is_expected.to contain_file('/var/lib/nova') }
     end
   end
 end

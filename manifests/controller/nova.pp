@@ -6,25 +6,17 @@
 #   include openstack::controller::nova
 class openstack::controller::nova (
   Openstack::Release
-          $cycle                     = $openstack::cycle,
-  String  $nova_pass                 = $openstack::nova_pass,
-  String  $nova_dbname               = $openstack::nova_dbname,
-  String  $nova_dbuser               = $openstack::nova_dbuser,
-  String  $nova_dbpass               = $openstack::nova_dbpass,
-  String  $database_tag              = $openstack::database_tag,
-  String  $admin_pass                = $openstack::admin_pass,
-  String  $placement_pass            = $openstack::placement_pass,
-  Stdlib::Host
-          $memcached_host            = $openstack::memcached_host,
-  Integer $memcached_port            = $openstack::memcached_port,
-  String  $rabbitmq_user             = $openstack::rabbitmq_user,
-  Integer $rabbitmq_port             = $openstack::rabbitmq_port,
-  String  $rabbit_pass               = $openstack::rabbit_pass,
-  Stdlib::IP::Address
-          $mgmt_interface_ip_address = $openstack::mgmt_interface_ip_address,
-
+          $cycle        = $openstack::cycle,
+  String  $nova_pass    = $openstack::nova_pass,
+  String  $nova_dbname  = $openstack::nova_dbname,
+  String  $nova_dbuser  = $openstack::nova_dbuser,
+  String  $nova_dbpass  = $openstack::nova_dbpass,
+  String  $database_tag = $openstack::database_tag,
+  String  $admin_pass   = $openstack::admin_pass,
+  String  $compute_tag  = $openstack::compute_tag,
 ){
   # https://docs.openstack.org/nova/train/install/controller-install-rdo.html
+  include openstack::nova::core
 
   # API database for Nova
   $nova_api_dbname = "${nova_dbname}_api"
@@ -77,36 +69,9 @@ class openstack::controller::nova (
           '/etc/nova/nova.conf',
       ],
     ;
-    'openstack-nova-conductor':
-    ;
-    'openstack-nova-novncproxy':
-    ;
-    'openstack-nova-scheduler':
-    ;
-  }
-
-  # Identities
-  group { 'nova':
-    ensure => present,
-    system => true,
-  }
-
-  user { 'nova':
-    ensure     => present,
-    system     => true,
-    gid        => 'nova',
-    comment    => 'OpenStack Nova Daemons',
-    home       => '/var/lib/nova',
-    shell      => '/sbin/nologin',
-    managehome => true,
-  }
-
-  file { '/var/lib/nova':
-    ensure  => directory,
-    owner   => 'nova',
-    group   => 'nova',
-    mode    => '0711',
-    require => User['nova'],
+    'openstack-nova-conductor': ;
+    'openstack-nova-novncproxy': ;
+    'openstack-nova-scheduler': ;
   }
 
   exec {
@@ -116,6 +81,10 @@ class openstack::controller::nova (
       path        => '/bin:/sbin:/usr/bin:/usr/sbin',
       refreshonly => true,
       require     => File['/var/lib/nova'],
+      subscribe   => [
+        Openstack::Config['/etc/nova/nova.conf'],
+        Openstack::Config['/etc/nova/nova.conf/controller'],
+      ],
     ;
     'nova-db-sync':
       command => 'nova-manage db sync',
@@ -146,102 +115,30 @@ class openstack::controller::nova (
   }
 
   # /etc/nova/nova.conf
-  #   [DEFAULT]
-  # # ...
-  # enabled_apis = osapi_compute,metadata
   $conf_default = {
-    'DEFAULT/enabled_apis'                              => 'osapi_compute,metadata',
     # [database]
-    # # ...
     # connection = mysql+pymysql://nova:NOVA_DBPASS@controller/nova
-    'database/connection'     => "mysql+pymysql://${nova_dbuser}:${nova_dbpass}@controller/${nova_dbname}",
+    'database/connection'                        => "mysql+pymysql://${nova_dbuser}:${nova_dbpass}@controller/${nova_dbname}",
     # [api_database]
-    # # ...
     # connection = mysql+pymysql://nova:NOVA_DBPASS@controller/nova_api
-    'api_database/connection' => "mysql+pymysql://${nova_dbuser}:${nova_dbpass}@controller/${nova_api_dbname}",
-    # [DEFAULT]
-    # # ...
-    # transport_url = rabbit://openstack:RABBIT_PASS@controller:5672/
-    'DEFAULT/transport_url'   => "rabbit://${rabbitmq_user}:${rabbit_pass}@controller:${rabbitmq_port}/",
-    # [api]
-    # # ...
-    # auth_strategy = keystone
-    'api/auth_strategy'       => 'keystone',
-
-    # [keystone_authtoken]
-    # # ...
-    # www_authenticate_uri = http://controller:5000/
-    # auth_url = http://controller:5000/
-    # memcached_servers = controller:11211
-    # auth_type = password
-    # project_domain_name = Default
-    # user_domain_name = Default
-    # project_name = service
-    # username = nova
-    # password = NOVA_PASS
-    'keystone_authtoken/www_authenticate_uri' => 'http://controller:5000/',
-    'keystone_authtoken/auth_url'             => 'http://controller:5000/',
-    'keystone_authtoken/memcached_servers'    => "${memcached_host}:${memcached_port}",
-    'keystone_authtoken/auth_type'            => 'password',
-    'keystone_authtoken/project_domain_name'  => 'Default',
-    'keystone_authtoken/user_domain_name'     => 'Default',
-    'keystone_authtoken/project_name'         => 'service',
-    'keystone_authtoken/username'             => 'nova',
-    'keystone_authtoken/password'             => $nova_pass,
-    # [DEFAULT]
-    # # ...
-    # my_ip = 10.0.0.11
-    'DEFAULT/my_ip'                           => $mgmt_interface_ip_address,
-    # [DEFAULT]
-    # # ...
-    # use_neutron = true
-    # firewall_driver = nova.virt.firewall.NoopFirewallDriver
-    'DEFAULT/use_neutron'                     => 'True',
-    'DEFAULT/firewall_driver'                 => 'nova.virt.firewall.NoopFirewallDriver',
+    'api_database/connection'                    => "mysql+pymysql://${nova_dbuser}:${nova_dbpass}@controller/${nova_api_dbname}",
     # [vnc]
     # enabled = true
-    # # ...
     # server_listen = $my_ip
     # server_proxyclient_address = $my_ip
-    'vnc/enabled'                             => 'true',
-    'vnc/server_listen'                       => '$my_ip',
-    'vnc/server_proxyclient_address'          => '$my_ip',
-    # [glance]
-    # # ...
-    # api_servers = http://controller:9292
-    'glance/api_servers'                      => 'http://controller:9292',
-    # [oslo_concurrency]
-    # # ...
-    # lock_path = /var/lib/nova/tmp
-    'oslo_concurrency/lock_path'              => '/var/lib/nova/tmp',
-    # [placement]
-    # # ...
-    # region_name = RegionOne
-    # project_domain_name = Default
-    # project_name = service
-    # auth_type = password
-    # user_domain_name = Default
-    # auth_url = http://controller:5000/v3
-    # username = placement
-    # password = PLACEMENT_PASS
-    'placement/region_name'                   => 'RegionOne',
-    'placement/project_domain_name'           => 'Default',
-    'placement/project_name'                  => 'service',
-    'placement/auth_type'                     => 'password',
-    'placement/user_domain_name'              => 'Default',
-    'placement/auth_url'                      => 'http://controller:5000/v3',
-    'placement/username'                      => 'placement',
-    'placement/password'                      => $placement_pass,
+    'vnc/enabled'                                => 'true',
+    'vnc/server_listen'                          => '$my_ip',
+    'vnc/server_proxyclient_address'             => '$my_ip',
+    ### When you add new compute nodes, you must run nova-manage cell_v2 discover_hosts on the controller node
+    ### to register those new compute nodes. Alternatively, you can set an appropriate interval
+    # [scheduler]
+    # discover_hosts_in_cells_interval = 300
+    'scheduler/discover_hosts_in_cells_interval' => '300',
   }
 
-  openstack::config { '/etc/nova/nova.conf':
+  openstack::config { '/etc/nova/nova.conf/controller':
     content => $conf_default,
-    require => Openstack::Package['openstack-nova-api'],
-    notify  => [
-      Exec['nova-api_db-sync'],
-      Exec['nova-db-sync'],
-      Exec['nova-map_cell0'],
-    ],
+    require => Openstack::Config['/etc/nova/nova.conf'],
   }
 
   service {
@@ -251,22 +148,24 @@ class openstack::controller::nova (
       require   => File['/var/lib/nova'],
       subscribe => [
         Openstack::Config['/etc/nova/nova.conf'],
+        Openstack::Config['/etc/nova/nova.conf/controller'],
         Exec['nova-api_db-sync'],
         Exec['nova-db-sync'],
         Exec['nova-map_cell0'],
       ],
     ;
-    'openstack-nova-api':
-    ;
-    'openstack-nova-scheduler':
-    ;
-    'openstack-nova-conductor':
-    ;
-    'openstack-nova-novncproxy':
-    ;
+    'openstack-nova-api': ;
+    'openstack-nova-scheduler': ;
+    'openstack-nova-conductor': ;
+    'openstack-nova-novncproxy': ;
   }
+
+  # nova-manage cell_v2 discover_hosts
+  Openstack::Nova::Host <<| tag == $compute_tag |>>
 
   Mysql_database <| title == $nova_api_dbname |> ~> Exec['nova-api_db-sync']
   Mysql_database <| title == $nova_dbname |> ~> Exec['nova-db-sync']
   Mysql_database <| title == $nova_placement_dbname |> ~> Exec['nova-map_cell0']
+
+  Openstack::Package['openstack-nova-api'] -> Openstack::Config['/etc/nova/nova.conf']
 }
