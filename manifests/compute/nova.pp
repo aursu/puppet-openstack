@@ -68,8 +68,9 @@ class openstack::compute::nova (
 
   service {
     default:
-      ensure => running,
-      enable => true,
+      ensure    => running,
+      enable    => true,
+      subscribe => Openstack::Config['/etc/nova/nova.conf'],
     ;
     'openstack-nova-compute': ;
     'libvirtd': ;
@@ -80,6 +81,5 @@ class openstack::compute::nova (
   }
 
   Openstack::Package['openstack-nova-compute'] -> Openstack::Config['/etc/nova/nova.conf']
-  Openstack::Config['/etc/nova/nova.conf'] ~> Service['openstack-nova-compute']
   File['/var/lib/nova'] -> Service['openstack-nova-compute']
 }
