@@ -137,6 +137,7 @@ class openstack::controller::nova (
   }
 
   openstack::config { '/etc/nova/nova.conf/controller':
+    path    => '/etc/nova/nova.conf',
     content => $conf_default,
     require => Openstack::Config['/etc/nova/nova.conf'],
   }

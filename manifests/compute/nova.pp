@@ -60,6 +60,7 @@ class openstack::compute::nova (
   }
 
   openstack::config { '/etc/nova/nova.conf/compute':
+    path    => '/etc/nova/nova.conf',
     content => $conf_default + $virt_type,
     require => Openstack::Config['/etc/nova/nova.conf'],
     notify  => Service['openstack-nova-compute'],
