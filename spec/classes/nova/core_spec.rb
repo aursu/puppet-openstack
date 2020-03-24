@@ -6,6 +6,7 @@ describe 'openstack::nova::core' do
     include openstack
     PRECOND
   end
+
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
