@@ -21,6 +21,7 @@ class openstack::compute::nova (
           $mgmt_interface_ip_address = $openstack::mgmt_interface_ip_address,
   String  $compute_tag               = $openstack::compute_tag,
 ) {
+  # https://docs.openstack.org/nova/train/install/compute-install-rdo.html
   include openstack::nova::core
 
   openstack::package { 'openstack-nova-compute':
