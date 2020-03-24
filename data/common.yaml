@@ -1,6 +1,7 @@
 ---
 openstack::cycle: 'train'
 openstack::database_tag: 'openstack'
+openstack::rabbitmq_host: 'controller'
 openstack::rabbitmq_user: 'openstack'
 openstack::rabbitmq_port: 5672
 openstack::rabbit_pass: ~
@@ -41,3 +42,5 @@ openstack::cinder_storage: true
 openstack::cinder_volume_group: 'cinder-volumes'
 openstack::lvm_devices_filter: ~
 openstack::cinder_physical_volumes: ~
+openstack::controller_host: 'controller'
+openstack::compute_tag: 'openstack'

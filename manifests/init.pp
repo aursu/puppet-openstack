@@ -7,6 +7,7 @@
 class openstack (
   Openstack::Release  $cycle,
   String              $database_tag,
+  String              $rabbitmq_host,
   String              $rabbitmq_user,
   Integer             $rabbitmq_port,
   Optional[String]    $rabbit_pass,
@@ -61,5 +62,7 @@ class openstack (
                       $lvm_devices_filter,
   Optional[Array[Stdlib::Unixpath]]
                       $cinder_physical_volumes,
+  Stdlib::Host        $controller_host,
+  String              $compute_tag,
 ){
 }
