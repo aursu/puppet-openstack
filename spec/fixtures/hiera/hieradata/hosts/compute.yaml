@@ -1,0 +1,3 @@
+---
+openstack::mgmt_interface_ip_address: 10.0.0.31
+openstack::provider_interface_name: 'ens1f0'

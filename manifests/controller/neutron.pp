@@ -7,30 +7,20 @@
 class openstack::controller::neutron (
   Openstack::Release
           $cycle                     = $openstack::cycle,
+  String  $neutron_pass              = $openstack::neutron_pass,
   String  $neutron_dbname            = $openstack::neutron_dbname,
   String  $neutron_dbuser            = $openstack::neutron_dbuser,
   String  $neutron_dbpass            = $openstack::neutron_dbpass,
   String  $database_tag              = $openstack::database_tag,
-  String  $neutron_pass              = $openstack::neutron_pass,
   String  $metadata_secret           = $openstack::metadata_secret,
   String  $admin_pass                = $openstack::admin_pass,
   String  $nova_pass                 = $openstack::nova_pass,
   String  $provider_physical_network = $openstack::provider_physical_network,
-  String  $provider_interface_name   = $openstack::provider_interface_name,
-  Stdlib::IP::Address
-          $mgmt_interface_ip_address = $openstack::mgmt_interface_ip_address,
-
-  Stdlib::Host
-          $memcached_host            = $openstack::memcached_host,
-  Integer $memcached_port            = $openstack::memcached_port,
-  String  $rabbitmq_user             = $openstack::rabbitmq_user,
-  String  $rabbit_pass               = $openstack::rabbit_pass,
 )
 {
+  include openstack::neutron::core
+
   # https://docs.openstack.org/neutron/train/install/controller-install-rdo.html
-
-  $overlay_interface_ip_address = $mgmt_interface_ip_address
-
   openstack::database { $neutron_dbname:
     dbuser       => $neutron_dbuser,
     dbpass       => $neutron_dbpass,
@@ -58,10 +48,6 @@ class openstack::controller::neutron (
     require     => Openstack::User['neutron'],
   }
 
-  package { 'ebtables':
-    ensure => 'present',
-  }
-
   # https://docs.openstack.org/neutron/train/install/controller-install-option2-rdo.html
   openstack::package {
     default:
@@ -69,20 +55,15 @@ class openstack::controller::neutron (
     ;
     'openstack-neutron':
       configs => [
-        '/etc/neutron/neutron.conf',
         '/etc/neutron/l3_agent.ini',
         '/etc/neutron/dhcp_agent.ini',
-        '/etc/neutron/metadata_agent.ini'
+        '/etc/neutron/metadata_agent.ini',
       ],
+      before  => Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'],
     ;
     'openstack-neutron-ml2':
       configs => [
         '/etc/neutron/plugins/ml2/ml2_conf.ini',
-      ],
-    ;
-    'openstack-neutron-linuxbridge':
-      configs => [
-        '/etc/neutron/plugins/ml2/linuxbridge_agent.ini',
       ],
     ;
   }
@@ -98,31 +79,6 @@ class openstack::controller::neutron (
     'DEFAULT/core_plugin'           => 'ml2',
     'DEFAULT/service_plugins'       => 'router',
     'DEFAULT/allow_overlapping_ips' => 'true',
-    # [DEFAULT]
-    # transport_url = rabbit://openstack:RABBIT_PASS@controller
-    'DEFAULT/transport_url'         => "rabbit://${rabbitmq_user}:${rabbit_pass}@controller",
-    # [DEFAULT]
-    # auth_strategy = keystone
-    'DEFAULT/auth_strategy'         => 'keystone',
-    # [keystone_authtoken]
-    # www_authenticate_uri = http://controller:5000
-    # auth_url = http://controller:5000
-    # memcached_servers = controller:11211
-    # auth_type = password
-    # project_domain_name = default
-    # user_domain_name = default
-    # project_name = service
-    # username = neutron
-    # password = NEUTRON_PASS
-    'keystone_authtoken/www_authenticate_uri' => 'http://controller:5000',
-    'keystone_authtoken/auth_url'             => 'http://controller:5000',
-    'keystone_authtoken/memcached_servers'    => "${memcached_host}:${memcached_port}",
-    'keystone_authtoken/auth_type'            => 'password',
-    'keystone_authtoken/project_domain_name'  => 'default',
-    'keystone_authtoken/user_domain_name'     => 'default',
-    'keystone_authtoken/project_name'         => 'service',
-    'keystone_authtoken/username'             => 'neutron',
-    'keystone_authtoken/password'             => $neutron_pass,
     # [DEFAULT]
     # notify_nova_on_port_status_changes = true
     # notify_nova_on_port_data_changes = true
@@ -145,9 +101,6 @@ class openstack::controller::neutron (
     'nova/project_name'                                 => 'service',
     'nova/username'                                     => 'nova',
     'nova/password'                                     => $nova_pass,
-    # [oslo_concurrency]
-    # lock_path = /var/lib/neutron/tmp
-    'oslo_concurrency/lock_path'                        => '/var/lib/neutron/tmp',
   }
 
   $ml2_default = {
@@ -171,27 +124,10 @@ class openstack::controller::neutron (
     'securitygroup/enable_ipset'  => 'true',
   }
 
-  $lb_default = {
-    # [linux_bridge]
-    # physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
-    'linux_bridge/physical_interface_mappings' => "${provider_physical_network}:${provider_interface_name}",
-    # [vxlan]
-    # enable_vxlan = true
-    # local_ip = OVERLAY_INTERFACE_IP_ADDRESS
-    # l2_population = true
-    'vxlan/enable_vxlan'                       => 'true',
-    'vxlan/local_ip'                           => $overlay_interface_ip_address,
-    'vxlan/l2_population'                      => 'true',
-    # [securitygroup]
-    # enable_security_group = true
-    # firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
-    'securitygroup/enable_security_group'       => 'true',
-    'securitygroup/firewall_driver'             => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver',
-  }
-
-  openstack::config { '/etc/neutron/neutron.conf':
+  openstack::config { '/etc/neutron/neutron.conf/controller':
+    path    => '/etc/neutron/neutron.conf',
     content => $conf_default,
-    require => Openstack::Package['openstack-neutron'],
+    require => Openstack::Config['/etc/neutron/neutron.conf'],
     notify  => Exec['neutron-db-sync'],
   }
 
@@ -208,18 +144,6 @@ class openstack::controller::neutron (
     ensure  => 'link',
     target  => '/etc/neutron/plugins/ml2/ml2_conf.ini',
     require => Openstack::Config['/etc/neutron/plugins/ml2/ml2_conf.ini'],
-  }
-
-  openstack::config { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
-    content => $lb_default,
-    require => [
-      Openstack::Package['openstack-neutron'],
-      Openstack::Package['openstack-neutron-linuxbridge'],
-    ],
-    notify  => [
-      Exec['neutron-db-sync'],
-      Service['neutron-linuxbridge-agent'],
-    ],
   }
 
   # [DEFAULT]
@@ -288,30 +212,6 @@ class openstack::controller::neutron (
     notify  => Service['openstack-nova-api'],
   }
 
-  # Identities
-  group { 'neutron':
-    ensure => present,
-    system => true,
-  }
-
-  user { 'neutron':
-    ensure  => present,
-    system  => true,
-    gid     => 'neutron',
-    comment => 'OpenStack Neutron Daemons',
-    home    => '/var/lib/neutron',
-    shell   => '/sbin/nologin',
-    require => Group['neutron']
-  }
-
-  file { '/var/lib/neutron':
-    ensure  => directory,
-    owner   => 'neutron',
-    group   => 'neutron',
-    mode    => '0711',
-    require => User['neutron'],
-  }
-
   exec { 'neutron-db-sync':
     command     => 'neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head', # lint:ignore:140chars
     path        => '/bin:/sbin:/usr/bin:/usr/sbin',
@@ -325,20 +225,6 @@ class openstack::controller::neutron (
     ]
   }
 
-  # Ensure your Linux operating system kernel supports network bridge filters
-  kmod::load { 'br_netfilter': }
-
-  sysctl {
-    default:
-      value   => 1,
-      require => Kmod::Load['br_netfilter'],
-    ;
-    'net.bridge.bridge-nf-call-iptables':
-    ;
-    'net.bridge.bridge-nf-call-ip6tables':
-    ;
-  }
-
   service {
     default:
       ensure    => running,
@@ -346,12 +232,11 @@ class openstack::controller::neutron (
       require   => File['/var/lib/neutron'],
       subscribe => [
         Openstack::Config['/etc/neutron/neutron.conf'],
+        Openstack::Config['/etc/neutron/neutron.conf/controller'],
         Exec['neutron-db-sync'],
       ],
     ;
     'neutron-server':
-    ;
-    'neutron-linuxbridge-agent':
     ;
     'neutron-dhcp-agent':
     ;
@@ -362,4 +247,12 @@ class openstack::controller::neutron (
   }
 
   Mysql_database <| title == $neutron_dbname |> ~> Exec['neutron-db-sync']
+
+  Openstack::Package['openstack-neutron'] -> Openstack::Config['/etc/neutron/neutron.conf']
+
+  Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] ~> Exec['neutron-db-sync']
+  Openstack::Config['/etc/neutron/neutron.conf'] ~> Exec['neutron-db-sync']
+
+  Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-linuxbridge-agent']
+  Exec['neutron-db-sync'] ~> Service['neutron-linuxbridge-agent']
 }

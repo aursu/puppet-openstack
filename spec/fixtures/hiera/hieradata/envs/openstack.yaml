@@ -15,3 +15,5 @@ openstack::nova_pass: secret
 # Cinder
 openstack::cinder_pass: secret
 openstack::cinder_dbpass: secret
+# Neutron
+openstack::neutron_pass: secret
