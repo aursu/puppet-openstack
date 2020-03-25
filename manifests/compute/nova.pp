@@ -8,17 +8,8 @@ class openstack::compute::nova (
   Openstack::Release
           $cycle                     = $openstack::cycle,
   String  $nova_pass                 = $openstack::nova_pass,
-  String  $placement_pass            = $openstack::placement_pass,
-  String  $rabbitmq_host             = $openstack::rabbitmq_host,
-  String  $rabbitmq_user             = $openstack::rabbitmq_user,
-  String  $rabbit_pass               = $openstack::rabbit_pass,
   Stdlib::Host
           $controller_host           = $openstack::controller_host,
-  Stdlib::Host
-          $memcached_host            = $openstack::memcached_host,
-  Integer $memcached_port            = $openstack::memcached_port,
-  Stdlib::IP::Address
-          $mgmt_interface_ip_address = $openstack::mgmt_interface_ip_address,
   String  $compute_tag               = $openstack::compute_tag,
 ) {
   # https://docs.openstack.org/nova/train/install/compute-install-rdo.html
