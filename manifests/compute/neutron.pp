@@ -9,7 +9,10 @@ class openstack::compute::neutron (
   Stdlib::Host
           $controller_host           = $openstack::controller_host,
 ){
-  include openstack::neutron::core
+  class { 'openstack::neutron::core':
+    neutron_pass    => $neutron_pass,
+    controller_host => $controller_host,
+  }
 
   # [neutron]
   # auth_url = http://controller:5000
