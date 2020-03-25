@@ -62,8 +62,8 @@ class openstack::cinder::storage (
       # target_helper = lioadm
       'lvm/volume_driver'          => 'cinder.volume.drivers.lvm.LVMVolumeDriver',
       'lvm/volume_group'           => $volume_group,
-      'lvm/iscsi_protocol'         => 'iscsi',
-      'lvm/iscsi_helper'           => 'lioadm',
+      'lvm/target_protocol'        => 'iscsi',
+      'lvm/target_helper'          => 'lioadm',
       # [DEFAULT]
       # enabled_backends = lvm
       'DEFAULT/enabled_backends'   => 'lvm',
