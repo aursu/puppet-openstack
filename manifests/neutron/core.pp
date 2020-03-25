@@ -97,6 +97,7 @@ class openstack::neutron::core (
     # [linux_bridge]
     # physical_interface_mappings = provider:PROVIDER_INTERFACE_NAME
     'linux_bridge/physical_interface_mappings' => "${provider_physical_network}:${provider_interface_name}",
+
     ### enable VXLAN overlay networks, configure the IP address of the physical
     ### network interface that handles overlay networks, and enable layer-2
     ### population
@@ -107,6 +108,8 @@ class openstack::neutron::core (
     'vxlan/enable_vxlan'                       => 'true',
     'vxlan/local_ip'                           => $overlay_interface_ip_address,
     'vxlan/l2_population'                      => 'true',
+
+    ### enable security groups and configure the Linux bridge iptables firewall driver
     # [securitygroup]
     # enable_security_group = true
     # firewall_driver = neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
@@ -114,6 +117,8 @@ class openstack::neutron::core (
     'securitygroup/firewall_driver'             => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver',
   }
 
+  # The Linux bridge agent builds layer-2 (bridging and switching) virtual
+  # networking infrastructure for instances and handles security groups.
   openstack::config { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
     content => $lb_default,
     require => Openstack::Package['openstack-neutron-linuxbridge'],
@@ -125,6 +130,7 @@ class openstack::neutron::core (
     # [DEFAULT]
     # transport_url = rabbit://openstack:RABBIT_PASS@controller:5672/
     'DEFAULT/transport_url'                   => "rabbit://${rabbitmq_user}:${rabbit_pass}@${rabbitmq_host}:${rabbitmq_port}/",
+    ### configure Identity service access
     # [DEFAULT]
     # auth_strategy = keystone
     'DEFAULT/auth_strategy'                   => 'keystone',
