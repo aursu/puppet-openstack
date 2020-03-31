@@ -1,7 +1,9 @@
 Puppet::Type.newtype(:openstack_flavor) do
   @doc = <<-PUPPET
     @summary
-      Manage an OpenStack flavor. This includes management of users password as well as privileges.
+      In OpenStack, a flavor defines the compute, memory, and storage capacity
+      of a virtual server, also known as an instance. As an administrative user,
+      you can create, edit, and delete flavors.
     PUPPET
 
   ensurable
