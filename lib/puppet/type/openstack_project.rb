@@ -18,6 +18,7 @@ Puppet::Type.newtype(:openstack_project) do
 
   newproperty(:domain) do
     desc 'Domain owning the project (name or ID)'
+    defaultto 'default'
   end
 
   newproperty(:description) do
