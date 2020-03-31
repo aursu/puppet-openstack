@@ -54,4 +54,20 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
       provider.create
     end
   end
+
+  # /usr/bin/openstack flavor list -f json --long
+  # [
+  #   {
+  #     "Name": "m1.xlarge8",
+  #     "RAM": 16384,
+  #     "Ephemeral": 0,
+  #     "Properties": "",
+  #     "VCPUs": 8,
+  #     "Swap": "",
+  #     "Is Public": true,
+  #     "Disk": 10,
+  #     "RXTX Factor": 1.0,
+  #     "ID": "7b119fd7-6307-430c-a501-a1b8dc31e308"
+  #   }
+  # ]
 end
