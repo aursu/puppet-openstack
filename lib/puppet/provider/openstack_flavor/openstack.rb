@@ -1,6 +1,9 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
+
 Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provider::Openstack) do
-  desc 'manage flavors for OPenStack.'
+  desc 'manage flavors for OpenStack.'
+
+  commands openstack: 'openstack'
 
   # Generates method for all properties of the property_hash
   mk_resource_methods
@@ -14,11 +17,11 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', args)
+    openstack_caller(provider_subcommand, 'create', *args)
   end
 
   def self.provider_delete(*args)
-    openstack_caller(provider_subcommand, 'delete', args)
+    openstack_caller(provider_subcommand, 'delete', *args)
   end
 
   def self.instances

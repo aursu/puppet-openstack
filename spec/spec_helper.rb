@@ -37,6 +37,14 @@ end
 RSpec.configure do |c|
   c.default_facts = default_facts
   c.hiera_config = File.join(fixture_path, '/hiera/hiera.yaml')
+
+  c.mock_with :rspec do |mocks|
+    # We really should have this on, but it breaks a _lot_ of tests. We'll
+    # need to go through and fix those tests first before it can be enabled
+    # for real.
+    mocks.verify_partial_doubles = false
+  end
+
   c.before :each do
     # set to strictest setting for testing
     # by default Puppet runs at warning level

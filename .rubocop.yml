@@ -133,4 +133,6 @@ Style/SymbolProc:
   Enabled: false
 Style/NumericPredicate:
   Enabled: false
+Style/NumericLiterals:
+  Enabled: false
 
