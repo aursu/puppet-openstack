@@ -5,6 +5,11 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
 
   commands openstack: 'openstack'
 
+  def initialize(value = {})
+    super(value)
+    @property_flush = {}
+  end
+
   # Generates method for all properties of the property_hash
   mk_resource_methods
 
@@ -66,15 +71,16 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
     args = []
     args += ['--domain', domain] if domain
     args += ['--description', desc] if desc
-    args << '--enable' if enabled
-    args << '--disable' unless enabled
+    if [true, :true].include?(enabled)
+      args << '--enable'
+    else
+      args << '--disable'
+    end
     args << name
 
     self.class.provider_create(*args)
 
     @property_hash[:ensure] = :present
-
-    exists? ? (return true) : (return false)
   end
 
   def destroy
@@ -83,7 +89,6 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
     self.class.provider_delete(name)
 
     @property_hash.clear
-    exists? ? (return false) : (return true)
   end
 
   def exists?
@@ -91,21 +96,32 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
   end
 
   def description=(desc)
-    self.class.provider_set('--description', desc, @resource[:name])
-    (description == desc) ? (return true) : (return false)
-  end
-
-  def domain=(dom)
-    self.class.provider_set('--domain', dom, @resource[:name])
-    (domain == dom) ? (return true) : (return false)
+    @property_flush[:description] = desc
   end
 
   def enabled=(stat)
-    if stat
-      self.class.provider_set('--enable', @resource[:name])
-    else
-      self.class.provider_set('--disable', @resource[:name])
+    @property_flush[:enabled] = stat
+  end
+
+  def flush
+    unless @property_flush.empty?
+      args = []
+      name    = @resource[:name]
+      desc    = @resource.value(:description)
+
+      if @property_flush[:enabled] == :true
+        args << '--enable'
+      else
+        args << '--disable'
+      end
+      # There is a --description flag for the set command, but it does not work if the value is empty
+      args += ['--description', desc] if @property_flush[:description]
+      # project handled in tenant= separately
+      unless args.empty?
+        args << name
+        self.class.provider_set(*args)
+      end
+      @property_flush.clear
     end
-    (enabled == stat) ? (return true) : (return false)
   end
 end
