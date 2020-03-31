@@ -1,0 +1,167 @@
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
+
+Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider::Openstack) do
+  desc 'manage users for OpenStack.'
+
+  commands openstack: 'openstack'
+
+  def initialize(value = {})
+    super(value)
+    @property_flush = {}
+  end
+
+  # Generates method for all properties of the property_hash
+  mk_resource_methods
+
+  def self.provider_subcommand
+    'user'
+  end
+
+  def self.provider_list
+    get_list(provider_subcommand)
+  end
+
+  def self.provider_create(*args)
+    openstack_caller(provider_subcommand, 'create', *args)
+  end
+
+  def self.provider_delete(*args)
+    openstack_caller(provider_subcommand, 'delete', *args)
+  end
+
+  def self.provider_set(*args)
+    openstack_caller(provider_subcommand, 'set', *args)
+  end
+
+  def self.instances
+    openstack_command
+
+    provider_list.map do |entity_name, entity|
+      new(name: entity_name,
+          ensure: :present,
+          id: entity['id'],
+          domain: entity['domain'],
+          description: entity['description'],
+          enabled: entity['enabled'],
+          email: entity['email'],
+          project: entity['project'],
+          provider: name)
+    end
+  end
+
+  def self.prefetch(resources)
+    entities = instances
+    # rubocop:disable Lint/AssignmentInCondition
+    resources.keys.each do |entity_name|
+      if provider = entities.find { |entity| entity.name == entity_name }
+        resources[name].provider = provider
+      end
+    end
+    # rubocop:enable Lint/AssignmentInCondition
+  end
+
+  def create
+    name    = @resource[:name]
+    domain  = @resource.value(:domain)
+    desc    = @resource.value(:description)
+    enabled = @resource.value(:enabled)
+    email   = @resource.value(:email)
+    project = @resource.value(:project)
+    pwd     = @resource.value(:password)
+
+    @property_hash[:domain] = domain
+    @property_hash[:description] = desc
+    @property_hash[:enabled] = enabled
+    @property_hash[:email] = email
+    @property_hash[:project] = project
+    @property_hash[:password] = pwd
+
+    args = []
+    args += ['--domain', domain] if domain
+    args += ['--description', desc] if desc
+    args += ['--email', email] if email
+    args += ['--project', project] if project
+    args += ['--password', pwd] if pwd
+    if [true, :true].include?(enabled)
+      args << '--enable'
+    else
+      args << '--disable'
+    end
+    args << name
+
+    self.class.provider_create(*args)
+
+    @property_hash[:ensure] = :present
+  end
+
+  def destroy
+    name = @resource[:name]
+
+    self.class.provider_delete(name)
+
+    @property_hash.clear
+  end
+
+  def exists?
+    @property_hash[:ensure] == :present || false
+  end
+
+  def description=(desc)
+    @property_flush[:description] = desc
+  end
+
+  def enabled=(stat)
+    @property_flush[:enabled] = stat
+  end
+
+  def project=(proj)
+    @property_flush[:project] = proj
+  end
+
+  def password
+    name    = @resource[:name]
+    project = @resource.value(:project)
+    pwd     = @resource.value(:password)
+
+    args = ['--os-username', name]
+    args += ['--os-project-name', project]
+    args += ['--os-password', pwd]
+    args += ['-f', 'json']
+
+    token = self.class.openstack_caller('token', 'issue', *args)
+    return nil unless token
+    pwd
+  end
+
+  def password=(pwd)
+    @property_flush[:password] = pwd
+  end
+
+  def flush
+    unless @property_flush.empty?
+      args = []
+      name    = @resource[:name]
+      desc    = @resource.value(:description)
+      email   = @resource.value(:email)
+      pwd     = @resource.value(:password)
+      project = @resource.value(:project)
+
+      if @property_flush[:enabled] == :true
+        args << '--enable'
+      else
+        args << '--disable'
+      end
+      # There is a --description flag for the set command, but it does not work if the value is empty
+      args += ['--password', pwd] if @property_flush[:password]
+      args += ['--email', email] if @property_flush[:email]
+      args += ['--description', desc] if @property_flush[:description]
+      args += ['--project', project] if @property_flush[:project]
+      # project handled in tenant= separately
+      unless args.empty?
+        args << name
+        self.class.provider_set(*args)
+      end
+      @property_flush.clear
+    end
+  end
+end
