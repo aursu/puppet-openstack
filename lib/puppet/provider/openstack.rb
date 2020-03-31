@@ -105,4 +105,10 @@ class Puppet::Provider::Openstack < Puppet::Provider
     end
     ret
   end
+
+  # Look up the current status.
+  def properties
+    @property_hash[:ensure] = :absent if @property_hash.empty?
+    @property_hash.dup
+  end
 end

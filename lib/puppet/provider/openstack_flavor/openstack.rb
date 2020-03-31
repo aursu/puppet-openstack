@@ -27,16 +27,17 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   def self.instances
     openstack_command
 
-    provider_list.each do |flavor|
-      swap = flavor['swap'] == '' ? 0 : flavor['swap'].to_i
+    provider_list.map do |flavor_name, flavor|
+      swap = (flavor['swap'] == '') ? 0 : flavor['swap'].to_i
 
-      new(name: flavor['name'],
+      new(name: flavor_name,
           ensure: :present,
           ram: flavor['ram'],
           disk: flavor['disk'],
           ephemeral: flavor['ephemeral'],
           swap: swap,
-          vcpus: flavor['vcpus'])
+          vcpus: flavor['vcpus'],
+          provider: name)
     end
   end
 

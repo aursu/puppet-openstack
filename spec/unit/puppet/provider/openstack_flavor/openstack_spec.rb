@@ -1,6 +1,24 @@
 require 'spec_helper'
 
 describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
+  let(:flavors) do
+    <<-OS_OUTPUT
+    [
+      {
+        "Name": "m1.xlarge8",
+        "RAM": 16384,
+        "Ephemeral": 0,
+        "Properties": "",
+        "VCPUs": 8,
+        "Swap": "",
+        "Is Public": true,
+        "Disk": 10,
+        "RXTX Factor": 1.0,
+        "ID": "7b119fd7-6307-430c-a501-a1b8dc31e308"
+      }
+    ]
+    OS_OUTPUT
+  end
   let(:resource_name) { 'm1.xlarge8' }
   let(:resource) do
     Puppet::Type.type(:openstack_flavor).new(
@@ -45,6 +63,25 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
 
       described_class.instances
     end
+
+    it 'returns an array of defined flavors' do
+      allow(Puppet::Util::Execution).to receive(:execute)
+        .with('/usr/bin/openstack flavor list -f json --long', execute_options)
+        .and_return(flavors)
+
+      defined_flavors = described_class.instances
+
+      expect(defined_flavors[0].properties).to eq(
+        provider: :openstack,
+        name: 'm1.xlarge8',
+        ram: 16384,
+        disk: 10,
+        vcpus: 8,
+        ephemeral: 0,
+        swap: 0,
+        ensure: :present,
+      )
+    end
   end
 
   describe 'new flavor' do
@@ -54,20 +91,4 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
       provider.create
     end
   end
-
-  # /usr/bin/openstack flavor list -f json --long
-  # [
-  #   {
-  #     "Name": "m1.xlarge8",
-  #     "RAM": 16384,
-  #     "Ephemeral": 0,
-  #     "Properties": "",
-  #     "VCPUs": 8,
-  #     "Swap": "",
-  #     "Is Public": true,
-  #     "Disk": 10,
-  #     "RXTX Factor": 1.0,
-  #     "ID": "7b119fd7-6307-430c-a501-a1b8dc31e308"
-  #   }
-  # ]
 end
