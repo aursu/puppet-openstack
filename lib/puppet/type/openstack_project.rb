@@ -9,11 +9,11 @@ Puppet::Type.newtype(:openstack_project) do
   ensurable
 
   newparam(:name, namevar: true) do
-    desc "Project name"
+    desc 'Project name'
   end
 
   newparam(:id) do
-    desc "Project ID (read only)"
+    desc 'Project ID (read only)'
   end
 
   newproperty(:domain) do
