@@ -41,7 +41,6 @@ Puppet::Type.newtype(:openstack_user) do
 
   newproperty(:password) do
     desc 'The password of the user.'
-    newvalue(%r{\w*})
 
     def change_to_s(currentvalue, _newvalue)
       (currentvalue == :absent) ? 'created password' : 'changed password'
@@ -61,6 +60,12 @@ Puppet::Type.newtype(:openstack_user) do
   def lookupcatalog(key)
     return nil unless catalog
     # path, subject_hash and title are all key values
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_project)) && [r[:id], r.title].include?(key) }
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_user)) && [r[:id], r.title].include?(key) }
+  end
+
+  autorequire(:openstack_project) do
+    rv = []
+    rv << self[:project] if self[:project]
+    rv
   end
 end
