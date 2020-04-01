@@ -54,7 +54,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     # rubocop:disable Lint/AssignmentInCondition
     resources.keys.each do |entity_name|
       if provider = entities.find { |entity| entity.name == entity_name }
-        resources[name].provider = provider
+        resources[entity_name].provider = provider
       end
     end
     # rubocop:enable Lint/AssignmentInCondition
