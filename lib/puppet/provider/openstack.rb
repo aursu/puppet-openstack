@@ -101,7 +101,13 @@ class Puppet::Provider::Openstack < Puppet::Provider
         d = k.downcase.tr(' ', '_')
         p[d] = v
       end
-      ret[p[key]] = p.reject { |k, _v| k == key }
+      if key.is_a?(Array)
+        idx = key.map { |i| p[i] }.join(':')
+        ret[idx] = p
+      else
+        idx = p[key]
+        ret[idx] = p.reject { |k, _v| k == key }
+      end
     end
     ret
   end

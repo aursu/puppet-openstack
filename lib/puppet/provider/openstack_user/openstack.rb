@@ -36,7 +36,13 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def self.instances
     openstack_command
 
+    role_assignment = get_list('role assignment', key: ['user', 'project'], long: false)
+
     provider_list.map do |entity_name, entity|
+      user_id = entity['id']
+      user_role = role_assignment.select { |_i, assignment| assignment['user'] == user_id }
+                                       .map { |_i, assignment| assignment['project'] }
+
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
@@ -45,6 +51,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
           enabled: entity['enabled'],
           email: entity['email'],
           project: entity['project'],
+          assignments: user_role,
           provider: name)
     end
   end
@@ -119,12 +126,15 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def password
-    name    = @resource[:name]
-    project = @resource.value(:project)
-    pwd     = @resource.value(:password)
+    name      = @resource[:name]
+    project   = @resource.value(:project)
+    pwd       = @resource.value(:password)
+    user_role = @resource.value(:assignments)
+
+    os_project_name = user_role.empty? ? project : user_role[0]
 
     args = ['--os-username', name]
-    args += ['--os-project-name', project]
+    args += ['--os-project-name', os_project_name]
     args += ['--os-password', pwd]
     args += ['-f', 'json']
 

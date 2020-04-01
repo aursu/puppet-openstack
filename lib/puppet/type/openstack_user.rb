@@ -32,11 +32,16 @@ Puppet::Type.newtype(:openstack_user) do
 
   newproperty(:email) do
     desc 'Set user email address'
-    defaultto 'default'
+    defaultto ''
   end
 
   newproperty(:project) do
     desc 'Default project (name or ID)'
+    defaultto ''
+  end
+
+  newparam(:assignments) do
+    desc 'Project assignments (read only)'
   end
 
   newproperty(:password) do
