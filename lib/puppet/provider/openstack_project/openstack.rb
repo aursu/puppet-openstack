@@ -71,11 +71,11 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
     args = []
     args += ['--domain', domain] if domain
     args += ['--description', desc] if desc
-    if [true, :true].include?(enabled)
-      args << '--enable'
-    else
-      args << '--disable'
-    end
+    args << if [true, :true].include?(enabled)
+              '--enable'
+            else
+              '--disable'
+            end
     args << name
 
     self.class.provider_create(*args)
@@ -104,24 +104,23 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
   end
 
   def flush
-    unless @property_flush.empty?
-      args = []
-      name    = @resource[:name]
-      desc    = @resource.value(:description)
+    return if @property_flush.empty?
+    args = []
+    name    = @resource[:name]
+    desc    = @resource.value(:description)
 
-      if @property_flush[:enabled] == :true
-        args << '--enable'
-      else
-        args << '--disable'
-      end
-      # There is a --description flag for the set command, but it does not work if the value is empty
-      args += ['--description', desc] if @property_flush[:description]
-      # project handled in tenant= separately
-      unless args.empty?
-        args << name
-        self.class.provider_set(*args)
-      end
-      @property_flush.clear
-    end
+    args << if @property_flush[:enabled] == :true
+              '--enable'
+            else
+              '--disable'
+            end
+    args += ['--description', desc] if @property_flush[:description]
+
+    @property_flush.clear
+
+    return if args.empty?
+
+    args << name
+    self.class.provider_set(*args)
   end
 end

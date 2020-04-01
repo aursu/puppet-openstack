@@ -82,11 +82,11 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     args += ['--email', email] if email
     args += ['--project', project] if project
     args += ['--password', pwd] if pwd
-    if [true, :true].include?(enabled)
-      args << '--enable'
-    else
-      args << '--disable'
-    end
+    args << if [true, :true].include?(enabled)
+              '--enable'
+            else
+              '--disable'
+            end
     args << name
 
     self.class.provider_create(*args)
@@ -138,30 +138,28 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def flush
-    unless @property_flush.empty?
-      args = []
-      name    = @resource[:name]
-      desc    = @resource.value(:description)
-      email   = @resource.value(:email)
-      pwd     = @resource.value(:password)
-      project = @resource.value(:project)
+    return if @property_flush.empty?
+    args = []
+    name    = @resource[:name]
+    desc    = @resource.value(:description)
+    email   = @resource.value(:email)
+    pwd     = @resource.value(:password)
+    project = @resource.value(:project)
 
-      if @property_flush[:enabled] == :true
-        args << '--enable'
-      else
-        args << '--disable'
-      end
-      # There is a --description flag for the set command, but it does not work if the value is empty
-      args += ['--password', pwd] if @property_flush[:password]
-      args += ['--email', email] if @property_flush[:email]
-      args += ['--description', desc] if @property_flush[:description]
-      args += ['--project', project] if @property_flush[:project]
-      # project handled in tenant= separately
-      unless args.empty?
-        args << name
-        self.class.provider_set(*args)
-      end
-      @property_flush.clear
-    end
+    args << if @property_flush[:enabled] == :true
+              '--enable'
+            else
+              '--disable'
+            end
+    args += ['--password', pwd] if @property_flush[:password]
+    args += ['--email', email] if @property_flush[:email]
+    args += ['--description', desc] if @property_flush[:description]
+    args += ['--project', project] if @property_flush[:project]
+
+    @property_flush.clear
+
+    return if args.empty?
+    args << name
+    self.class.provider_set(*args)
   end
 end
