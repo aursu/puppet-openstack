@@ -12,7 +12,7 @@ define openstack::nova::host (
 {
   exec { "nova-discover_hosts-${host_id}":
     command => 'nova-manage cell_v2 discover_hosts',
-    unless  => "nova-manage host list | grep ${host_id}",
+    unless  => "nova-manage cell_v2 list_hosts | grep ${host_id}",
     path    => '/bin:/sbin:/usr/bin:/usr/sbin',
     cwd     => '/var/lib/nova',
     user    => 'nova',
