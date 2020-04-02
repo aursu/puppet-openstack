@@ -29,7 +29,7 @@ describe 'openstack::nova::host' do
       it {
         is_expected.to contain_exec('nova-discover_hosts-compute01')
           .with_command('nova-manage cell_v2 discover_hosts')
-          .with_unless('nova-manage host list | grep compute01')
+          .with_unless('nova-manage cell_v2 list_hosts | grep compute01')
       }
     end
   end
