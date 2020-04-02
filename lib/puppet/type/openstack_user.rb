@@ -25,8 +25,10 @@ Puppet::Type.newtype(:openstack_user) do
     desc 'Project description'
   end
 
-  newparam(:enabled, boolean: true, parent: Puppet::Parameter::Boolean) do
+  newproperty(:enabled) do
     desc 'Enable project (default)'
+
+    newvalues(:true, :false)
     defaultto :true
   end
 
@@ -38,6 +40,13 @@ Puppet::Type.newtype(:openstack_user) do
   newproperty(:project) do
     desc 'Default project (name or ID)'
     defaultto ''
+
+    def insync?(is)
+      p = project_instance(@should)
+      return false if p.nil?
+
+      super(is)
+    end
   end
 
   newparam(:assignments) do
@@ -62,15 +71,17 @@ Puppet::Type.newtype(:openstack_user) do
     end
   end
 
-  def lookupcatalog(key)
-    return nil unless catalog
-    # path, subject_hash and title are all key values
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_user)) && [r[:id], r.title].include?(key) }
-  end
-
   autorequire(:openstack_project) do
     rv = []
     rv << self[:project] if self[:project]
     rv
+  end
+
+  def project_instance(lookup_id)
+    instances = Puppet::Type.type(:openstack_project).instances
+                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
+    return nil if instances.empty?
+    # no support for multiple OpenStack domains
+    instances[0]
   end
 end

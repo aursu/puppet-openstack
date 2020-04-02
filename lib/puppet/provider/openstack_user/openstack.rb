@@ -36,19 +36,19 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def self.instances
     openstack_command
 
-    role_assignment = get_list('role assignment', key: ['user', 'project'], long: false)
+    role_assignment = get_list_array('role assignment', long: false)
 
     provider_list.map do |entity_name, entity|
       user_id = entity['id']
-      user_role = role_assignment.select { |_i, assignment| assignment['user'] == user_id }
-                                       .map { |_i, assignment| assignment['project'] }
+      user_role = role_assignment.select { |assignment| assignment['user'] == user_id }
+                                 .map { |assignment| assignment['project'] }
 
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           domain: entity['domain'],
           description: entity['description'],
-          enabled: entity['enabled'],
+          enabled: entity['enabled'].to_s.to_sym,
           email: entity['email'],
           project: entity['project'],
           assignments: user_role,
@@ -89,7 +89,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     args += ['--email', email] if email
     args += ['--project', project] if project
     args += ['--password', pwd] if pwd
-    args << if [true, :true].include?(enabled)
+    args << if enabled == :true
               '--enable'
             else
               '--disable'
@@ -124,17 +124,17 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def project=(proj)
     @property_flush[:project] = proj
   end
-
   def password
     name      = @resource[:name]
-    project   = @resource.value(:project)
     pwd       = @resource.value(:password)
-    user_role = @resource.value(:assignments)
+    user_role = @property_hash[:assignments]
 
-    os_project_name = user_role.empty? ? project : user_role[0]
+    # get token for first  assigned domain
+    os_project_id = user_role.empty? ? '' : user_role[0]
 
     args = ['--os-username', name]
-    args += ['--os-project-name', os_project_name]
+    args += ['--os-project-name', '']
+    args += ['--os-project-id', os_project_id]
     args += ['--os-password', pwd]
     args += ['-f', 'json']
 
@@ -156,11 +156,9 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     pwd     = @resource.value(:password)
     project = @resource.value(:project)
 
-    args << if @property_flush[:enabled] == :true
-              '--enable'
-            else
-              '--disable'
-            end
+    args << '--enable' if @property_flush[:enabled] == :true
+    args << '--disable' if @property_flush[:enabled] == :false
+
     args += ['--password', pwd] if @property_flush[:password]
     args += ['--email', email] if @property_flush[:email]
     args += ['--description', desc] if @property_flush[:description]
