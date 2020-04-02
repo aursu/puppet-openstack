@@ -1,3 +1,6 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/type'
+
 Puppet::Type.newtype(:openstack_project) do
   @doc = <<-PUPPET
     @summary
@@ -35,4 +38,7 @@ Puppet::Type.newtype(:openstack_project) do
     # path, subject_hash and title are all key values
     catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_project)) && [r[:id], r.title].include?(key) }
   end
+
+  # add instances() method
+  extend PuppetX::Openstack::Type
 end
