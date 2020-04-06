@@ -1,3 +1,6 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/customtype'
+
 Puppet::Type.newtype(:openstack_network) do
   @doc = <<-PUPPET
     @summary
@@ -11,6 +14,9 @@ Puppet::Type.newtype(:openstack_network) do
 
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/network.html
     PUPPET
+
+  # add instances() method
+  include CustomType
 
   ensurable
 
