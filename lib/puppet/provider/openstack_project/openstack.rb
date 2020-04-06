@@ -42,7 +42,7 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
           id: entity['id'],
           domain: entity['domain_id'],
           description: entity['description'],
-          enabled: entity['enabled'],
+          enabled: entity['enabled'].to_s.to_sym,
           provider: name)
     end
   end
