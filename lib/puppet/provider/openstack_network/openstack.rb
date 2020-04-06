@@ -75,7 +75,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     provider_physical_network = @resource.value(:provider_physical_network)
     provider_network_type     = @resource.value(:provider_network_type)
 
-    @property_hash[:project] = project if project
+    @property_hash[:project] = project if project && !project.empty?
     @property_hash[:shared] = shared
     @property_hash[:external] = external
     @property_hash[:description] = desc if desc
