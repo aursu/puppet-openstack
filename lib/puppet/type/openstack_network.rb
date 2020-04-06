@@ -28,7 +28,6 @@ Puppet::Type.newtype(:openstack_network) do
 
   newproperty(:project) do
     desc 'Default project (name or ID)'
-    defaultto ''
 
     def insync?(_is)
       p = resource.project_instance(@should)
