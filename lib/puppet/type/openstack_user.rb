@@ -41,9 +41,10 @@ Puppet::Type.newtype(:openstack_user) do
     desc 'Default project (name or ID)'
     defaultto ''
 
-    def insync?(is)
+    def insync?(_is)
       p = resource.project_instance(@should)
       return false if p.nil?
+
       true
     end
   end

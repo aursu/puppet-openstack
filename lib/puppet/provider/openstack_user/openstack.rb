@@ -124,6 +124,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def project=(proj)
     @property_flush[:project] = proj
   end
+
   def password
     name      = @resource[:name]
     pwd       = @resource.value(:password)

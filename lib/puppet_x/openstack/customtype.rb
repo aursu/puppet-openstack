@@ -1,3 +1,4 @@
+#
 module CustomType
   class << self
     def included(base)
@@ -5,6 +6,7 @@ module CustomType
     end
   end
 
+  # class methods for base class
   module ClassMethods
     def instances
       return @instances if @instances
@@ -27,7 +29,8 @@ module CustomType
 
           [properties + parameters].flatten.each do |prop_klass|
             prop_name = prop_klass
-            next if prop_name == :name || prop_name == :provider
+
+            next if [:name, :provider].include?(prop_name)
 
             if prop_klass.is_a?(Class)
               prop_name = prop_klass.name
