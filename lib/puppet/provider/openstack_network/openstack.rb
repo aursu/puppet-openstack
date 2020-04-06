@@ -162,7 +162,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     args << '--enable' if @property_flush[:enabled] == :true
     args << '--disable' if @property_flush[:enabled] == :false
 
-    args += ['--provider-network-type', provider_network_type] if provider_network_type
+    args += ['--provider-network-type', provider_network_type] if @property_flush[:provider_network_type]
 
     @property_flush.clear
 
