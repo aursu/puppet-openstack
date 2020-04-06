@@ -37,14 +37,13 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     openstack_command
 
     provider_list.map do |entity_name, entity|
-      router_type = entity['router_type'].casecmp('external')
       enabled = entity['state'].casecmp('up')
 
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           subnets: entity['subnets'],
-          external: router_type.to_s.to_sym,
+          external: entity['router_type'].to_s.to_sym,
           shared: entity['shared'].to_s.to_sym,
           description: entity['description'],
           enabled: enabled.to_s.to_sym,
