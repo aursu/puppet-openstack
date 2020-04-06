@@ -97,7 +97,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     args << '--enable' if enabled == :true
     args << '--disable' if enabled == :false
 
-    args += ['--provider-physical-network', provider_physical_network] if provider_physical_networ
+    args += ['--provider-physical-network', provider_physical_network] if provider_physical_network
     args += ['--provider-network-type', provider_network_type] if provider_network_type
 
     args << name
