@@ -37,8 +37,8 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     openstack_command
 
     provider_list.map do |entity_name, entity|
-      router_type = (entity['router_type'].downcase == 'external')
-      enabled = (entity['state'].downcase == 'up')
+      router_type = entity['router_type'].casecmp('external')
+      enabled = entity['state'].casecmp('up')
 
       new(name: entity_name,
           ensure: :present,
@@ -149,7 +149,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     name     = @resource[:name]
     project  = @resource.value(:project)
     desc     = @resource.value(:description)
-    provider_network_type     = @resource.value(:provider_network_type)
+    provider_network_type = @resource.value(:provider_network_type)
 
     args += ['--project', project] if @property_flush[:project]
 
