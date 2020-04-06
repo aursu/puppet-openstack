@@ -1,5 +1,5 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
-require 'puppet_x/openstack/type'
+require 'puppet_x/openstack/customtype'
 
 Puppet::Type.newtype(:openstack_project) do
   @doc = <<-PUPPET
@@ -8,6 +8,9 @@ Puppet::Type.newtype(:openstack_project) do
       virtual machines. In Object Storage, a project owns containers. Users can
       be associated with more than one project.
     PUPPET
+
+  # add instances() method
+  include CustomType
 
   ensurable
 
@@ -28,17 +31,10 @@ Puppet::Type.newtype(:openstack_project) do
     desc 'Project description'
   end
 
-  newparam(:enabled, boolean: true, parent: Puppet::Parameter::Boolean) do
+  newproperty(:enabled) do
     desc 'Enable project (default)'
+
+    newvalues(:true, :false)
     defaultto :true
   end
-
-  def lookupcatalog(key)
-    return nil unless catalog
-    # path, subject_hash and title are all key values
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_project)) && [r[:id], r.title].include?(key) }
-  end
-
-  # add instances() method
-  extend PuppetX::Openstack::Type
 end

@@ -42,10 +42,9 @@ Puppet::Type.newtype(:openstack_user) do
     defaultto ''
 
     def insync?(is)
-      p = project_instance(@should)
+      p = resource.project_instance(@should)
       return false if p.nil?
-
-      super(is)
+      true
     end
   end
 
@@ -78,10 +77,12 @@ Puppet::Type.newtype(:openstack_user) do
   end
 
   def project_instance(lookup_id)
+    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
+
     instances = Puppet::Type.type(:openstack_project).instances
                             .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
     return nil if instances.empty?
     # no support for multiple OpenStack domains
-    instances[0]
+    instances.first
   end
 end
