@@ -113,7 +113,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     args += ['--project', project]           if project
     args += ['--subnet-range', subnet_range] if subnet_range
     if @property_hash[:allocation_pool] == :true
-      args << "--allocation-pool start=#{allocation_pool_start},end=#{allocation_pool_end}"
+      args += ['--allocation-pool', "start=#{allocation_pool_start},end=#{allocation_pool_end}"]
     end
     args << '--dhcp'    if dhcp == :true
     args << '--no-dhcp' if dhcp == :false
@@ -191,10 +191,10 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
 
     if allocation_pool_start && allocation_pool_end
       if @property_flush[:allocation_pool] == :true
-        args << "--allocation-pool start=#{allocation_pool_start},end=#{allocation_pool_end}"
+        args += ['--allocation-pool', "start=#{allocation_pool_start},end=#{allocation_pool_end}"]
       end
       if @property_flush[:allocation_pool_start] || @property_flush[:allocation_pool_end]
-        args << "--allocation-pool start=#{allocation_pool_start},end=#{allocation_pool_end}" if allocation_pool
+        args += ['--allocation-pool', "start=#{allocation_pool_start},end=#{allocation_pool_end}"] if allocation_pool
       end
     end
 
