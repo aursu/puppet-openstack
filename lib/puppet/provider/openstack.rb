@@ -78,7 +78,7 @@ class Puppet::Provider::Openstack < Puppet::Provider
     end
   end
 
-  def self.get_list_array(entity, *extraargs, long: true)
+  def self.get_list_array(entity, long = true)
     openstack_command unless @cmd
 
     args = ['list', '-f', 'json'] + (long ? ['--long'] : [])
@@ -87,8 +87,6 @@ class Puppet::Provider::Openstack < Puppet::Provider
       args = ['-f', 'json'] + (long ? ['--long'] : [])
       subcommand = "#{entity}-list"
     end
-
-    args += extraargs
 
     cmdout = openstack_caller(subcommand, *args)
     return [] if cmdout.nil?
@@ -99,9 +97,9 @@ class Puppet::Provider::Openstack < Puppet::Provider
     end
   end
 
-  def self.get_list(entity, *extraargs, key: 'name', long: true)
+  def self.get_list(entity, key = 'name', long = true)
     ret = {}
-    jout = get_list_array(entity, *extraargs, long: long)
+    jout = get_list_array(entity, long)
     jout.each do |p|
       if key.is_a?(Array)
         idx = key.map { |i| p[i] }.join(':')

@@ -36,7 +36,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def self.instances
     openstack_command
 
-    role_assignment = get_list_array('role assignment', long: false)
+    role_assignment = get_list_array('role assignment', false)
 
     provider_list.map do |entity_name, entity|
       user_id = entity['id']
