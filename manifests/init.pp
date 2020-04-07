@@ -46,6 +46,16 @@ class openstack (
   Optional[String]    $neutron_pass,
   Optional[String]    $metadata_secret,
   String              $provider_physical_network,
+  Optional[Stdlib::IP::Address]
+                      $provider_network_cidr,
+  Optional[Stdlib::IP::Address]
+                      $provider_network_gateway,
+  Array[Stdlib::IP::Address]
+                      $provider_network_dns,
+  Optional[Stdlib::IP::Address]
+                      $provider_network_start_ip,
+  Optional[Stdlib::IP::Address]
+                      $provider_network_end_ip,
   Optional[String]    $provider_interface_name,
   # Dashboard
   Optional[Array[Stdlib::Host]]
@@ -64,5 +74,7 @@ class openstack (
                       $cinder_physical_volumes,
   Stdlib::Host        $controller_host,
   String              $compute_tag,
+
+
 ){
 }
