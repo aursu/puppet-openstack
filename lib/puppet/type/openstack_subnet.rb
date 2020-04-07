@@ -95,25 +95,15 @@ Puppet::Type.newtype(:openstack_subnet) do
   newproperty(:dns_nameserver, array_matching: :all) do
     desc 'DNS server for this subnet (repeat option to set multiple DNS servers)'
 
-    validate do |value|
-      unless value == :absent
-        value = [value] unless value.is_a?(Array)
-        value.each do |ip|
-          raise ArgumentError, _('DNS IP address must be a String not %{klass}') % { klass: ip.class } unless ip.is_a?(String)
-          raise ArgumentError, _('DNS IP address must be a valid IP address') unless resource.validate_ip(ip)
-        end
-      end
+    def insync?(is)
+      return @should == [:absent] if is.nil? || is == []
+      is.flatten.sort == should.flatten.sort
     end
 
-    munge do |value|
-      case value
-      when String
-        [value]
-      when Array
-        value
-      else
-        :absent
-      end
+    validate do |value|
+      next if value.to_s == 'absent'
+      raise ArgumentError, _('DNS IP address must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+      raise ArgumentError, _('DNS IP address must be a valid IP address') unless resource.validate_ip(value)
     end
   end
 

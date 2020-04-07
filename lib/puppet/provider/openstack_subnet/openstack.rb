@@ -62,8 +62,8 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
 
   def self.prefetch(resources)
     entities = instances
-    # rubocop:disable Lint/AssignmentInCondition
     resources.keys.each do |entity_name|
+      # rubocop:disable Lint/AssignmentInCondition
       if provider = entities.find { |entity| entity.name == entity_name }
         resources[entity_name].provider = provider
       end
@@ -79,7 +79,16 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     allocation_pool_start = @resource.value(:allocation_pool_start)
     allocation_pool_end   = @resource.value(:allocation_pool_end)
     dhcp                  = @resource.value(:dhcp)
+
     dns_nameserver        = @resource.value(:dns_nameserver)
+    if dns_nameserver
+      dns_nameserver = if dns_nameserver.to_s == 'absent'
+                         nil
+                       else
+                         [dns_nameserver].flatten
+                       end
+    end
+
     gateway               = @resource.value(:gateway)
     ip_version            = @resource.value(:ip_version)
     desc                  = @resource.value(:description)
@@ -95,7 +104,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
       @property_hash[:allocation_pool]       = :false
     end
     @property_hash[:dhcp]           = dhcp
-    @property_hash[:dns_nameserver] = dns_nameserver if dns_nameserver.is_a?(Array)
+    @property_hash[:dns_nameserver] = dns_nameserver if dns_nameserver
     @property_hash[:gateway]        = gateway        if gateway
     @property_hash[:ip_version]     = ip_version     if ip_version
     @property_hash[:description]    = desc           if desc
@@ -109,7 +118,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     end
     args << '--dhcp'    if dhcp == :true
     args << '--no-dhcp' if dhcp == :false
-    if @property_hash[:dns_nameserver]
+    if dns_nameserver
       dns_nameserver.each { |ns| args += ['--dns-nameserver', ns] }
     end
     args += ['--gateway', gateway]       if gateway
@@ -170,7 +179,10 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     allocation_pool       = @resource.value(:allocation_pool)
     allocation_pool_start = @resource.value(:allocation_pool_start)
     allocation_pool_end   = @resource.value(:allocation_pool_end)
+
     dns_nameserver        = @resource.value(:dns_nameserver)
+    dns_nameserver        = [dns_nameserver].flatten if dns_nameserver && dns_nameserver.to_s != 'absent'
+
     gateway               = @resource.value(:gateway)
     desc                  = @resource.value(:description)
 
@@ -190,7 +202,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     args << '--dhcp'    if @property_flush[:dhcp] == :true
     args << '--no-dhcp' if @property_flush[:dhcp] == :false
 
-    if @property_flush[:dns_nameserver].is_a?(Array)
+    if @property_flush[:dns_nameserver] && dns_nameserver.is_a?(Array)
       dns_nameserver.each { |ns| args += ['--dns-nameserver', ns] }
     end
 
