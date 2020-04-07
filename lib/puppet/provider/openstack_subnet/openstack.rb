@@ -37,24 +37,26 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     openstack_command
 
     provider_list.map do |entity_name, entity|
-      name_servers = entity['name_servers'].to_s.split(',').map { |n| n.strip }
 
-      pool_start, pool_end = entity['allocation_pools'].to_s.split('-').map { |n| n.strip }
-      allocation_pool = pool_start && pool_end
+      allocation_pools = entity['allocation_pools']
+      allocation_pools = {} unless allocation_pools.is_a?(Hash)
+
+      pool_start = allocation_pools['start']
+      pool_end   = allocation_pools['end']
 
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           network: entity['network'],
           subnet_range: entity['subnet'],
-          dns_nameserver: name_servers,
+          dns_nameserver: entity['name_servers'],
           gateway: entity['gateway'],
           project: entity['project'],
           ip_version: entity['ip_version'].to_s,
           dhcp: entity['dhcp'].to_s.to_sym,
-          allocation_pool: allocation_pool.to_s.to_sym,
+          allocation_pool: (pool_start && pool_end),
           allocation_pool_start: pool_start,
-          allocation_pool_end: pool_start,
+          allocation_pool_end: pool_end,
           description: entity['description'],
           provider: name)
     end
