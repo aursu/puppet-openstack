@@ -38,11 +38,15 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
 
     provider_list.map do |entity_name, entity|
 
-      allocation_pools = entity['allocation_pools']
-      allocation_pools = {} unless allocation_pools.is_a?(Hash)
+      pools = entity['allocation_pools']
 
-      pool_start = allocation_pools['start']
-      pool_end   = allocation_pools['end']
+      # support for only single allocation
+      pool = nil
+      pool = pools[0] if pools.is_a?(Array)
+      pool = {} if pool.nil?
+
+      pool_start = pool['start']
+      pool_end   = pool['end']
 
       new(name: entity_name,
           ensure: :present,
