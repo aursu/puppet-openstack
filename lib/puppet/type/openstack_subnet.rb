@@ -171,10 +171,8 @@ Puppet::Type.newtype(:openstack_subnet) do
   end
 
   def network_resource(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_i
-    instances = catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_network)) && [r[:name], r[:id]].include?(lookup_id) }
-    return nil if instances.empty?
-    instances.first
+    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_network)) && [r[:name], r[:id]].include?(lookup_id) }
   end
 
   def validate_ip(ip, name = 'IP address')
