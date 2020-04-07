@@ -80,14 +80,13 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     allocation_pool_end   = @resource.value(:allocation_pool_end)
     dhcp                  = @resource.value(:dhcp)
 
-    dns_nameserver        = @resource.value(:dns_nameserver)
-    if dns_nameserver
-      dns_nameserver = if dns_nameserver.to_s == 'absent'
-                         nil
-                       else
-                         [dns_nameserver].flatten
-                       end
-    end
+    dns_nameserver = @resource.value(:dns_nameserver)
+    dns_nameserver = case dns_nameserver
+                     when nil, :absent, 'absent'
+                       nil
+                     else
+                       [dns_nameserver].flatten
+                     end
 
     gateway               = @resource.value(:gateway)
     ip_version            = @resource.value(:ip_version)
@@ -118,9 +117,11 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     end
     args << '--dhcp'    if dhcp == :true
     args << '--no-dhcp' if dhcp == :false
+
     if dns_nameserver
       dns_nameserver.each { |ns| args += ['--dns-nameserver', ns] }
     end
+
     args += ['--gateway', gateway]       if gateway
     args += ['--ip-version', ip_version] if ip_version
     args += ['--description', desc]      if desc
