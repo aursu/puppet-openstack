@@ -68,10 +68,15 @@ class Puppet::Provider::Openstack < Puppet::Provider
     return nil unless auth_env
     openstack_command unless @cmd
 
+    auth = if @auth_args
+             Shellwords.join(@auth_args)
+           else
+             nil
+           end
     cmdline = Shellwords.join(args)
 
     Puppet::Util.withenv(@env) do
-      cmdout = Puppet::Util::Execution.execute("#{@cmd} #{subcommand} #{cmdline}", failonfail: false)
+      cmdout = Puppet::Util::Execution.execute("#{@cmd} #{auth} #{subcommand} #{cmdline}", failonfail: false)
       return nil if cmdout.nil?
       return nil if cmdout.empty?
       return cmdout
@@ -112,9 +117,37 @@ class Puppet::Provider::Openstack < Puppet::Provider
     ret
   end
 
+  def self.auth_args(*args)
+    @auth_args = nil
+    @auth_args = args unless args.empty?
+  end
+
   # Look up the current status.
   def properties
     @property_hash[:ensure] = :absent if @property_hash.empty?
     @property_hash.dup
+  end
+
+  def auth_args
+    auth_project_domain_name = @resource.value(:auth_project_domain_name)
+    auth_user_domain_name    = @resource.value(:auth_user_domain_name)
+    auth_project_name        = @resource.value(:auth_project_name)
+    auth_username            = @resource.value(:auth_username)
+    auth_password            = @resource.value(:auth_password)
+    auth_url                 = @resource.value(:auth_url)
+    identity_api_version     = @resource.value(:identity_api_version)
+    image_api_version        = @resource.value(:image_api_version)
+
+    args = []
+    args += ['--os-project-domain-name', auth_project_domain_name] if auth_project_domain_name
+    args += ['--os-user-domain-name', auth_user_domain_name] if auth_user_domain_name
+    args += ['--os-project-name', auth_project_name] if auth_project_name
+    args += ['--os-username', auth_username] if auth_username
+    args += ['--os-password', auth_password] if auth_password
+    args += ['--os-auth-url', auth_url] if auth_url
+    args += ['--os-identity-api-version', identity_api_version] if identity_api_version
+    args += ['--os-image-api-version', image_api_version] if image_api_version
+
+    self.class.auth_args(*args)
   end
 end
