@@ -41,6 +41,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
       pools = entity['allocation_pools']
 
       # support for only single allocation
+      # TODO: support for multiple allocations
       pool = nil
       pool = pools[0] if pools.is_a?(Array)
       pool = {} if pool.nil?
