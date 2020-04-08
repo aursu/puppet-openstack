@@ -124,9 +124,6 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     args = []
     name        = @resource[:name]
     desc        = @resource.value(:description)
-    enabled     = @resource.value(:enabled)
-    distributed = @resource.value(:distributed)
-    ha          = @resource.value(:ha)
 
     args += ['--description', desc] if @property_flush[:description]
     args << '--enable' if @property_flush[:enabled] == :true

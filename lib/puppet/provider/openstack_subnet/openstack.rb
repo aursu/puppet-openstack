@@ -37,7 +37,6 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     openstack_command
 
     provider_list.map do |entity_name, entity|
-
       pools = entity['allocation_pools']
 
       # support for only single allocation
