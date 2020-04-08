@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customtype'
+require 'puppet_x/openstack/customcomm'
 
 Puppet::Type.newtype(:openstack_project) do
   @doc = <<-PUPPET
@@ -9,6 +10,7 @@ Puppet::Type.newtype(:openstack_project) do
       be associated with more than one project.
     PUPPET
 
+  extend OpenstackCustomComm
   # add instances() method
   include CustomType
 
