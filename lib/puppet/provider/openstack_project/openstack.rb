@@ -78,6 +78,8 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
             end
     args << name
 
+    auth_args
+
     self.class.provider_create(*args)
 
     @property_hash[:ensure] = :present
@@ -121,6 +123,9 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
     return if args.empty?
 
     args << name
+
+    auth_args
+
     self.class.provider_set(*args)
   end
 end
