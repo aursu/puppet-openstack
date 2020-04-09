@@ -73,10 +73,13 @@ class Puppet::Provider::Openstack < Puppet::Provider
            else
              nil
            end
+
     cmdline = Shellwords.join(args)
 
+    cmd = [@cmd, auth, subcommand, cmdline].compact.join(' ')
+
     Puppet::Util.withenv(@env) do
-      cmdout = Puppet::Util::Execution.execute("#{@cmd} #{auth} #{subcommand} #{cmdline}", failonfail: false)
+      cmdout = Puppet::Util::Execution.execute(cmd, failonfail: false)
       return nil if cmdout.nil?
       return nil if cmdout.empty?
       return cmdout
