@@ -128,6 +128,13 @@ class Puppet::Provider::Openstack < Puppet::Provider
     @property_hash.dup
   end
 
+  def empty_or_absent(value)
+    return true if value.nil?
+    return true if value.is_a?(String) && value.empty?
+    return true if value == :absent
+    false
+  end
+
   def auth_args
     auth_project_domain_name = @resource.value(:auth_project_domain_name)
     auth_user_domain_name    = @resource.value(:auth_user_domain_name)
@@ -139,14 +146,14 @@ class Puppet::Provider::Openstack < Puppet::Provider
     image_api_version        = @resource.value(:image_api_version)
 
     args = []
-    args += ['--os-project-domain-name', auth_project_domain_name] if auth_project_domain_name
-    args += ['--os-user-domain-name', auth_user_domain_name] if auth_user_domain_name
-    args += ['--os-project-name', auth_project_name] if auth_project_name
-    args += ['--os-username', auth_username] if auth_username
-    args += ['--os-password', auth_password] if auth_password
-    args += ['--os-auth-url', auth_url] if auth_url
-    args += ['--os-identity-api-version', identity_api_version] if identity_api_version
-    args += ['--os-image-api-version', image_api_version] if image_api_version
+    args += ['--os-project-domain-name', auth_project_domain_name] unless empty_or_absent(auth_project_domain_name)
+    args += ['--os-user-domain-name', auth_user_domain_name] unless empty_or_absent(auth_user_domain_name)
+    args += ['--os-project-name', auth_project_name] unless empty_or_absent(auth_project_name)
+    args += ['--os-username', auth_username] unless empty_or_absent(auth_username)
+    args += ['--os-password', auth_password] unless empty_or_absent(auth_password)
+    args += ['--os-auth-url', auth_url] unless empty_or_absent(auth_url)
+    args += ['--os-identity-api-version', identity_api_version] unless empty_or_absent(identity_api_version)
+    args += ['--os-image-api-version', image_api_version] unless empty_or_absent(image_api_version)
 
     self.class.auth_args(*args)
   end

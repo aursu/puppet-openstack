@@ -31,8 +31,9 @@ module OpenstackCustomComm
       desc 'Identity API version, default=3 (Env: OS_IDENTITY_API_VERSION)'
 
       validate do |value|
+        next if value == :absent
         if value.to_s !~ %r{^\d+$}
-          raise Puppet::Error, 'Image API version must be a positive integer'
+          raise Puppet::Error, 'Identity API version must be a positive integer'
         end
       end
     end
@@ -41,6 +42,7 @@ module OpenstackCustomComm
       desc 'Image API version, default=2 (Env: OS_IMAGE_API_VERSION)'
 
       validate do |value|
+        next if value == :absent
         if value.to_s !~ %r{^\d+$}
           raise Puppet::Error, 'Image API version must be a positive integer'
         end
