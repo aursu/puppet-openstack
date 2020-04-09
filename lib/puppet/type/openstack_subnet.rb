@@ -2,6 +2,8 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customcomm'
 
 Puppet::Type.newtype(:openstack_subnet) do
+  extend CustomComm
+
   @doc = <<-PUPPET
     @summary
       A network is an isolated Layer 2 networking segment. There are two types
@@ -16,7 +18,6 @@ Puppet::Type.newtype(:openstack_subnet) do
     PUPPET
 
   require 'English'
-  extend OpenstackCustomComm
 
   ensurable
 

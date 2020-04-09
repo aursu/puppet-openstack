@@ -3,6 +3,9 @@ require 'puppet_x/openstack/customtype'
 require 'puppet_x/openstack/customcomm'
 
 Puppet::Type.newtype(:openstack_network) do
+  extend CustomComm
+  include CustomType
+
   @doc = <<-PUPPET
     @summary
       A network is an isolated Layer 2 networking segment. There are two types
@@ -15,10 +18,6 @@ Puppet::Type.newtype(:openstack_network) do
 
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/network.html
     PUPPET
-
-  extend OpenstackCustomComm
-  # add instances() method
-  include CustomType
 
   ensurable
 

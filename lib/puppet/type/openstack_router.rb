@@ -2,6 +2,8 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customcomm'
 
 Puppet::Type.newtype(:openstack_router) do
+  extend CustomComm
+
   @doc = <<-PUPPET
     @summary
       A router is a logical component that forwards data packets between
@@ -11,7 +13,6 @@ Puppet::Type.newtype(:openstack_router) do
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/router.html
     PUPPET
 
-  extend OpenstackCustomComm
 
   ensurable
 

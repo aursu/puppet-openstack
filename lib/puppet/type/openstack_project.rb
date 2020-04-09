@@ -3,16 +3,15 @@ require 'puppet_x/openstack/customtype'
 require 'puppet_x/openstack/customcomm'
 
 Puppet::Type.newtype(:openstack_project) do
+  extend CustomComm
+  include CustomType
+
   @doc = <<-PUPPET
     @summary
       A project is a group of zero or more users. In Compute, a project owns
       virtual machines. In Object Storage, a project owns containers. Users can
       be associated with more than one project.
     PUPPET
-
-  extend OpenstackCustomComm
-  # add instances() method
-  include CustomType
 
   ensurable
 
