@@ -12,9 +12,9 @@ class openstack::controller::users (
   }
 
   openstack::project { 'service':
-#    selfservice_network => false,
-    admin_pass  => $admin_pass,
-    description => 'Service Project',
+    selfservice_network => false,
+    admin_pass          => $admin_pass,
+    description         => 'Service Project',
   }
 
   openstack::role { 'user':

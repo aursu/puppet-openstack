@@ -5,13 +5,20 @@
 # @example
 #   openstack::project { 'namevar': }
 define openstack::project (
-  String  $admin_pass,
   Enum['present', 'absent']
-          $ensure         = 'present',
+          $ensure                      = 'present',
   # following instructions from https://docs.openstack.org/keystone/train/install/keystone-users-obs.html
-  String  $project_domain = 'default',
+  String  $project_domain              = 'default',
   Optional[String]
-          $description    = undef,
+          $description                 = undef,
+  Boolean $selfservice_network         = true,
+  Optional[Stdlib::IP::Address]
+          $selfservice_network_cidr    = undef,
+  Optional[Stdlib::IP::Address]
+          $selfservice_network_gateway = undef,
+  Optional[
+    Array[Stdlib::IP::Address]
+  ]       $selfservice_network_dns     = $openstack::provider_network_dns,
 )
 {
   $defined_description = $description ? {
@@ -19,12 +26,34 @@ define openstack::project (
     default => "OpenStack\\ ${name}\\ project",
   }
 
-  if $ensure == 'present' {
-    openstack::command { "openstack-project-${name}":
-      admin_pass     => $admin_pass,
-      command        => "openstack project create --domain ${project_domain} --description ${defined_description} ${name}",
-      unless         => "openstack project show ${name}",
-      project_domain => $project_domain,
+  openstack_project { $name:
+    ensure                   => $ensure,
+    domain                   => $project_domain,
+    description              => $defined_description,
+    # authentication
+    auth_project_domain_name => $project_domain,
+  }
+
+  if $selfservice_network {
+    # create network
+    openstack_network { "${name}-net":
+      project => $name,
+    }
+
+    # create subnet
+    openstack_subnet { "${name}-subnet":
+        network        => "${name}-net",
+        subnet_range   => $selfservice_network_cidr,
+        gateway        => $selfservice_network_gateway,
+        dns_nameserver => $selfservice_network_dns,
+        project        => $name,
+    }
+
+    # create router
+    openstack_router { "${name}-gw":
+      project => $name,
+      # external_gateway    => $external_gateway,
+      # subnets             => [ "${name}-subnet" ],
     }
   }
 }
