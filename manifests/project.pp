@@ -22,8 +22,8 @@ define openstack::project (
 )
 {
   $defined_description = $description ? {
-    String  => shell_escape($description),
-    default => "OpenStack\\ ${name}\\ project",
+    String  => $description,
+    default => "OpenStack ${name} project",
   }
 
   openstack_project { $name:
