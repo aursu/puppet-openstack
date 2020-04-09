@@ -9,11 +9,6 @@ describe 'openstack::project' do
     PRECOND
   end
   let(:title) { 'service' }
-  let(:params) do
-    {
-      admin_pass: 'secret',
-    }
-  end
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
