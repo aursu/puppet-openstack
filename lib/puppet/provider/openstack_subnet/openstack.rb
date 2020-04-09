@@ -134,6 +134,8 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
     args += ['--network', network]
     args << name
 
+    auth_args
+
     self.class.provider_create(*args)
 
     @property_hash[:ensure] = :present
@@ -222,6 +224,9 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
 
     return if args.empty?
     args << name
+
+    auth_args
+
     self.class.provider_set(*args)
   end
 end

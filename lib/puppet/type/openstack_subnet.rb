@@ -1,3 +1,6 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/customcomm'
+
 Puppet::Type.newtype(:openstack_subnet) do
   @doc = <<-PUPPET
     @summary
@@ -13,6 +16,7 @@ Puppet::Type.newtype(:openstack_subnet) do
     PUPPET
 
   require 'English'
+  extend OpenstackCustomComm
 
   ensurable
 

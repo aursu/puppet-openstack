@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customtype'
+require 'puppet_x/openstack/customcomm'
 
 Puppet::Type.newtype(:openstack_network) do
   @doc = <<-PUPPET
@@ -15,6 +16,7 @@ Puppet::Type.newtype(:openstack_network) do
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/network.html
     PUPPET
 
+  extend OpenstackCustomComm
   # add instances() method
   include CustomType
 
@@ -54,12 +56,14 @@ Puppet::Type.newtype(:openstack_network) do
     desc 'Share the network between projects'
 
     newvalues(:true, :false)
+    defaultto :false
   end
 
   newproperty(:external) do
     desc 'Set this network as an external network (external-net extension required)'
 
     newvalues(:true, :false)
+    defaultto :false
   end
 
   newproperty(:description) do
