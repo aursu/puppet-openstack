@@ -40,7 +40,7 @@ Puppet::Type.newtype(:openstack_user) do
     defaultto ''
   end
 
-  newproperty(:project, parent: Puppet_X::OpenStack::ProjectProperty) do
+  newproperty(:project, parent: PuppetX::OpenStack::ProjectProperty) do
     desc 'Default project (name or ID)'
   end
 
