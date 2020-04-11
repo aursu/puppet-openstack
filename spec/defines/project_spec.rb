@@ -21,7 +21,7 @@ describe 'openstack::project' do
           .with(
             'ensure' => :present,
             'domain' => 'default',
-            'description' => 'OpenStack\ service\ project',
+            'description' => 'OpenStack service project',
             # authentication
             'auth_project_domain_name' => 'default',
           )

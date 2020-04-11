@@ -37,9 +37,6 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
   end
 
   let(:openstack_version) { "openstack 4.0.0\n" }
-  let(:execute_options) do
-    { failonfail: false }
-  end
 
   before(:each) do
     allow(Puppet::Util).to receive(:which).with('openstack').and_return('/usr/bin/openstack')
@@ -59,14 +56,14 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
   describe 'self.instances' do
     it 'with flavor listing command' do
       expect(Puppet::Util::Execution).to receive(:execute)
-        .with('/usr/bin/openstack flavor list -f json --long', execute_options)
+        .with('/usr/bin/openstack flavor list -f json --long')
 
       described_class.instances
     end
 
     it 'returns an array of defined flavors' do
       allow(Puppet::Util::Execution).to receive(:execute)
-        .with('/usr/bin/openstack flavor list -f json --long', execute_options)
+        .with('/usr/bin/openstack flavor list -f json --long')
         .and_return(flavors)
 
       defined_flavors = described_class.instances
@@ -87,7 +84,7 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
   describe 'new flavor' do
     it do
       expect(Puppet::Util::Execution).to receive(:execute)
-        .with('/usr/bin/openstack flavor create --ram 16384 --disk 10 --swap 0 --vcpus 8 --ephemeral 0 m1.xlarge8', execute_options)
+        .with('/usr/bin/openstack flavor create --ram 16384 --disk 10 --swap 0 --vcpus 8 --ephemeral 0 m1.xlarge8')
       provider.create
     end
   end
