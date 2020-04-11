@@ -13,7 +13,6 @@ Puppet::Type.newtype(:openstack_router) do
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/router.html
     PUPPET
 
-
   ensurable
 
   newparam(:name, namevar: true) do
@@ -41,8 +40,8 @@ Puppet::Type.newtype(:openstack_router) do
 
     def insync?(_is)
       p = resource.project_instance(@should)
-      return false if p.nil?
 
+      return false if p.nil?
       true
     end
   end
@@ -56,6 +55,18 @@ Puppet::Type.newtype(:openstack_router) do
 
   newproperty(:description) do
     desc 'Router description'
+  end
+
+  newproperty(:external_gateway_info) do
+    desc "External Network used as router's gateway (name or ID)"
+
+    def insync?(_is)
+      net_inst = resource.network_instance(@should)
+      net_res = resource.network_resource(@should)
+
+      return false if net_inst.nil? && net_res.nil?
+      true
+    end
   end
 
   autorequire(:openstack_project) do
@@ -72,5 +83,20 @@ Puppet::Type.newtype(:openstack_router) do
     return nil if instances.empty?
     # no support for multiple OpenStack domains
     instances.first
+  end
+
+  def network_instance(lookup_id)
+    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
+
+    instances = Puppet::Type.type(:openstack_network).instances
+                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
+    return nil if instances.empty?
+    # no support for multiple OpenStack domains
+    instances.first
+  end
+
+  def network_resource(lookup_id)
+    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_network)) && [r[:name], r[:id]].include?(lookup_id) }
   end
 end

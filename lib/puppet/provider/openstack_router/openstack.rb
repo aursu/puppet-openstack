@@ -33,10 +33,24 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  # "External gateway info": {
+  #   "network_id": "107ce2d3-68c7-4c4a-bc04-e29c38ab5282",
+  #   "enable_snat": true,
+  #   "external_fixed_ips": [
+  #     {
+  #       "subnet_id": "ac6d8652-c52a-4f31-b610-26bddcecbec2",
+  #       "ip_address": "10.100.16.30"
+  #     }
+  #   ]
+  # },
+
   def self.instances
-    openstack_command
+    openstack_comman
 
     provider_list.map do |entity_name, entity|
+      external_gateway_info = entity['external_gateway_info']
+      external_gateway_info = external_gateway_info['network_id'] if external_gateway_info.is_a?(Hash)
+
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
@@ -45,6 +59,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
           project: entity['project'],
           distributed: entity['distributed'].to_s.to_sym,
           ha: entity['ha'].to_s.to_sym,
+          external_gateway_info: external_gateway_info,
           provider: name)
     end
   end
@@ -67,6 +82,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     ha          = @resource.value(:ha)
     desc        = @resource.value(:description)
     project     = @resource.value(:project)
+    external_gateway_info = @resource.value(:external_gateway_info)
 
     @property_hash[:enabled] = enabled
     @property_hash[:distributed] = distributed
@@ -87,9 +103,11 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     args << name
 
     auth_args
-    self.class.provider_create(*args)
-
+    return if self.class.provider_create(*args) == false
     @property_hash[:ensure] = :present
+
+    return if self.class.provider_set('--external-gateway', external_gateway_info, name) == false
+    @property_hash[:external_gateway_info] = external_gateway_info
   end
 
   def destroy
@@ -120,11 +138,16 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     @property_flush[:ha] = stat
   end
 
+  def external_gateway_info=(info)
+    @property_flush[:external_gateway_info] = info
+  end
+
   def flush
     return if @property_flush.empty?
     args = []
     name        = @resource[:name]
     desc        = @resource.value(:description)
+    external_gateway_info = @resource.value(:external_gateway_info)
 
     args += ['--description', desc] if @property_flush[:description]
     args << '--enable' if @property_flush[:enabled] == :true
@@ -136,6 +159,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
       args << '--ha' if @property_flush[:ha] == :true
       args << '--no-ha' if @property_flush[:ha] == :false
     end
+
+    args += ['--external-gateway', external_gateway_info] if @property_flush[:external_gateway_info]
 
     @property_flush.clear
 
