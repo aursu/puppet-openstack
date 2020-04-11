@@ -1,5 +1,3 @@
-require 'puppet/parameter/boolean'
-
 # Provides common properties and parameters for OpenStack CLI
 module CustomComm
   def self.extended(extender)
