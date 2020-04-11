@@ -1,3 +1,6 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/customprop'
+
 Puppet::Type.newtype(:openstack_user) do
   @doc = <<-PUPPET
     @summary
@@ -37,16 +40,8 @@ Puppet::Type.newtype(:openstack_user) do
     defaultto ''
   end
 
-  newproperty(:project) do
+  newproperty(:project, parent: Puppet_X::OpenStack::ProjectProperty) do
     desc 'Default project (name or ID)'
-    defaultto ''
-
-    def insync?(_is)
-      p = resource.project_instance(@should)
-      return false if p.nil?
-
-      true
-    end
   end
 
   newparam(:assignments) do
@@ -75,15 +70,5 @@ Puppet::Type.newtype(:openstack_user) do
     rv = []
     rv << self[:project] if self[:project]
     rv
-  end
-
-  def project_instance(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-
-    instances = Puppet::Type.type(:openstack_project).instances
-                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
-    return nil if instances.empty?
-    # no support for multiple OpenStack domains
-    instances.first
   end
 end

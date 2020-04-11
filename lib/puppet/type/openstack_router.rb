@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customcomm'
+require 'puppet_x/openstack/customprop'
 
 Puppet::Type.newtype(:openstack_router) do
   extend CustomComm

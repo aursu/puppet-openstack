@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customcomm'
+require 'puppet_x/openstack/customprop'
 
 Puppet::Type.newtype(:openstack_subnet) do
   extend CustomComm
@@ -43,24 +44,12 @@ Puppet::Type.newtype(:openstack_subnet) do
     defaultto :true
   end
 
-  newparam(:network) do
+  newparam(:network, parent: PuppetX::OpenStack::NetworkProperty) do
     desc 'Network this subnet belongs to (name or ID)'
-
-    validate do |value|
-      raise ArgumentError, _('Network must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-      raise ArgumentError, _('Network must be non-empty String') if value.empty?
-    end
   end
 
-  newproperty(:project) do
+  newproperty(:project, parent: PuppetX::OpenStack::ProjectProperty) do
     desc "Owner's project (name or ID)"
-
-    def insync?(_is)
-      p = resource.project_instance(@should)
-      return false if p.nil?
-
-      true
-    end
   end
 
   newproperty(:subnet_range) do
@@ -139,35 +128,8 @@ Puppet::Type.newtype(:openstack_subnet) do
     net_name = self[:network]
     raise 'Network must be provided' unless net_name
 
-    net_inst = network_instance(net_name)
-    net_res = network_resource(net_name)
-
-    raise 'Network must be defined in catalog or existing in environment' unless net_inst || net_res
-  end
-
-  def project_instance(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-
-    instances = Puppet::Type.type(:openstack_project).instances
-                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
-    return nil if instances.empty?
-    # no support for multiple OpenStack domains
-    instances.first
-  end
-
-  def network_instance(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-
-    instances = Puppet::Type.type(:openstack_network).instances
-                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
-    return nil if instances.empty?
-    # no support for multiple OpenStack domains
-    instances.first
-  end
-
-  def network_resource(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_network)) && [r[:name], r[:id]].include?(lookup_id) }
+    net = network_instance(net_name) || network_resource(net_name)
+    raise 'Network must be defined in catalog or existing in environment' unless net
   end
 
   def validate_ip(ip, name = 'IP address')
