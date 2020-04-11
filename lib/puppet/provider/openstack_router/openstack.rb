@@ -91,8 +91,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     ha          = @resource.value(:ha)
     desc        = @resource.value(:description)
     project     = @resource.value(:project)
-    external_gateway_info = @resource.value(:external_gateway_info)
     subnets     = @resource.value(:subnets)
+    external_gateway_info = @resource.value(:external_gateway_info)
 
     @property_hash[:enabled] = enabled
     @property_hash[:distributed] = distributed
@@ -121,7 +121,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     @property_hash[:external_gateway_info] = external_gateway_info
 
     subnets.each do |sub|
-      return if self.class.openstack_caller('router', 'add subnet', name, sub) == false
+      return if self.class.openstack_caller('router', 'add subnet', name, sub) == false # rubocop:disable Lint/NonLocalExitFromIterator:
     end
     @property_hash[:subnets] = subnets
   end
