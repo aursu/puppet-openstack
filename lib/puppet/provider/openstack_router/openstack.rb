@@ -45,11 +45,19 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
   # },
 
   def self.instances
-    openstack_comman
+    openstack_command
+
+    port_instances = Puppet::Type.type(:openstack_port).instances
 
     provider_list.map do |entity_name, entity|
+      router_id = entity['id']
+
       external_gateway_info = entity['external_gateway_info']
       external_gateway_info = external_gateway_info['network_id'] if external_gateway_info.is_a?(Hash)
+
+      router_subnets = port_instances.select { |port| port[:device_id] == router_id && port[:fixed_ips].is_a?(Hash) }
+                                     .map { |port| port[:fixed_ips]['subnet_id'] }
+      router_subnets = nil if router_subnets.empty?
 
       new(name: entity_name,
           ensure: :present,
@@ -60,6 +68,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
           distributed: entity['distributed'].to_s.to_sym,
           ha: entity['ha'].to_s.to_sym,
           external_gateway_info: external_gateway_info,
+          subnets: router_subnets,
           provider: name)
     end
   end
@@ -83,6 +92,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     desc        = @resource.value(:description)
     project     = @resource.value(:project)
     external_gateway_info = @resource.value(:external_gateway_info)
+    subnets     = @resource.value(:subnets)
 
     @property_hash[:enabled] = enabled
     @property_hash[:distributed] = distributed
@@ -103,11 +113,17 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     args << name
 
     auth_args
+
     return if self.class.provider_create(*args) == false
     @property_hash[:ensure] = :present
 
     return if self.class.provider_set('--external-gateway', external_gateway_info, name) == false
     @property_hash[:external_gateway_info] = external_gateway_info
+
+    subnets.each do |sub|
+      return if self.class.openstack_caller('router', 'add subnet', name, sub) == false
+    end
+    @property_hash[:subnets] = subnets
   end
 
   def destroy
@@ -140,6 +156,14 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
 
   def external_gateway_info=(info)
     @property_flush[:external_gateway_info] = info
+  end
+
+  def subnets=(subs)
+    name = @resource[:name]
+    (subs - @property_hash[:subnets]).each do |sub|
+      next if self.class.openstack_caller('router', 'add subnet', name, sub) == false
+      @property_hash[:subnets] += [sub]
+    end
   end
 
   def flush
