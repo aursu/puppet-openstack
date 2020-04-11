@@ -79,14 +79,17 @@ class Puppet::Provider::Openstack < Puppet::Provider
     cmd = [@cmd, auth, subcommand, cmdline].compact.join(' ')
 
     Puppet::Util.withenv(@env) do
-      cmdout = Puppet::Util::Execution.execute(cmd, failonfail: false)
+      cmdout = Puppet::Util::Execution.execute(cmd)
       return nil if cmdout.nil?
       return nil if cmdout.empty?
       return cmdout
     end
+  rescue Puppet::ExecutionFailure => detail
+    Puppet.debug "Execution of #{@cmd} command failed: #{detail}"
+    false
   end
 
-  def self.get_list_array(entity, long = true)
+  def self.get_list_array(entity, long = true, *moreargs)
     openstack_command unless @cmd
 
     args = ['list', '-f', 'json'] + (long ? ['--long'] : [])
@@ -95,6 +98,8 @@ class Puppet::Provider::Openstack < Puppet::Provider
       args = ['-f', 'json'] + (long ? ['--long'] : [])
       subcommand = "#{entity}-list"
     end
+
+    args += moreargs
 
     cmdout = openstack_caller(subcommand, *args)
     return [] if cmdout.nil?
@@ -105,9 +110,9 @@ class Puppet::Provider::Openstack < Puppet::Provider
     end
   end
 
-  def self.get_list(entity, key = 'name', long = true)
+  def self.get_list(entity, key = 'name', long = true, *args)
     ret = {}
-    jout = get_list_array(entity, long)
+    jout = get_list_array(entity, long, *args)
     jout.each do |p|
       if key.is_a?(Array)
         idx = key.map { |i| p[i] }.join(':')
