@@ -1,7 +1,10 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/customtype'
 require 'puppet_x/openstack/customprop'
 
 Puppet::Type.newtype(:openstack_user) do
+  include CustomType
+
   @doc = <<-PUPPET
     @summary
       A project is a group of zero or more users. In Compute, a project owns
