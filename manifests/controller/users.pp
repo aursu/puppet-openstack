@@ -4,9 +4,15 @@
 #
 # @example
 #   include openstack::controller::users
-class openstack::controller::users (
-  String  $admin_pass = $openstack::admin_pass,
-) {
+class openstack::controller::users {
+
+  # https://docs.openstack.org/keystone/latest/admin/service-api-protection.html
+  openstack_role {
+    'admin': ;
+    'member': ;
+    'reader': ;
+  }
+
   openstack::project { 'service':
     selfservice_network => false,
     description         => 'Service Project',
