@@ -63,8 +63,12 @@ Puppet::Type.newtype(:openstack_network) do
     desc 'Project description'
   end
 
-  newproperty(:provider_physical_network, parent: PuppetX::OpenStack::NetworkProperty) do
+  newproperty(:provider_physical_network) do
     desc 'Name of the physical network over which the virtual network is implemented'
+
+    def insync?(is)
+      true
+    end
   end
 
   newproperty(:provider_network_type) do
