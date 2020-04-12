@@ -14,7 +14,7 @@ module CustomType
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
 
     instances = Puppet::Type.type(:openstack_project).instances
-                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
+                                                     .select { |r| [r[:name], r[:id]].include?(lookup_id) }
     return nil if instances.empty?
     # no support for multiple OpenStack domains
     instances.first
@@ -29,7 +29,7 @@ module CustomType
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
 
     instances = Puppet::Type.type(:openstack_network).instances
-                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
+                                                     .select { |r| [r[:name], r[:id]].include?(lookup_id) }
 
     return nil if instances.empty?
     instances.first
@@ -44,7 +44,7 @@ module CustomType
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
 
     instances = Puppet::Type.type(:openstack_subnet).instances
-                            .select { |resource| resource[:name] == lookup_id || resource[:id] == lookup_id }
+                                                    .select { |r| [r[:name], r[:id]].include?(lookup_id) }
     return nil if instances.empty?
 
     instances.first
