@@ -55,8 +55,9 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
       external_gateway_info = entity['external_gateway_info']
       external_gateway_info = external_gateway_info['network_id'] if external_gateway_info.is_a?(Hash)
 
-      router_subnets = port_instances.select { |port| port[:device_id] == router_id && port[:fixed_ips].is_a?(Hash) }
-                                     .map { |port| port[:fixed_ips]['subnet_id'] }
+      router_subnets = port_instances.select { |port| port[:device_id] == router_id && port[:fixed_ips].is_a?(Array) }
+                                     .map { |port| port[:fixed_ips] }.flatten
+                                     .map { |ip| ip['subnet_id'] }.compact
       router_subnets = nil if router_subnets.empty?
 
       new(name: entity_name,
