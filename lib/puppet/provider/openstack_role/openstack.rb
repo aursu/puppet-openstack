@@ -1,7 +1,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
 
-Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider::Openstack) do
-  desc 'manage users for OpenStack.'
+Puppet::Type.type(:openstack_role).provide(:openstack, parent: Puppet::Provider::Openstack) do
+  desc 'Manage roles for OpenStack.'
 
   commands openstack: 'openstack'
 
