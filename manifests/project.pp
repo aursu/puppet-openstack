@@ -19,6 +19,10 @@ define openstack::project (
   Optional[
     Array[Stdlib::IP::Address]
   ]       $selfservice_network_dns     = $openstack::provider_network_dns,
+  # name of external network (provider network)
+  # https://docs.openstack.org/ocata/install-guide-rdo/launch-instance-networks-selfservice.html
+  Optional[String]
+          $external_gateway            = $openstack::provider_physical_network,
 )
 {
   $defined_description = $description ? {
@@ -42,18 +46,18 @@ define openstack::project (
 
     # create subnet
     openstack_subnet { "${name}-subnet":
-        network        => "${name}-net",
-        subnet_range   => $selfservice_network_cidr,
-        gateway        => $selfservice_network_gateway,
-        dns_nameserver => $selfservice_network_dns,
-        project        => $name,
+      network        => "${name}-net",
+      subnet_range   => $selfservice_network_cidr,
+      gateway        => $selfservice_network_gateway,
+      dns_nameserver => $selfservice_network_dns,
+      project        => $name,
     }
 
     # create router
     openstack_router { "${name}-gw":
-      project => $name,
-      # external_gateway    => $external_gateway,
-      # subnets             => [ "${name}-subnet" ],
+      project          => $name,
+      external_gateway => $external_gateway,
+      subnets          => [ "${name}-subnet" ],
     }
   }
 }
