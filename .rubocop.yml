@@ -89,50 +89,28 @@ Style/MethodCalledOnDoEndBlock:
   Enabled: true
 Style/StringMethods:
   Enabled: true
-GetText/DecorateFunctionMessage:
-  Enabled: false
-GetText/DecorateStringFormattingUsingInterpolation:
-  Enabled: false
-GetText/DecorateStringFormattingUsingPercent:
-  Enabled: false
-Layout/EndOfLine:
-  Enabled: false
-Layout/IndentHeredoc:
-  Enabled: false
-Metrics/AbcSize:
-  Enabled: false
 Metrics/BlockLength:
-  Enabled: false
-Metrics/ClassLength:
-  Enabled: false
-Metrics/CyclomaticComplexity:
-  Enabled: false
-Metrics/MethodLength:
-  Enabled: false
-Metrics/ModuleLength:
-  Enabled: false
-Metrics/ParameterLists:
-  Enabled: false
-Metrics/PerceivedComplexity:
-  Enabled: false
-RSpec/DescribeClass:
   Enabled: false
 RSpec/ExampleLength:
   Enabled: false
-RSpec/MessageExpectation:
+Metrics/ClassLength:
   Enabled: false
-RSpec/MultipleExpectations:
+Metrics/MethodLength:
   Enabled: false
-RSpec/NestedGroups:
+RSpec/DescribeClass:
   Enabled: false
-Style/AsciiComments:
+Style/NumericLiterals:
   Enabled: false
-Style/IfUnlessModifier:
-  Enabled: false
-Style/SymbolProc:
+Metrics/AbcSize:
   Enabled: false
 Style/NumericPredicate:
   Enabled: false
-Style/NumericLiterals:
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Layout/IndentHeredoc:
+  Enabled: false
+Style/ClassAndModuleChildren:
   Enabled: false
 

@@ -5,7 +5,7 @@ Puppet::Type.newtype(:djangosetting) do
   @doc = 'Manage django settings file'
   # This property uses three methods on the provider: "create", "destroy",
   # and "exists?". The last method, somewhat obviously, is a boolean to
-  # determine if the resource current exists. If a resource’s ensure property
+  # determine if the resource current exists. If a resource's ensure property
   # is out of sync, then no other properties will be checked or modified.
   ensurable do
     defaultvalues
@@ -90,8 +90,7 @@ Puppet::Type.newtype(:djangosetting) do
         raise Puppet::Error, 'value is a required attribute'
       end
     end
-    unless self[:config]
-      raise Puppet::Error, 'config is a required attribute'
-    end
+
+    raise Puppet::Error, 'config is a required attribute' unless self[:config]
   end
 end

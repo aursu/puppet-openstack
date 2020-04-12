@@ -77,14 +77,9 @@ module CustomType
 
             next if [:name, :provider].include?(prop_name)
 
-            if prop_klass.is_a?(Class)
-              prop_name = prop_klass.name
-            end
-
+            prop_name = prop_klass.name if prop_klass.is_a?(Class)
             current = instance.send(prop_name)
-
             prop = result.newattr(prop_klass)
-
             # initialize each property based on Provider's instance data
             prop.value = current if current
           end

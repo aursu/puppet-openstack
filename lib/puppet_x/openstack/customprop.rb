@@ -3,7 +3,7 @@ require 'puppet/property'
 #
 module PuppetX
   module OpenStack
-    #
+    # parental class with sync check and input valdation for 'project' property
     class ProjectProperty < Puppet::Property
       def insync?(is)
         return @should == [:absent] if is.nil?
@@ -24,7 +24,7 @@ module PuppetX
       end
     end
 
-    #
+    # parental class with sync check and input valdation for 'network' property
     class NetworkProperty < Puppet::Property
       def insync?(is)
         return @should == [:absent] if is.nil?
@@ -45,7 +45,7 @@ module PuppetX
       end
     end
 
-    #
+    # parental class with sync check and input valdation for 'subnet' property
     class SubnetProperty < Puppet::Property
       def insync?(is)
         return @should == [:absent] if is.nil?
