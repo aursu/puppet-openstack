@@ -61,7 +61,8 @@ Puppet::Type.newtype(:openstack_router) do
     desc 'Router subnets'
 
     def insync?(is)
-      return @should == [:absent] if is.nil? || is == []
+      # is == :absent in case of non-existing subnets for router
+      return @should == [:absent] if is.nil? || is == [] || is.to_s == 'absent'
 
       # all subnets in @should array should be defined to be in sync
       (@should.compact - is).empty?
