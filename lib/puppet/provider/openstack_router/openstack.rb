@@ -158,11 +158,13 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     @property_flush[:external_gateway_info] = info
   end
 
-  def subnets=(subs)
+  def subnets=(should)
     name = @resource[:name]
-    (subs - @property_hash[:subnets]).each do |sub|
-      next if self.class.openstack_caller('router', 'add subnet', name, sub) == false
-      @property_hash[:subnets] += [sub]
+    is = [@property_hash[:subnets]].flatten.reject { |s| s.to_s == 'absent' }.compact
+
+    (should - is).each do |s|
+      next if self.class.openstack_caller('router', 'add subnet', name, s) == false
+      @property_hash[:subnets] += [s]
     end
   end
 
