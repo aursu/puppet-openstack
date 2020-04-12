@@ -48,6 +48,8 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
       pool_start = pool['start']
       pool_end   = pool['end']
 
+      pool_enabled = !pool.empty?
+
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
@@ -58,7 +60,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
           project: entity['project'],
           ip_version: entity['ip_version'].to_s,
           dhcp: entity['dhcp'].to_s.to_sym,
-          allocation_pool: (pool_start && pool_end),
+          allocation_pool: pool_enabled.to_s.to_sym,
           allocation_pool_start: pool_start,
           allocation_pool_end: pool_end,
           description: entity['description'],
