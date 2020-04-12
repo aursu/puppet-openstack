@@ -66,7 +66,7 @@ Puppet::Type.newtype(:openstack_network) do
   newproperty(:provider_physical_network) do
     desc 'Name of the physical network over which the virtual network is implemented'
 
-    def insync?(is)
+    def insync?(_is)
       true
     end
   end

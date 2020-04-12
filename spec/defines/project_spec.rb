@@ -6,6 +6,13 @@ describe 'openstack::project' do
     include openstack
     include openstack::install
     class { 'openstack::controller::keystone': keystone_dbpass => 'secret', admin_pass => 'secret' }
+
+    openstack_network { 'provider':
+      ensure                => present,
+      shared                => true,
+      external              => true,
+      provider_network_type => 'flat',
+    }
     PRECOND
   end
   let(:title) { 'service' }
