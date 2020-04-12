@@ -60,6 +60,7 @@ Puppet::Type.newtype(:openstack_router) do
   newproperty(:subnets, parent: PuppetX::OpenStack::SubnetProperty, array_matching: :all) do
     desc 'Router subnets'
 
+    # no removal
     def insync?(is)
       # is == :absent in case of non-existing subnets for router
       return @should == [:absent] if is.nil? || is == [] || is.to_s == 'absent'
@@ -82,5 +83,11 @@ Puppet::Type.newtype(:openstack_router) do
     rv = []
     rv << self[:project] if self[:project]
     rv
+  end
+
+  autorequire(:openstack_subnet) do
+    rv = []
+    rv << self[:subnets] if self[:subnets]
+    rv.flatten
   end
 end
