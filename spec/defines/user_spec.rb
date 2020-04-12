@@ -47,7 +47,6 @@ describe 'openstack::user' do
           .with_command('openstack role add --user glance --project service admin')
           .with_refreshonly(true)
           .that_subscribes_to('Exec[openstack-user-glance]')
-          .that_requires('Openstack::Role[admin]')
           .that_requires('Openstack::Project[service]')
       }
     end

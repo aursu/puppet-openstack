@@ -7,17 +7,8 @@
 class openstack::controller::users (
   String  $admin_pass = $openstack::admin_pass,
 ) {
-  openstack::role { 'admin':
-    admin_pass => $admin_pass,
-  }
-
   openstack::project { 'service':
     selfservice_network => false,
     description         => 'Service Project',
-  }
-
-  openstack::role { 'user':
-    admin_pass => $admin_pass,
-    require    => Openstack::Project['service'],
   }
 }

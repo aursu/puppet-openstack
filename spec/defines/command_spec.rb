@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe 'openstack::command' do
-  # Openstack::Role requires resource Package['openstack-keystone']
   # which provided by Class['openstack::controller::keystone']
   # later requires Openstack::Repository[train] which provided by Class['openstack::install']
   let(:pre_condition) do
@@ -41,22 +40,6 @@ describe 'openstack::command' do
             ],
           )
       }
-
-      context 'create admin role' do
-        let(:title) { 'openstack-role-admin' }
-        let(:params) do
-          super().merge(
-            command: 'openstack role create admin',
-            unless: 'openstack role show admin',
-          )
-        end
-
-        it {
-          is_expected.to contain_exec('openstack-role-admin')
-            .with_command('openstack role create admin')
-            .with_unless('openstack role show admin')
-        }
-      end
 
       context 'assign role to openstack user (refresh only)' do
         let(:title) { 'openstack-user-glance-role' }

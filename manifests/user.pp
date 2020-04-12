@@ -5,10 +5,12 @@
 # @example
 #   openstack::user { 'namevar': }
 define openstack::user (
-  String  $role,
+
   String  $project,
   String  $user_pass,
   String  $admin_pass,
+  Enum['reader', 'member', 'admin']
+          $role           = 'member',
   Enum['present', 'absent']
           $ensure         = 'present',
   Optional[String]
@@ -36,10 +38,7 @@ define openstack::user (
       command     => "openstack role add --user ${name} --project ${project} ${role}",
       refreshonly => true,
       subscribe   => Openstack::Command["openstack-user-${name}"],
-      require     => [
-        Openstack::Role[$role],
-        Openstack::Project[$project]
-      ]
+      require     => Openstack::Project[$project]
     }
   }
 }

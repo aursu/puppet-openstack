@@ -54,7 +54,7 @@ class openstack::controller::dashboard (
       }
       |-EOT
     'OPENSTACK_KEYSTONE_DEFAULT_DOMAIN'     => "'Default'",
-    'OPENSTACK_KEYSTONE_DEFAULT_ROLE'       => "'user'",
+    'OPENSTACK_KEYSTONE_DEFAULT_ROLE'       => "'member'",
     'TIME_ZONE'                             => "'${time_zone}'",
   }
 
