@@ -160,12 +160,15 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
 
   def subnets=(should)
     name = @resource[:name]
+
     is = [@property_hash[:subnets]].flatten.reject { |s| s.to_s == 'absent' }.compact
 
     (should - is).each do |s|
       next if self.class.openstack_caller('router', 'add subnet', name, s) == false
-      @property_hash[:subnets] += [s]
+      is << s
     end
+
+    @property_hash[:subnets] = is unless is.empty?
   end
 
   def flush
