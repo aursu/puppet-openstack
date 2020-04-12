@@ -6,7 +6,7 @@ module PuppetX
     # parental class with sync check and input valdation for 'project' property
     class ProjectProperty < Puppet::Property
       def insync?(is)
-        return @should == [:absent] if is.nil?
+        return @should == [:absent] if is.nil? || is.to_s == 'absent'
 
         proj = resource.project_instance(@should)
         return true if proj && [proj[:name], proj[:id]].include?(is)
@@ -27,7 +27,7 @@ module PuppetX
     # parental class with sync check and input valdation for 'network' property
     class NetworkProperty < Puppet::Property
       def insync?(is)
-        return @should == [:absent] if is.nil?
+        return @should == [:absent] if is.nil? || is.to_s == 'absent'
 
         net = resource.network_instance(@should)
         return true if net && [net[:name], net[:id]].include?(is)
@@ -48,7 +48,7 @@ module PuppetX
     # parental class with sync check and input valdation for 'subnet' property
     class SubnetProperty < Puppet::Property
       def insync?(is)
-        return @should == [:absent] if is.nil?
+        return @should == [:absent] if is.nil? || is.to_s == 'absent'
 
         sub = resource.subnet_instance(@should)
         return true if sub && [sub[:name], sub[:id]].include?(is)
