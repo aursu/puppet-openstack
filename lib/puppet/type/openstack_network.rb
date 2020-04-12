@@ -63,7 +63,7 @@ Puppet::Type.newtype(:openstack_network) do
     desc 'Project description'
   end
 
-  newproperty(:provider_physical_network) do
+  newproperty(:provider_physical_network, parent: PuppetX::OpenStack::NetworkProperty) do
     desc 'Name of the physical network over which the virtual network is implemented'
   end
 
