@@ -127,11 +127,13 @@ Puppet::Type.newtype(:openstack_subnet) do
   end
 
   validate do
+    return true if self[:validation] == :false
+
     net_name = self[:network]
-    raise 'Network must be provided' unless net_name
+    raise Puppet::Error, 'Network must be provided' unless net_name
 
     net = network_instance(net_name) || network_resource(net_name)
-    raise 'Network must be defined in catalog or existing in environment' unless net
+    raise Puppet::Error, 'Network must be defined in catalog or existing in environment' unless net
   end
 
   def validate_ip(ip, name = 'IP address')

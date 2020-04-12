@@ -3,6 +3,10 @@ module CustomType
   class << self
     def included(base)
       base.extend ClassMethods
+
+      base.newparam(:validation) do
+        desc 'Apply type instance validation or not'
+      end
     end
   end
 
@@ -70,7 +74,7 @@ module CustomType
           end
           provider_instances[instance.name] = instance
 
-          result = new(name: instance.name, provider: instance)
+          result = new(name: instance.name, provider: instance, validation: :false)
 
           [properties + parameters].flatten.each do |prop_klass|
             prop_name = prop_klass
