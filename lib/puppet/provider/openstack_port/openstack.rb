@@ -48,7 +48,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
       entity_name = entity['name'].to_s
       entity_name = "port-#{entity_id}" if entity_name.empty?
 
-      port_enabled = entity['status'].to_s.casecmp('active')
+      port_enabled = entity['status'].to_s.casecmp?('active')
 
       new(name: entity_name,
           ensure: :present,
