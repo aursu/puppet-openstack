@@ -164,7 +164,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     is = [@property_hash[:subnets]].flatten.reject { |s| s.to_s == 'absent' }.compact
 
     (should - is).each do |s|
-      next if self.class.openstack_caller('router', 'add subnet', name, s) == false
+      next if self.class.openstack_caller('router add subnet', name, s) == false
       is << s
     end
 
