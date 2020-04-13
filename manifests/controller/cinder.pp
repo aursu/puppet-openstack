@@ -27,11 +27,10 @@ class openstack::controller::cinder (
   }
 
   openstack::user { 'cinder':
-    role       => 'admin',
-    project    => 'service',
-    user_pass  => $cinder_pass,
-    admin_pass => $admin_pass,
-    require    => Openstack::Project['service'],
+    role      => 'admin',
+    project   => 'service',
+    user_pass => $cinder_pass,
+    require   => Openstack::Project['service'],
   }
 
   openstack::service { 'cinderv2':

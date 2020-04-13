@@ -7,7 +7,6 @@
 define openstack::user (
   String  $project,
   String  $user_pass,
-  String  $admin_pass,
   Enum['reader', 'member', 'admin']
           $role           = 'member',
   Enum['present', 'absent']

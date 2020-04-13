@@ -15,7 +15,6 @@ describe 'openstack::user' do
       role: 'admin',
       project: 'service',
       user_pass: 'user_secret',
-      admin_pass: 'secret',
     }
   end
 

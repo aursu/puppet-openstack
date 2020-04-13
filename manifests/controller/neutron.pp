@@ -29,11 +29,10 @@ class openstack::controller::neutron (
 
   # create neutron service user
   openstack::user { 'neutron':
-    role       => 'admin',
-    project    => 'service',
-    user_pass  => $neutron_pass,
-    admin_pass => $admin_pass,
-    require    => Openstack::Project['service'],
+    role      => 'admin',
+    project   => 'service',
+    user_pass => $neutron_pass,
+    require   => Openstack::Project['service'],
   }
 
   openstack::service { 'neutron':

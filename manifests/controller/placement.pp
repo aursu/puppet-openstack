@@ -27,11 +27,10 @@ class openstack::controller::placement (
   }
 
   openstack::user { 'placement':
-    role       => 'admin',
-    project    => 'service',
-    user_pass  => $placement_pass,
-    admin_pass => $admin_pass,
-    require    => Openstack::Project['service'],
+    role      => 'admin',
+    project   => 'service',
+    user_pass => $placement_pass,
+    require   => Openstack::Project['service'],
   }
 
   openstack::service { 'placement':

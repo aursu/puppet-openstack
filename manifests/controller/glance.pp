@@ -27,11 +27,10 @@ class openstack::controller::glance (
   }
 
   openstack::user { 'glance':
-    role       => 'admin',
-    project    => 'service',
-    user_pass  => $glance_pass,
-    admin_pass => $admin_pass,
-    require    => Openstack::Project['service'],
+    role      => 'admin',
+    project   => 'service',
+    user_pass => $glance_pass,
+    require   => Openstack::Project['service'],
   }
 
   openstack::service { 'glance':

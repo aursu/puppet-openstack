@@ -41,11 +41,10 @@ class openstack::controller::nova (
   }
 
   openstack::user { 'nova':
-    role       => 'admin',
-    project    => 'service',
-    user_pass  => $nova_pass,
-    admin_pass => $admin_pass,
-    require    => Openstack::Project['service'],
+    role      => 'admin',
+    project   => 'service',
+    user_pass => $nova_pass,
+    require   => Openstack::Project['service'],
   }
 
   openstack::service { 'nova':
