@@ -42,8 +42,8 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
   def self.instances
     openstack_command
 
-    user_instances = Puppet::Type.type(:openstack_user).instances.map { |u| [u[:id], u[:name]] }.to_h
-    role_instances = Puppet::Type.type(:openstack_role).instances.map { |r| [r[:id], r[:name]] }.to_h
+    user_instances = get_list_array('user').map { |u| [u[:id], u[:name]] }.to_h
+    role_instances = get_list_array('role', false).map { |r| [r[:id], r[:name]] }.to_h
 
     user_role_list = {}
 
