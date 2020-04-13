@@ -10,49 +10,59 @@ module CustomType
     end
   end
 
-  def project_instance(lookup_id)
+  def entity_instance(lookup_id, entity_type)
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
 
-    instances = Puppet::Type.type(:openstack_project).instances
-                                                     .select { |r| [r[:name], r[:id]].include?(lookup_id) }
+    instances = Puppet::Type.type(entity_type).instances
+                            .select { |r| [r[:name], r[:id]].include?(lookup_id) }
     return nil if instances.empty?
-    # no support for multiple OpenStack domains
+
     instances.first
+  end
+
+  def entity_resource(lookup_id, entity_type)
+    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(entity_type)) && [r[:name], r[:id]].include?(lookup_id) }
+  end
+
+  def project_instance(lookup_id)
+    entity_instance(lookup_id, :openstack_project)
   end
 
   def project_resource(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_project)) && [r[:name], r[:id]].include?(lookup_id) }
+    entity_resource(lookup_id, :openstack_project)
   end
 
   def network_instance(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-
-    instances = Puppet::Type.type(:openstack_network).instances
-                                                     .select { |r| [r[:name], r[:id]].include?(lookup_id) }
-
-    return nil if instances.empty?
-    instances.first
+    entity_instance(lookup_id, :openstack_network)
   end
 
   def network_resource(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_network)) && [r[:name], r[:id]].include?(lookup_id) }
+    entity_resource(lookup_id, :openstack_network)
   end
 
   def subnet_instance(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-
-    instances = Puppet::Type.type(:openstack_subnet).instances
-                                                    .select { |r| [r[:name], r[:id]].include?(lookup_id) }
-    return nil if instances.empty?
-
-    instances.first
+    entity_instance(lookup_id, :openstack_subnet)
   end
 
   def subnet_resource(lookup_id)
-    lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(:openstack_subnet)) && [r[:name], r[:id]].include?(lookup_id) }
+    entity_resource(lookup_id, :openstack_subnet)
+  end
+
+  def role_instance(lookup_id)
+    entity_instance(lookup_id, :openstack_role)
+  end
+
+  def role_resource(lookup_id)
+    entity_resource(lookup_id, :openstack_role)
+  end
+
+  def user_instance(lookup_id)
+    entity_instance(lookup_id, :openstack_user)
+  end
+
+  def user_resource(lookup_id)
+    entity_resource(lookup_id, :openstack_user)
   end
 
   # class methods for base class
