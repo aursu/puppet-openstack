@@ -6,7 +6,7 @@ describe 'openstack::user' do
     include openstack
     include openstack::install
     class { 'openstack::controller::keystone': keystone_dbpass => 'secret', admin_pass => 'secret' }
-    class { 'openstack::controller::users': admin_pass => 'secret', }
+    class { 'openstack::controller::users': }
     PRECOND
   end
   let(:title) { 'glance' }
