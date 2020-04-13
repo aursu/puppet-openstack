@@ -10,6 +10,10 @@ module CustomType
     end
   end
 
+  def prop_to_array(prop)
+    [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
+  end
+
   def entity_instance(lookup_id, entity_type)
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
 

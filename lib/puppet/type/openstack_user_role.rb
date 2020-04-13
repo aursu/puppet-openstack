@@ -81,8 +81,6 @@ Puppet::Type.newtype(:openstack_user_role) do
   end
 
   autorequire(:openstack_project) do
-    req = []
-    req << self[:project] if self[:project]
-    req.flatten
+    prop_to_array(self[:project]).map { |p| project_instance(p) || project_resource(p) }
   end
 end
