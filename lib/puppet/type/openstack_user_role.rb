@@ -33,11 +33,11 @@ Puppet::Type.newtype(:openstack_user_role) do
     defaultto { @resource[:user] + '/' + @resource[:role] }
   end
 
-  newproperty(:user, parent: PuppetX::OpenStack::UserProperty, namevar: true) do
+  newparam(:user, namevar: true) do
     desc 'Include <user> (name or ID)'
   end
 
-  newproperty(:role, parent: PuppetX::OpenStack::RoleProperty, namevar: true) do
+  newparam(:role, namevar: true) do
     desc 'Role to add to <project>:<user> (name or ID)'
   end
 
