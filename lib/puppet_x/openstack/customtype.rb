@@ -25,6 +25,8 @@ module CustomType
   end
 
   def entity_resource(lookup_id, entity_type)
+    # bugfix: catalog does not exist while instances prefetch
+    return nil unless catalog
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
     catalog.resources.find { |r| r.is_a?(Puppet::Type.type(entity_type)) && [r[:name], r[:id]].include?(lookup_id) }
   end
