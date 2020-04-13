@@ -122,7 +122,7 @@ class openstack::controller::keystone (
       'OS_IDENTITY_API_VERSION' => '3',
       'OS_IMAGE_API_VERSION'    => '2'
     },
-    require => Openstack::Package['openstack-keystone'],
+    require => Exec['keystone-manage-bootstrap'],
   }
 
   Mysql_database <| title == $keystone_dbname |> ~> Exec['keystone-db-sync']
