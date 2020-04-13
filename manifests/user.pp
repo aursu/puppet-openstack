@@ -5,7 +5,6 @@
 # @example
 #   openstack::user { 'namevar': }
 define openstack::user (
-
   String  $project,
   String  $user_pass,
   String  $admin_pass,
@@ -19,26 +18,42 @@ define openstack::user (
   # following instructions from https://docs.openstack.org/glance/train/install/install-rdo.html
   String  $project_domain = 'default',
 ) {
+  # $defined_description = $description ? {
+  #   String  => shell_escape($description),
+  #   default => "OpenStack\\ ${name}\\ user",
+  # }
+
   $defined_description = $description ? {
-    String  => shell_escape($description),
-    default => "OpenStack\\ ${name}\\ user",
+    String  => $description,
+    default => "OpenStack ${name} user",
   }
 
-  $shell_user_pass = shell_escape($user_pass)
+  # $shell_user_pass = shell_escape($user_pass)
 
-  if $ensure == 'present' {
-    openstack::command { "openstack-user-${name}":
-      admin_pass => $admin_pass,
-      command    => "openstack user create --domain ${project_domain} --description ${defined_description} --password ${shell_user_pass} ${name}", # lint:ignore:140chars
-      unless     => "openstack user show ${name}",
+  # if $ensure == 'present' {
+    # openstack::command { "openstack-user-${name}":
+    #   admin_pass => $admin_pass,
+    #   command    => "openstack user create --domain ${project_domain} --description ${defined_description} --password ${shell_user_pass} ${name}", # lint:ignore:140chars
+    #   unless     => "openstack user show ${name}",
+    # }
+
+    openstack_user { $name:
+      ensure      => present,
+      domain      => $project_domain,
+      description => $defined_description,
+      password    => $user_pass,
     }
 
-    openstack::command { "openstack-user-${name}-role":
-      admin_pass  => $admin_pass,
-      command     => "openstack role add --user ${name} --project ${project} ${role}",
-      refreshonly => true,
-      subscribe   => Openstack::Command["openstack-user-${name}"],
-      require     => Openstack::Project[$project]
+    openstack_user_role { "${name}/${role}":
+      project => $project,
     }
-  }
+
+    # openstack::command { "openstack-user-${name}-role":
+    #   admin_pass  => $admin_pass,
+    #   command     => "openstack role add --user ${name} --project ${project} ${role}",
+    #   refreshonly => true,
+    #   subscribe   => Openstack::Command["openstack-user-${name}"],
+    #   require     => Openstack::Project[$project]
+    # }
+  # }
 }
