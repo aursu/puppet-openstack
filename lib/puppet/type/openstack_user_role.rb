@@ -41,15 +41,15 @@ Puppet::Type.newtype(:openstack_user_role) do
     desc 'Role to add to <project>:<user> (name or ID)'
   end
 
+  newparam(:domain) do
+    desc 'Include <domain> (name or ID)'
+  end
+
   newproperty(:system) do
     desc 'System or service to grant authorization to. Currently only all is
           supported which encompasses the entire deployment system.'
 
     newvalues(:all, :absent)
-  end
-
-  newparam(:domain) do
-    desc 'Include <domain> (name or ID)'
   end
 
   newproperty(:project, parent: PuppetX::OpenStack::ProjectProperty, array_matching: :all) do

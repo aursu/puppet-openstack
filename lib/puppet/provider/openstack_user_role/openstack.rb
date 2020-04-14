@@ -3,12 +3,10 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
 Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Provider::Openstack) do
   desc 'Manage role assignments for OpenStack.'
 
-  commands openstack: 'openstack'
+  # Generates method for all properties of the property_hash
+  mk_resource_methods
 
-  def initialize(value = {})
-    super(value)
-    @property_flush = {}
-  end
+  commands openstack: 'openstack'
 
   # return array of values except value 'absent'
   # :absent   -> []
@@ -20,8 +18,6 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
   end
 
-  # Generates method for all properties of the property_hash
-  mk_resource_methods
 
   def self.provider_subcommand
     'role'
@@ -183,9 +179,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     user    = @resource.value(:user)
     role    = @resource.value(:role)
 
-    assign = prop_to_array(assign)
-
-    if assign.empty?
+    if prop_to_array(assign).empty?
       self.class.provider_delete('--system', 'all', '--user', user, role)
       @property_hash[:system] = nil
     else
