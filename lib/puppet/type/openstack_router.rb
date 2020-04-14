@@ -86,6 +86,7 @@ Puppet::Type.newtype(:openstack_router) do
   end
 
   autorequire(:openstack_subnet) do
-    prop_to_array(self[:subnets]).map { |s| subnet_instance(s) || subnet_resource(s) }
+    prop_to_array(self[:subnets]).map { |s| subnet_instance(s) || subnet_resource(s) }.compact
+                                 .map { |s| s[:name] }
   end
 end

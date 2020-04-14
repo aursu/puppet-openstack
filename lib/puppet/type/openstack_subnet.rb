@@ -117,7 +117,7 @@ Puppet::Type.newtype(:openstack_subnet) do
   end
 
   autorequire(:openstack_network) do
-    [self[:network]]
+    self[:network]
   end
 
   autorequire(:openstack_project) do

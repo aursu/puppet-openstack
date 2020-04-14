@@ -81,6 +81,7 @@ Puppet::Type.newtype(:openstack_user_role) do
   end
 
   autorequire(:openstack_project) do
-    prop_to_array(self[:project]).map { |p| project_instance(p) || project_resource(p) }
+    prop_to_array(self[:project]).map { |p| project_instance(p) || project_resource(p) }.compact
+                                 .map { |p| p[:name] }
   end
 end
