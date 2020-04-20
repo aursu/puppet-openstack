@@ -7,15 +7,18 @@
 define openstack::user (
   String  $project,
   String  $user_pass,
-  Enum['reader', 'member', 'admin']
-          $role           = 'member',
   Enum['present', 'absent']
           $ensure         = 'present',
+  Enum['reader', 'member', 'admin']
+          $role           = 'member',
   Optional[String]
           $description    = undef,
 
   # following instructions from https://docs.openstack.org/glance/train/install/install-rdo.html
   String  $project_domain = 'default',
+  Boolean $setup_openrc   = false,
+  Openstack::Release
+          $cycle          = $openstack::cycle,
 )
 {
   $defined_description = $description ? {
@@ -32,5 +35,29 @@ define openstack::user (
 
   openstack_user_role { "${name}/${role}":
     project => $project,
+  }
+
+  if $setup_openrc {
+    $real_user_pass = shell_escape($user_pass)
+
+    if openstack::cyclecmp($cycle, 'queens') < 0 {
+      $os_auth_url = 'http://controller:35357/v3'
+    }
+    else {
+      $os_auth_url = 'http://controller:5000/v3'
+    }
+
+    openstack::envscript { "/etc/keystone/${name}-openrc.sh":
+      content => {
+        'OS_PROJECT_DOMAIN_NAME'  => 'Default',
+        'OS_USER_DOMAIN_NAME'     => 'Default',
+        'OS_PROJECT_NAME'         => $project,
+        'OS_USERNAME'             => $name,
+        'OS_PASSWORD'             => $real_user_pass,
+        'OS_AUTH_URL'             => $os_auth_url,
+        'OS_IDENTITY_API_VERSION' => '3',
+        'OS_IMAGE_API_VERSION'    => '2'
+      },
+    }
   }
 }
