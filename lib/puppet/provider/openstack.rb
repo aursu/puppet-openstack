@@ -6,6 +6,9 @@ class Puppet::Provider::Openstack < Puppet::Provider
   # Without initvars commands won't work.
   initvars
 
+  # Generates method for all properties of the property_hash
+  mk_resource_methods
+
   commands openstack: 'openstack'
 
   if command('openstack')
@@ -178,10 +181,6 @@ class Puppet::Provider::Openstack < Puppet::Provider
   # 'value'   -> ['value']
   def prop_to_array(prop)
     [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
-  end
-
-  def user_instances
-    self.class.provider_instances(:openstack_user)
   end
 
   def user_role_instances
