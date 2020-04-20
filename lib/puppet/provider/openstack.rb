@@ -182,8 +182,4 @@ class Puppet::Provider::Openstack < Puppet::Provider
   def prop_to_array(prop)
     [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
   end
-
-  def user_role_instances
-    self.class.provider_instances(:openstack_user_role)
-  end
 end

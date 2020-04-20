@@ -125,16 +125,17 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     @property_flush[:project] = proj
   end
 
-  def user_assignments
-    user_id = @resource.value(:id)
-    user_role_instances.select { |a| a[:user] == user_id }
-                       .map { |a| prop_to_array(a[:project]) }.flatten
+  def user_role_instances
+    self.class.provider_instances(:openstack_user_role)
   end
 
   def password
     name      = @resource[:name]
+    user_id   = @resource.value(:id)
     pwd       = @resource.value(:password)
-    user_role = user_assignments
+
+    user_role = user_role_instances.select { |a| a.user == user_id }
+                                   .map { |a| prop_to_array(a.project) }.flatten
 
     # get token for first  assigned domain
     os_project_id = user_role.empty? ? '' : user_role[0]
