@@ -131,7 +131,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
 
   def password
     name      = @resource[:name]
-    user_id   = @resource.value(:id)
+    user_id   = @property_hash[:id]
     pwd       = @resource.value(:password)
 
     user_role = user_role_instances.select { |a| a.user == user_id }
