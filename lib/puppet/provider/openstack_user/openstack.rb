@@ -40,10 +40,6 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     openstack_command
 
     provider_list.map do |entity_name, entity|
-      user_id = entity['id']
-      user_role = role_assignment.select { |r| r['user'] == user_id }
-                                 .map { |r| r['project'] }
-
       entity['project'] = nil if entity['project'] == ''
 
       @instances << new(name: entity_name,

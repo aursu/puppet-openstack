@@ -39,8 +39,8 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
     openstack_command
 
-    @instances << provider_list.map do |entity_name, entity|
-      new(name: entity_name,
+    provider_list.map do |entity_name, entity|
+      @instances << new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           subnets: entity['subnets'],
