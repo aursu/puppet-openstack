@@ -6,9 +6,6 @@ class Puppet::Provider::Openstack < Puppet::Provider
   # Without initvars commands won't work.
   initvars
 
-  # Generates method for all properties of the property_hash
-  mk_resource_methods
-
   commands openstack: 'openstack'
 
   if command('openstack')
