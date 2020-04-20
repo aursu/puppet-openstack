@@ -34,6 +34,9 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
     provider_list.map do |entity_name, entity|
@@ -50,7 +53,7 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
 
       pool_enabled = !pool.empty?
 
-      new(name: entity_name,
+      @instances << new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           network: entity['network'],
@@ -66,6 +69,8 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
           description: entity['description'],
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

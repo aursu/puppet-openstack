@@ -45,6 +45,9 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
   # },
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
     port_instances = Puppet::Type.type(:openstack_port).instances
@@ -60,7 +63,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
                                      .map { |ip| ip['subnet_id'] }.compact
       router_subnets = nil if router_subnets.empty?
 
-      new(name: entity_name,
+      @instances << new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           description: entity['description'],
@@ -72,6 +75,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
           subnets: router_subnets,
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

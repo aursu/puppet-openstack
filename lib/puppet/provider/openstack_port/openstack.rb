@@ -42,6 +42,9 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
     provider_list.map do |entity_id, entity|
@@ -50,7 +53,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
 
       port_enabled = entity['status'].casecmp?('active')
 
-      new(name: entity_name,
+      @instances << new(name: entity_name,
           ensure: :present,
           real_name: entity['name'].to_s,
           id: entity_id,
@@ -63,6 +66,8 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
           fixed_ips: entity['fixed_ip_addresses'],
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

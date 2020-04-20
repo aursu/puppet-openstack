@@ -25,12 +25,15 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
     provider_list.map do |flavor_name, flavor|
       swap = (flavor['swap'] == '') ? 0 : flavor['swap'].to_i
 
-      new(name: flavor_name,
+      @instances << new(name: flavor_name,
           ensure: :present,
           ram: flavor['ram'],
           disk: flavor['disk'],
@@ -39,6 +42,8 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
           vcpus: flavor['vcpus'],
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

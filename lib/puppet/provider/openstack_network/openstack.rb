@@ -34,9 +34,12 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
-    provider_list.map do |entity_name, entity|
+    @instances << provider_list.map do |entity_name, entity|
       new(name: entity_name,
           ensure: :present,
           id: entity['id'],
@@ -49,6 +52,8 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
           project: entity['project'],
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

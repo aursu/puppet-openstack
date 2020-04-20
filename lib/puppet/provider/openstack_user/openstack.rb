@@ -34,9 +34,10 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.instances
-    openstack_command
+    return @instances if @instances
+    @instances = []
 
-    role_assignment = get_list_array('role assignment', false)
+    openstack_command
 
     provider_list.map do |entity_name, entity|
       user_id = entity['id']
@@ -45,7 +46,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
 
       entity['project'] = nil if entity['project'] == ''
 
-      new(name: entity_name,
+      @instances << new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           domain: entity['domain'],
@@ -53,9 +54,10 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
           enabled: entity['enabled'].to_s.to_sym,
           email: entity['email'],
           project: entity['project'],
-          assignments: user_role,
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)
@@ -127,10 +129,16 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     @property_flush[:project] = proj
   end
 
+  def user_assignments
+    user_id = @resource.value(:id)
+    user_role_instances.select { |a| a[:user] == user_id }
+                       .map { |a| prop_to_array(a[:project]) }.flatten
+  end
+
   def password
     name      = @resource[:name]
     pwd       = @resource.value(:password)
-    user_role = @property_hash[:assignments]
+    user_role = user_assignments
 
     # get token for first  assigned domain
     os_project_id = user_role.empty? ? '' : user_role[0]

@@ -25,15 +25,20 @@ Puppet::Type.type(:openstack_role).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
     provider_list.map do |entity_name, entity|
-      new(name: entity_name,
+      @instances << new(name: entity_name,
           ensure: :present,
           id: entity['id'],
           domain: nil,
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

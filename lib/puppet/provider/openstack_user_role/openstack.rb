@@ -8,17 +8,6 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
 
   commands openstack: 'openstack'
 
-  # return array of values except value 'absent'
-  # :absent   -> []
-  # 'absent'  -> []
-  # [:absent] -> []
-  # [nil]     -> []
-  # 'value'   -> ['value']
-  def prop_to_array(prop)
-    [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
-  end
-
-
   def self.provider_subcommand
     'role'
   end
@@ -36,6 +25,9 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
   end
 
   def self.instances
+    return @instances if @instances
+    @instances = []
+
     openstack_command
 
     user_instances = get_list_array('user').map { |u| [u['id'], u['name']] }.to_h
@@ -79,7 +71,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
       ['system', 'domain', 'project'].each { |id| entity[id] = nil if entity[id].empty? }
       entity['system'] = :all if entity['system']
 
-      new(name: entity_name,
+      @instances << new(name: entity_name,
           ensure: :present,
           user: entity['user'],
           role: entity['role'],
@@ -88,6 +80,8 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
           domain: entity['domain'],
           provider: name)
     end
+
+    @instances
   end
 
   def self.prefetch(resources)

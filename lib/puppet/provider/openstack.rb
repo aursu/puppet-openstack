@@ -130,6 +130,10 @@ class Puppet::Provider::Openstack < Puppet::Provider
     @auth_args = args unless args.empty?
   end
 
+  def self.provider_instances(entity_type)
+    Puppet::Type.type(entity_type).provider(:openstack).instances
+  end
+
   # Look up the current status.
   def properties
     @property_hash[:ensure] = :absent if @property_hash.empty?
@@ -164,5 +168,23 @@ class Puppet::Provider::Openstack < Puppet::Provider
     args += ['--os-image-api-version', image_api_version] unless empty_or_absent(image_api_version)
 
     self.class.auth_args(*args)
+  end
+
+  # return array of values except value 'absent'
+  # :absent   -> []
+  # 'absent'  -> []
+  # [:absent] -> []
+  # [nil]     -> []
+  # 'value'   -> ['value']
+  def prop_to_array(prop)
+    [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
+  end
+
+  def user_instances
+    self.class.provider_instances(:openstack_user)
+  end
+
+  def user_role_instances
+    self.class.provider_instances(:openstack_user_role)
   end
 end

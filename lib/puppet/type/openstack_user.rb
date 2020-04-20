@@ -47,10 +47,6 @@ Puppet::Type.newtype(:openstack_user) do
     desc 'Default project (name or ID)'
   end
 
-  newparam(:assignments) do
-    desc 'Project assignments (read only)'
-  end
-
   newproperty(:password) do
     desc 'The password of the user.'
 
