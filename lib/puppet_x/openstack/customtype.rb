@@ -71,6 +71,14 @@ module CustomType
     entity_resource(lookup_id, :openstack_user)
   end
 
+  def security_group_instance(lookup_id)
+    entity_instance(lookup_id, :openstack_security_group)
+  end
+
+  def security_group_resource(lookup_id)
+    entity_resource(lookup_id, :openstack_security_group)
+  end
+
   # class methods for base class
   module ClassMethods
     def instances
