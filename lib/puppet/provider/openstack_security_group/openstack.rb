@@ -45,8 +45,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
       @instances << new(name: group_project_name,
           ensure: :present,
           id: entity['id'],
-          name: group_name,
-          project: project_name,
+          project: project_id,
           description: entity['description'],
           provider: name)
     end

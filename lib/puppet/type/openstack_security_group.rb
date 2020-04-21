@@ -60,8 +60,8 @@ Puppet::Type.newtype(:openstack_security_group) do
 
       next if value.to_s == ''
 
-      proj = resource.project_instance(value) || resource.project_resource(value)
-      raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless proj
+      project = resource.project_instance(value) || resource.project_resource(value)
+      raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
     end
   end
 
