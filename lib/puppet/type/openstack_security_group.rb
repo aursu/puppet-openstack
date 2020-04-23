@@ -29,8 +29,8 @@ Puppet::Type.newtype(:openstack_security_group) do
       [
         %r{^([^/]+)/([^/]+)$},
         [
-          [:name],
           [:project],
+          [:name],
         ],
       ],
       [
