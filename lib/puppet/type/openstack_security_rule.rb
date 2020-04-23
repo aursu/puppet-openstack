@@ -19,7 +19,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     desc 'Security group rule name in format [<project>/]<group>/<direction>/<proto>/<remote>/<range>'
   end
 
-  newparam(:project, namevar: true) do
+  newparam(:project) do
     desc "Owner's project (name or ID)"
 
     defaultto ''
