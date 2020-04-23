@@ -30,12 +30,12 @@ define openstack::net::secopen (
       description => 'IPv4 UDP all ports',
     ;
     "${project}/${group_name}/ingress/tcp/::/0/any":
-      ethertype   => IPv6,
+      ethertype   => ipv6,
       description => 'IPv6 TCP all ports',
     ;
     "${project}/${group_name}/ingress/udp/::/0/any":
       protocol    => 'udp',
-      ethertype   => IPv6,
+      ethertype   => ipv6,
       description => 'IPv6 UDP all ports',
     ;
   }
