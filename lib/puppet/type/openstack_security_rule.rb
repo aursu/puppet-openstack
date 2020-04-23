@@ -28,6 +28,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
       raise ArgumentError, _('Project name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
       next if value.to_s == ''
+      next if value.to_s == 'default'
 
       project = resource.project_instance(value) || resource.project_resource(value)
       raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project

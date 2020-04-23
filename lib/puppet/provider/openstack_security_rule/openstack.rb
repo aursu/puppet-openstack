@@ -38,7 +38,15 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       group_id = entity['security_group']
 
       project_id = group_instances[group_id]['project']
-      project_name = project_id.to_s.empty? ? '' : project_instances[project_id]
+
+      # default project
+      project_name = if  project_id == 'default'
+                       'default'
+                     elsif project_id.to_s.empty?
+                      ''
+                     else
+                       project_instances[project_id]
+                     end
 
       group_name = group_instances[group_id]['name']
       group_project_name = project_name.empty? ? group_name : "#{project_name}/#{group_name}"
