@@ -23,6 +23,7 @@ define openstack::project (
   # https://docs.openstack.org/ocata/install-guide-rdo/launch-instance-networks-selfservice.html
   Optional[String]
           $external_gateway            = $openstack::provider_physical_network,
+  Boolean $secopen                     = false,
 )
 {
   $defined_description = $description ? {
@@ -59,5 +60,9 @@ define openstack::project (
       external_gateway_info => $external_gateway,
       subnets               => [ "${name}-subnet" ],
     }
+  }
+
+  if $secopen {
+    openstack::net::secopen { $name: }
   }
 }
