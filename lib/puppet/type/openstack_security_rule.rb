@@ -1,8 +1,10 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customtype'
+require 'puppet_x/openstack/customcomm'
 require 'puppet_x/openstack/customprop'
 
 Puppet::Type.newtype(:openstack_security_rule) do
+  extend CustomComm
   include CustomType
 
   @doc = <<-PUPPET
@@ -48,6 +50,17 @@ Puppet::Type.newtype(:openstack_security_rule) do
 
     newvalues(:ingress, :egress)
     defaultto :ingress
+  end
+
+  newparam(:ethertype) do
+    desc 'Ethertype of network traffic (IPv4, IPv6; default: based on IP protocol)'
+
+    newvalues(:IPv4, :IPv6, :ipv4, :ipv6, %{[Ii][Pp][Vv][46]})
+
+    munge do |value|
+      return :IPv4 if value.to_s.casecmp('ipv4') == 0
+      return :IPv6 if value.to_s.casecmp('ipv6') == 0
+    end
   end
 
   newparam(:protocol) do

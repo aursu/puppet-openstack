@@ -1,6 +1,6 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
 
-Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Provider::Openstack) do
+Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::Provider::Openstack) do
   desc 'Manage role assignments for OpenStack.'
 
   # Generates method for all properties of the property_hash
@@ -64,6 +64,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
                         group: group_id,
                         direction: direction.to_sym,
                         protocol: proto,
+                        ethertype: entity['ethertype'].to_sym,
                         remote_ip: remote,
                         remote_group: entity['remote_security_group'],
                         port_range: range,
@@ -103,6 +104,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     project      = @resource.value(:project)
     group        = @resource.value(:group)
     desc         = @resource.value(:description)
+    ethertype    = @resource.value(:ethertype)
 
     port_range = nil if ['', 'any'].include? port_range.to_s
     proto      = nil if ['', 'any'].include? proto.to_s
@@ -122,6 +124,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     @property_hash[:direction] = direction if direction
     @property_hash[:project] = project if project
     @property_hash[:description] = desc if desc
+    @property_hash[:ethertype] = ethertype if ethertype
 
     args = []
     # [--remote-ip <ip-address> | --remote-group <group>]
@@ -155,6 +158,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     args += ['--project', project] if project
 
     args += ['--description', desc] if desc
+    args += ['--ethertype', ethertype] if ethertype
     args << group
 
     auth_args
