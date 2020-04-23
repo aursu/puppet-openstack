@@ -54,6 +54,8 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
   end
 
   describe 'self.instances' do
+    before(:each) { described_class.instance_variable_set(:@instances, nil) }
+
     it 'with flavor listing command' do
       expect(Puppet::Util::Execution).to receive(:execute)
         .with('/usr/bin/openstack flavor list -f json --long')
