@@ -64,7 +64,7 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
                         group: group_id,
                         direction: direction.to_sym,
                         protocol: proto,
-                        ethertype: entity['ethertype'].to_sym,
+                        ethertype: entity['ethertype'],
                         remote_ip: remote,
                         remote_group: entity['remote_security_group'],
                         port_range: range,

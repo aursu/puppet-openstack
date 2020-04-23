@@ -55,11 +55,11 @@ Puppet::Type.newtype(:openstack_security_rule) do
   newparam(:ethertype) do
     desc 'Ethertype of network traffic (IPv4, IPv6; default: based on IP protocol)'
 
-    newvalues(:IPv4, :IPv6, :ipv4, :ipv6, %{[Ii][Pp][Vv][46]})
+    newvalues(:ipv4, :ipv6, %r{[Ii][Pp][Vv][46]})
 
     munge do |value|
-      return :IPv4 if value.to_s.casecmp('ipv4') == 0
-      return :IPv6 if value.to_s.casecmp('ipv6') == 0
+      return 'IPv4' if value.to_s.casecmp('ipv4') == 0
+      return 'IPv6' if value.to_s.casecmp('ipv6') == 0
     end
   end
 
