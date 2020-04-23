@@ -81,8 +81,6 @@ Style/Documentation:
   Exclude:
   - lib/puppet/parser/functions/**/*
   - spec/**/*
-Style/WordArray:
-  EnforcedStyle: brackets
 Style/CollectionMethods:
   Enabled: true
 Style/MethodCalledOnDoEndBlock:
@@ -113,4 +111,5 @@ Layout/IndentHeredoc:
   Enabled: false
 Style/ClassAndModuleChildren:
   Enabled: false
-
+Style/SymbolProc:
+  Enabled: false

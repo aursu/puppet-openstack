@@ -12,7 +12,7 @@ describe 'openstack::repository' do
 
       it { is_expected.to compile }
 
-      ['ocata', 'pike', 'queens', 'rocky', 'stein', 'ussuri'].each do |cycle|
+      %w[ocata pike queens rocky stein ussuri].each do |cycle|
         it {
           is_expected.to contain_file("/etc/yum.repos.d/CentOS-OpenStack-#{cycle}.repo")
             .with_ensure('absent')

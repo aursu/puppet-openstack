@@ -33,7 +33,7 @@ describe 'openstack::service' do
           .with_unless('openstack service show image')
       }
 
-      ['public', 'internal', 'admin'].each do |iface|
+      %w[public internal admin].each do |iface|
         it {
           is_expected.to contain_exec("endpoint-image-#{iface}")
             .with_command("openstack endpoint create --region RegionOne image #{iface} http://controller:9292")

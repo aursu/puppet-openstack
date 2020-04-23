@@ -8,9 +8,9 @@ Puppet::Functions.create_function(:'openstack::cyclecmp') do
   end
 
   def cyclecmp(x, y)
-    cycles = [
-      'kilo', 'liberty', 'mitaka', 'newton', 'ocata', 'pike', 'queens',
-      'rocky', 'stein', 'train', 'ussuri'
+    cycles = %w[
+      kilo liberty mitaka newton ocata pike queens
+      rocky stein train ussuri
     ]
 
     [x, y].each do |c|

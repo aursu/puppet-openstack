@@ -41,16 +41,16 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
     provider_list.map do |entity_name, entity|
       @instances << new(name: entity_name,
-          ensure: :present,
-          id: entity['id'],
-          subnets: entity['subnets'],
-          external: entity['router_type'].to_s.to_sym,
-          shared: entity['shared'].to_s.to_sym,
-          description: entity['description'],
-          enabled: entity['state'].to_s.to_sym,
-          provider_network_type: entity['network_type'],
-          project: entity['project'],
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        subnets: entity['subnets'],
+                        external: entity['router_type'].to_s.to_sym,
+                        shared: entity['shared'].to_s.to_sym,
+                        description: entity['description'],
+                        enabled: entity['state'].to_s.to_sym,
+                        provider_network_type: entity['network_type'],
+                        project: entity['project'],
+                        provider: name)
     end
 
     @instances

@@ -31,7 +31,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     openstack_command
 
     group_instances = provider_instances(:openstack_security_group)
-                        .map { |g| [g.id, { 'name' => g.name, 'project' => g.project }] }.to_h
+                      .map { |g| [g.id, { 'name' => g.name, 'project' => g.project }] }.to_h
     project_instances = provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
 
     provider_list.each do |entity|
@@ -58,16 +58,16 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
       # [<project>/]<group>/<direction>/<proto>/<remote>/<range>
 
       @instances << new(name: rule_name,
-          ensure: :present,
-          id: entity['id'],
-          project: project_id,
-          group: group_id,
-          direction: direction.intern,
-          protocol: proto,
-          remote_ip: remote,
-          remote_group: entity['remote_security_group'],
-          port_range: range,
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        project: project_id,
+                        group: group_id,
+                        direction: direction.to_sym,
+                        protocol: proto,
+                        remote_ip: remote,
+                        remote_group: entity['remote_security_group'],
+                        port_range: range,
+                        provider: name)
     end
 
     @instances
@@ -145,11 +145,11 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     args += ['--protocol', proto] if proto
 
     # [--ingress | --egress]
-    if direction.to_s == 'egress'
-      args << '--egress'
-    else
-      args << '--ingress'
-    end
+    args << if direction.to_s == 'egress'
+              '--egress'
+            else
+              '--ingress'
+            end
 
     # [--project <project> [--project-domain <project-domain>]]
     args += ['--project', project] if project

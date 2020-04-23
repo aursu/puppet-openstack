@@ -41,12 +41,12 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
 
     provider_list.map do |entity_name, entity|
       @instances << new(name: entity_name,
-          ensure: :present,
-          id: entity['id'],
-          domain: entity['domain_id'],
-          description: entity['description'],
-          enabled: entity['enabled'].to_s.to_sym,
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        domain: entity['domain_id'],
+                        description: entity['description'],
+                        enabled: entity['enabled'].to_s.to_sym,
+                        provider: name)
     end
 
     @instances

@@ -43,11 +43,11 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
       group_project_name = project_name.empty? ? group_name : "#{project_name}/#{group_name}"
 
       @instances << new(name: group_project_name,
-          ensure: :present,
-          id: entity['id'],
-          project: project_id,
-          description: entity['description'],
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        project: project_id,
+                        description: entity['description'],
+                        provider: name)
     end
 
     @instances

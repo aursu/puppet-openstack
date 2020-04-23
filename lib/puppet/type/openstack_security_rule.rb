@@ -39,7 +39,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
       raise ArgumentError, _('Security group name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
       group = resource.security_group_instance(value) || resource.security_group_resource(value)
-      raise ArgumentError, _("Security group #{value} must be defined in catalog or exist in OpenStack environment") unless project
+      raise ArgumentError, _("Security group #{value} must be defined in catalog or exist in OpenStack environment") unless group
     end
   end
 
@@ -66,9 +66,14 @@ Puppet::Type.newtype(:openstack_security_rule) do
 
       next if value.to_s == 'any'
       next if %w[ah dccp egp esp gre icmp igmp ipv6-encap ipv6-frag ipv6-icmp ipv6-nonxt ipv6-opts ipv6-route ospf pgm rsvp sctp tcp udp udplite vrrp].include? value.to_s
-      next if (0 .. 255).include? value.to_i
+      next if (0..255).cover? value.to_i
 
-      raise ArgumentError, _("Protocol #{value} must be ah, dccp, egp, esp, gre, icmp, igmp, ipv6-encap, ipv6-frag, ipv6-icmp, ipv6-nonxt, ipv6-opts, ipv6-route, ospf, pgm, rsvp, sctp, tcp, udp, udplite, vrrp and integer representations [0-255] or any; default: any (all protocols)")
+      raise ArgumentError, _(<<-PUPPET)
+      Protocol #{value} must be ah, dccp, egp, esp, gre, icmp, igmp, ipv6-encap,
+      ipv6-frag, ipv6-icmp, ipv6-nonxt, ipv6-opts, ipv6-route, ospf, pgm, rsvp,
+      sctp, tcp, udp, udplite, vrrp and integer representations [0-255] or any;
+      default: any (all protocols)
+      PUPPET
     end
   end
 
@@ -90,7 +95,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
       raise ArgumentError, _('Remote security group name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
       group = resource.security_group_instance(value) || resource.security_group_resource(value)
-      raise ArgumentError, _("Remote security group #{value} must be defined in catalog or exist in OpenStack environment") unless project
+      raise ArgumentError, _("Remote security group #{value} must be defined in catalog or exist in OpenStack environment") unless group
     end
   end
 

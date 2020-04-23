@@ -54,20 +54,20 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
       pool_enabled = !pool.empty?
 
       @instances << new(name: entity_name,
-          ensure: :present,
-          id: entity['id'],
-          network: entity['network'],
-          subnet_range: entity['subnet'],
-          dns_nameserver: entity['name_servers'],
-          gateway: entity['gateway'],
-          project: entity['project'],
-          ip_version: entity['ip_version'].to_s,
-          dhcp: entity['dhcp'].to_s.to_sym,
-          allocation_pool: pool_enabled.to_s.to_sym,
-          allocation_pool_start: pool_start,
-          allocation_pool_end: pool_end,
-          description: entity['description'],
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        network: entity['network'],
+                        subnet_range: entity['subnet'],
+                        dns_nameserver: entity['name_servers'],
+                        gateway: entity['gateway'],
+                        project: entity['project'],
+                        ip_version: entity['ip_version'].to_s,
+                        dhcp: entity['dhcp'].to_s.to_sym,
+                        allocation_pool: pool_enabled.to_s.to_sym,
+                        allocation_pool_start: pool_start,
+                        allocation_pool_end: pool_end,
+                        description: entity['description'],
+                        provider: name)
     end
 
     @instances

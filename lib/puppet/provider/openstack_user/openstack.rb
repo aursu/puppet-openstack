@@ -43,14 +43,14 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
       entity['project'] = nil if entity['project'] == ''
 
       @instances << new(name: entity_name,
-          ensure: :present,
-          id: entity['id'],
-          domain: entity['domain'],
-          description: entity['description'],
-          enabled: entity['enabled'].to_s.to_sym,
-          email: entity['email'],
-          project: entity['project'],
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        domain: entity['domain'],
+                        description: entity['description'],
+                        enabled: entity['enabled'].to_s.to_sym,
+                        email: entity['email'],
+                        project: entity['project'],
+                        provider: name)
     end
 
     @instances

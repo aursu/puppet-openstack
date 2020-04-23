@@ -62,23 +62,23 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
                     }
                   end
 
-      ['system', 'domain', 'project'].each { |id| user_role[id] << entity[id] unless entity[id].to_s.empty? }
+      %w[system domain project'].each { |id| user_role[id] << entity[id] unless entity[id].to_s.empty? }
 
       user_role_list[user_role_name] = user_role
     end
 
     user_role_list.map do |entity_name, entity|
-      ['system', 'domain', 'project'].each { |id| entity[id] = nil if entity[id].empty? }
+      %w[system domain project].each { |id| entity[id] = nil if entity[id].empty? }
       entity['system'] = :all if entity['system']
 
       @instances << new(name: entity_name,
-          ensure: :present,
-          user: entity['user'],
-          role: entity['role'],
-          system: entity['system'],
-          project: entity['project'],
-          domain: entity['domain'],
-          provider: name)
+                        ensure: :present,
+                        user: entity['user'],
+                        role: entity['role'],
+                        system: entity['system'],
+                        project: entity['project'],
+                        domain: entity['domain'],
+                        provider: name)
     end
 
     @instances

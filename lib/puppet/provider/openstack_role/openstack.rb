@@ -32,10 +32,10 @@ Puppet::Type.type(:openstack_role).provide(:openstack, parent: Puppet::Provider:
 
     provider_list.map do |entity_name, entity|
       @instances << new(name: entity_name,
-          ensure: :present,
-          id: entity['id'],
-          domain: nil,
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        domain: nil,
+                        provider: name)
     end
 
     @instances

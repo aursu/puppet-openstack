@@ -64,16 +64,16 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
       router_subnets = nil if router_subnets.empty?
 
       @instances << new(name: entity_name,
-          ensure: :present,
-          id: entity['id'],
-          description: entity['description'],
-          enabled: entity['state'].to_s.to_sym,
-          project: entity['project'],
-          distributed: entity['distributed'].to_s.to_sym,
-          ha: entity['ha'].to_s.to_sym,
-          external_gateway_info: external_gateway_info,
-          subnets: router_subnets,
-          provider: name)
+                        ensure: :present,
+                        id: entity['id'],
+                        description: entity['description'],
+                        enabled: entity['state'].to_s.to_sym,
+                        project: entity['project'],
+                        distributed: entity['distributed'].to_s.to_sym,
+                        ha: entity['ha'].to_s.to_sym,
+                        external_gateway_info: external_gateway_info,
+                        subnets: router_subnets,
+                        provider: name)
     end
 
     @instances
