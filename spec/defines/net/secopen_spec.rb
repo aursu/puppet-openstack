@@ -1,7 +1,12 @@
 require 'spec_helper'
 
 describe 'openstack::net::secopen' do
-  let(:title) { 'namevar' }
+  let(:pre_condition) do
+    <<-PRECOND
+    openstack_project { 'cloud': }
+    PRECOND
+  end
+  let(:title) { 'cloud' }
   let(:params) do
     {}
   end
