@@ -44,6 +44,7 @@ Puppet::Type.newtype(:openstack_security_group) do
 
   newparam(:name) do
     desc 'Security group name'
+    defaultto { @resource[:project].to_s.empty? ? @resource[:group_name] : @resource[:project] + '/' + @resource[:group_name] }
   end
 
   newproperty(:id) do
