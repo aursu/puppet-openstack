@@ -135,7 +135,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newproperty(:description) do
+  newparam(:description) do
     desc 'Security rule description'
   end
 
