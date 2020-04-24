@@ -24,7 +24,14 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', *args)
+    cmdout = openstack_caller(provider_subcommand, 'create', '-f', 'json', *args)
+    return cmdout unless cmdout
+
+    begin
+      JSON.parse(cmdout)
+    rescue JSON::JSONError
+      cmdout
+    end
   end
 
   def self.provider_delete(*args)
@@ -35,42 +42,44 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
-  def self.update_instances
-    @instances = nil
-    instances
+  def self.project_instances
+    @project_instances ||= provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
+  end
+
+  def self.add_instance(entity = {})
+    @instances = [] unless @instances
+
+    project_id = entity['project_id'] || entity['project']
+      # default project
+    project_name = if project_id == 'default'
+                     'default'
+                   elsif project_id.to_s.empty?
+                     ''
+                   else
+                     project_instances[project_id]
+                   end
+    group_name = entity['name']
+    group_project_name = project_name.empty? ? group_name : "#{project_name}/#{group_name}"
+
+    @instances << new(name: group_project_name,
+                      ensure: :present,
+                      id: entity['id'],
+                      group_name: group_name,
+                      project: project_name,
+                      description: entity['description'],
+                      provider: name)
+  end
+
+  def self.delete_instance(id)
+    @instances.reject! { |i| i.id == id }
   end
 
   def self.instances
     return @instances if @instances
-    @instances = []
 
     openstack_command
 
-    project_instances = provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
-
-    provider_list.each do |entity|
-      project_id = entity['project']
-      group_name = entity['name']
-
-      # default project
-      project_name = if project_id == 'default'
-                       'default'
-                     elsif project_id.to_s.empty?
-                       ''
-                     else
-                       project_instances[project_id]
-                     end
-
-      group_project_name = project_name.empty? ? group_name : "#{project_name}/#{group_name}"
-
-      @instances << new(name: group_project_name,
-                        ensure: :present,
-                        id: entity['id'],
-                        group_name: group_name,
-                        project: project_name,
-                        description: entity['description'],
-                        provider: name)
-    end
+    provider_list.each { |entity| add_instance(entity) }
 
     @instances
   end
@@ -110,7 +119,10 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
 
     auth_args
 
-    self.class.provider_create(*args)
+    cmdout = self.class.provider_create(*args)
+
+    return if cmdout == false
+    self.class.add_instance(cmdout) if cmdout.is_a?(Hash)
 
     @property_hash[:ensure] = :present
   end
@@ -118,7 +130,8 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   def destroy
     group = @property_hash[:id]
 
-    self.class.provider_delete(group)
+    return if self.class.provider_delete(group) == false
+    self.class.delete_instance(group)
 
     @property_hash.clear
   end
