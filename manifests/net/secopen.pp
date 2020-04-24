@@ -12,6 +12,8 @@ define openstack::net::secopen (
 )
 {
   openstack_security_group { "${project}/${group_name}":
+    group_name  => $group_name,
+    project     => $project,
     description => $description,
   }
 
