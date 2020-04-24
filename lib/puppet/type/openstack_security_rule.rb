@@ -19,7 +19,11 @@ Puppet::Type.newtype(:openstack_security_rule) do
     desc 'Security group rule name in format [<project>/]<group>/<direction>/<proto>/<remote>/<range>'
   end
 
-  newparam(:project) do
+  newproperty(:id) do
+    desc 'Security group rule ID (read only)'
+  end
+
+  newproperty(:project) do
     desc "Owner's project (name or ID)"
 
     defaultto ''
@@ -35,7 +39,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:group) do
+  newproperty(:group) do
     desc 'Create rule in this security group (name or ID)'
 
     validate do |value|
@@ -46,14 +50,14 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:direction) do
+  newproperty(:direction) do
     desc 'Rule applies to incoming or outgoing network traffic (default)'
 
     newvalues(:ingress, :egress)
     defaultto :ingress
   end
 
-  newparam(:ethertype) do
+  newproperty(:ethertype) do
     desc 'Ethertype of network traffic (IPv4, IPv6; default: based on IP protocol)'
 
     newvalues(:ipv4, :ipv6, %r{[Ii][Pp][Vv][46]})
@@ -64,7 +68,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:protocol) do
+  newproperty(:protocol) do
     desc <<-PUPPET
     IP protocol (icmp, tcp, udp; default: tcp)
 
@@ -91,7 +95,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:remote_ip) do
+  newproperty(:remote_ip) do
     desc <<-PUPPET
     Remote IP address block (may use CIDR notation; default for IPv4 rule: 0.0.0.0/0, default for IPv6 rule: ::/0)
     PUPPET
@@ -102,7 +106,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:remote_group) do
+  newproperty(:remote_group) do
     desc 'Remote security group (name or ID)'
 
     validate do |value|
@@ -113,7 +117,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:port_range) do
+  newproperty(:port_range) do
     desc <<-PUPPET
     Destination port, may be a single port or a starting and ending port range: 137:139. Required for IP protocols TCP and UDP.
     ICMP type and code for ICMP IP protocols
@@ -131,7 +135,7 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newparam(:description) do
+  newproperty(:description) do
     desc 'Security rule description'
   end
 

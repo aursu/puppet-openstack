@@ -24,33 +24,19 @@ Puppet::Type.newtype(:openstack_security_group) do
 
   ensurable
 
-  def self.title_patterns
-    [
-      [
-        %r{^([^/]+)/([^/]+)$},
-        [
-          [:project],
-          [:name],
-        ],
-      ],
-      [
-        %r{^([^/]+)$},
-        [
-          [:name],
-        ],
-      ],
-    ]
-  end
-
-  newparam(:id) do
-    desc 'Security group ID (read only)'
-  end
-
   newparam(:name, namevar: true) do
     desc 'Security group name'
   end
 
-  newparam(:project, namevar: true) do
+  newproperty(:id) do
+    desc 'Security group ID (read only)'
+  end
+
+  newproperty(:group_name) do
+    desc 'Security group name'
+  end
+
+  newproperty(:project) do
     desc "Owner's project (name or ID)"
 
     defaultto ''

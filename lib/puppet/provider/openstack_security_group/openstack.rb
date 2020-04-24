@@ -5,10 +5,15 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     resources on a network. It is a container for security group rules which
     specify the network access rules.'
 
+  commands openstack: 'openstack'
+
+  def initialize(value = {})
+    super(value)
+    @property_flush = {}
+  end
+
   # Generates method for all properties of the property_hash
   mk_resource_methods
-
-  commands openstack: 'openstack'
 
   def self.provider_subcommand
     'security group'
@@ -26,6 +31,10 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     openstack_caller(provider_subcommand, 'delete', *args)
   end
 
+  def self.provider_set(*args)
+    openstack_caller(provider_subcommand, 'set', *args)
+  end
+
   def self.instances
     return @instances if @instances
     @instances = []
@@ -39,7 +48,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
       group_name = entity['name']
 
       # default project
-      project_name = if  project_id == 'default'
+      project_name = if project_id == 'default'
                        'default'
                      elsif project_id.to_s.empty?
                        ''
@@ -52,6 +61,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
       @instances << new(name: group_project_name,
                         ensure: :present,
                         id: entity['id'],
+                        group_name: group_name,
                         project: project_id,
                         description: entity['description'],
                         provider: name)
@@ -72,10 +82,11 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def create
-    name    = @resource[:name]
-    desc    = @resource.value(:description)
-    project = @resource.value(:project)
+    group_name = @resource.value(:group_name)
+    desc       = @resource.value(:description)
+    project    = @resource.value(:project)
 
+    @property_hash[:group_name] = group_name
     @property_hash[:description] = desc if desc
     @property_hash[:project] = project if project
 
@@ -88,7 +99,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     args = []
     args += ['--project', project] if project && !project.empty?
     args += ['--description', desc] if desc
-    args << name
+    args << group_name
 
     auth_args
 
@@ -98,9 +109,9 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def destroy
-    name = @resource[:name]
+    group_name = @resource.value(:group_name)
 
-    self.class.provider_delete(name)
+    self.class.provider_delete(group_name)
 
     @property_hash.clear
   end

@@ -3,10 +3,15 @@ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
 Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::Provider::Openstack) do
   desc 'Manage role assignments for OpenStack.'
 
+  commands openstack: 'openstack'
+
+  def initialize(value = {})
+    super(value)
+    @property_flush = {}
+  end
+
   # Generates method for all properties of the property_hash
   mk_resource_methods
-
-  commands openstack: 'openstack'
 
   def self.provider_subcommand
     'security group rule'
@@ -36,6 +41,9 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
 
     provider_list.each do |entity|
       group_id = entity['security_group']
+
+      # group could be just created therefore not existing in group_instances
+      next unless group_instances[group_id]
 
       project_id = group_instances[group_id]['project']
 
