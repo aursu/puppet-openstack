@@ -24,7 +24,25 @@ Puppet::Type.newtype(:openstack_security_group) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  def self.title_patterns
+    [
+      [
+        %r{^([^/]+)/([^/]+)$},
+        [
+          [:project],
+          [:group_name],
+        ],
+      ],
+      [
+        %r{^([^/]+)$},
+        [
+          [:group_name],
+        ],
+      ],
+    ]
+  end
+
+  newparam(:name) do
     desc 'Security group name'
   end
 
@@ -32,11 +50,7 @@ Puppet::Type.newtype(:openstack_security_group) do
     desc 'Security group ID (read only)'
   end
 
-  newproperty(:group_name) do
-    desc 'Security group name'
-  end
-
-  newproperty(:project) do
+  newparam(:project, namevar: true) do
     desc "Owner's project (name or ID)"
 
     defaultto ''
@@ -50,6 +64,10 @@ Puppet::Type.newtype(:openstack_security_group) do
       project = resource.project_instance(value) || resource.project_resource(value)
       raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
     end
+  end
+
+  newparam(:group_name, namevar: true) do
+    desc 'Security group name'
   end
 
   newproperty(:description) do
