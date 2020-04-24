@@ -67,7 +67,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
                         ensure: :present,
                         id: entity['id'],
                         group_name: group_name,
-                        project: project_id,
+                        project: project_name,
                         description: entity['description'],
                         provider: name)
     end
@@ -90,7 +90,9 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     group_name = @resource.value(:group_name)
     desc       = @resource.value(:description)
     project    = @resource.value(:project)
+    name       = project.to_s.empty? group_name : "#{project}/#{group_name}"
 
+    @property_hash[:name] = name
     @property_hash[:group_name] = group_name
     @property_hash[:description] = desc if desc
     @property_hash[:project] = project if project
@@ -109,7 +111,6 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     auth_args
 
     self.class.provider_create(*args)
-    self.class.update_instances
 
     @property_hash[:ensure] = :present
   end
@@ -118,7 +119,6 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     group = @property_hash[:id]
 
     self.class.provider_delete(group)
-    self.class.update_instances
 
     @property_hash.clear
   end

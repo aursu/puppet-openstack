@@ -45,16 +45,7 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       # group could be just created therefore not existing in group_instances
       next unless group_instances[group_id]
 
-      project_id = group_instances[group_id]['project']
-
-      # default project
-      project_name = if project_id == 'default'
-                       'default'
-                     elsif project_id.to_s.empty?
-                       ''
-                     else
-                       project_instances[project_id]
-                     end
+      project_name = group_instances[group_id]['project']
 
       group_name = group_instances[group_id]['name']
       group_project_name = project_name.empty? ? group_name : "#{project_name}/#{group_name}"
