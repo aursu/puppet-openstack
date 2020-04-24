@@ -62,7 +62,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
                     }
                   end
 
-      %w[system domain project'].each { |id| user_role[id] << entity[id] unless entity[id].to_s.empty? }
+      %w[system domain project].each { |id| user_role[id] << entity[id] unless entity[id].to_s.empty? }
 
       user_role_list[user_role_name] = user_role
     end
