@@ -90,7 +90,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     group_name = @resource.value(:group_name)
     desc       = @resource.value(:description)
     project    = @resource.value(:project)
-    name       = project.to_s.empty? group_name : "#{project}/#{group_name}"
+    name       = project.to_s.empty? ? group_name : "#{project}/#{group_name}"
 
     @property_hash[:name] = name
     @property_hash[:group_name] = group_name
