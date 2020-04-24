@@ -35,6 +35,11 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.update_instances
+    @instances = nil
+    instances
+  end
+
   def self.instances
     return @instances if @instances
     @instances = []
@@ -104,6 +109,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     auth_args
 
     self.class.provider_create(*args)
+    self.class.update_instances
 
     @property_hash[:ensure] = :present
   end
@@ -112,6 +118,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     group = @property_hash[:id]
 
     self.class.provider_delete(group)
+    self.class.update_instances
 
     @property_hash.clear
   end
