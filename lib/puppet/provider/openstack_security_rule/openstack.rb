@@ -48,10 +48,10 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       project_id = group_instances[group_id]['project']
 
       # default project
-      project_name = if  project_id == 'default'
+      project_name = if project_id == 'default'
                        'default'
                      elsif project_id.to_s.empty?
-                      ''
+                       ''
                      else
                        project_instances[project_id]
                      end
