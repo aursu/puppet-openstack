@@ -36,7 +36,7 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
     openstack_command
 
     group_instances = provider_instances(:openstack_security_group)
-                      .map { |g| [g.id, { 'name' => g.name, 'project' => g.project }] }.to_h
+                      .map { |g| [g.id, { 'name' => g.group_name, 'project' => g.project }] }.to_h
     project_instances = provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
 
     provider_list.each do |entity|
