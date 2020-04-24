@@ -42,15 +42,6 @@ Puppet::Type.newtype(:openstack_security_group) do
     ]
   end
 
-  newparam(:name) do
-    desc 'Security group name'
-    defaultto { @resource[:project].to_s.empty? ? @resource[:group_name] : @resource[:project] + '/' + @resource[:group_name] }
-  end
-
-  newproperty(:id) do
-    desc 'Security group ID (read only)'
-  end
-
   newparam(:project, namevar: true) do
     desc "Owner's project (name or ID)"
 
@@ -69,6 +60,18 @@ Puppet::Type.newtype(:openstack_security_group) do
 
   newparam(:group_name, namevar: true) do
     desc 'Security group name'
+  end
+
+  newparam(:name) do
+    desc 'Security group name'
+
+    defaultto do
+      @resource[:project].to_s.empty? ? @resource[:group_name] : (@resource[:project] + '/' + @resource[:group_name])
+    end
+  end
+
+  newproperty(:id) do
+    desc 'Security group ID (read only)'
   end
 
   newproperty(:description) do
