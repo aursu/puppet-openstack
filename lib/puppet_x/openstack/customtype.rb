@@ -14,21 +14,21 @@ module CustomType
     [prop].flatten.reject { |p| p.to_s == 'absent' }.compact
   end
 
-  def entity_instance(lookup_id, entity_type)
+  def entity_instance(lookup_id, entity_type, lookup_key = nil)
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
 
     instances = Puppet::Type.type(entity_type).instances
-                            .select { |r| [r[:name], r[:id]].include?(lookup_id) }
+                            .select { |r| [lookup_key ? r[lookup_key] : nil, r[:name], r[:id]].compact.include?(lookup_id) }
     return nil if instances.empty?
 
     instances.first
   end
 
-  def entity_resource(lookup_id, entity_type)
+  def entity_resource(lookup_id, entity_type, lookup_key = nil)
     # bugfix: catalog does not exist while instances prefetch
     return nil unless catalog
     lookup_id = lookup_id.is_a?(Array) ? lookup_id.first : lookup_id
-    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(entity_type)) && [r[:name], r[:id]].include?(lookup_id) }
+    catalog.resources.find { |r| r.is_a?(Puppet::Type.type(entity_type)) && [lookup_key ? r[lookup_key] : nil, r[:name], r[:id]].compact.include?(lookup_id) }
   end
 
   def project_instance(lookup_id)
@@ -72,11 +72,11 @@ module CustomType
   end
 
   def security_group_instance(lookup_id)
-    entity_instance(lookup_id, :openstack_security_group)
+    entity_instance(lookup_id, :openstack_security_group, :group_name)
   end
 
   def security_group_resource(lookup_id)
-    entity_resource(lookup_id, :openstack_security_group)
+    entity_resource(lookup_id, :openstack_security_group, :group_name)
   end
 
   # class methods for base class
