@@ -109,9 +109,9 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def destroy
-    group_name = @resource.value(:group_name)
+    group = @property_hash[:id]
 
-    self.class.provider_delete(group_name)
+    self.class.provider_delete(group)
 
     @property_hash.clear
   end
