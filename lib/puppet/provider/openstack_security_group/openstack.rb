@@ -43,7 +43,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def self.project_instances
-    @project_instances ||= provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
+    provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
   end
 
   def self.add_instance(entity = {})
