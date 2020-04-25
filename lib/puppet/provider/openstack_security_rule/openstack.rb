@@ -29,19 +29,26 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
     openstack_caller(provider_subcommand, 'delete', *args)
   end
 
+  def self.group_instances
+    provider_instances(:openstack_security_group).map { |g| [g.id, { 'name' => g.group_name, 'project' => g.project }] }.to_h
+  end
+
+  def self.group_lookup(project, group_name)
+    return nil unless group_name
+
+    group_instances.find { |_id, group| group['project'] == project && group['name'] == group_name }[0]
+  end
+
   def self.instances
     return @instances if @instances
     @instances = []
 
     openstack_command
 
-    group_instances = provider_instances(:openstack_security_group)
-                      .map { |g| [g.id, { 'name' => g.group_name, 'project' => g.project }] }.to_h
-
     provider_list.each do |entity|
       group_id = entity['security_group']
 
-      # group could be just created therefore not existing in group_instances
+      # group could be just created or deleted therefore not existing in group_instances
       next unless group_instances[group_id]
 
       project_name = group_instances[group_id]['project']
@@ -102,15 +109,18 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
   # <group>
 
   def create
-    ip_address   = @resource.value(:remote_ip)
-    remote_group = @resource.value(:remote_group)
-    port_range   = @resource.value(:port_range)
-    proto        = @resource.value(:protocol)
-    direction    = @resource.value(:direction)
-    project      = @resource.value(:project)
-    group        = @resource.value(:group)
-    desc         = @resource.value(:description)
-    ethertype    = @resource.value(:ethertype)
+    ip_address        = @resource.value(:remote_ip)
+    remote_group_name = @resource.value(:remote_group)
+    port_range        = @resource.value(:port_range)
+    proto             = @resource.value(:protocol)
+    direction         = @resource.value(:direction)
+    project           = @resource.value(:project)
+    group_name        = @resource.value(:group)
+    desc              = @resource.value(:description)
+    ethertype         = @resource.value(:ethertype)
+
+    group             = self.class.group_lookup(project, group_name)
+    remote_group      = self.class.group_lookup(project, remote_group_name)
 
     port_range = nil if ['', 'any'].include? port_range.to_s
     proto      = nil if ['', 'any'].include? proto.to_s
@@ -122,8 +132,8 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       _tag, icmp_code = port_range_max.split('=') if port_range_max && icmp_type
     end
 
-    @property_hash[:group] = group
-    @property_hash[:remote_group] = remote_group if remote_group
+    @property_hash[:group] = group_name
+    @property_hash[:remote_group] = remote_group_name if remote_group_name
     @property_hash[:remote_ip] = ip_address if ip_address
     @property_hash[:port_range] = port_range if port_range
     @property_hash[:protocol] = proto if proto
