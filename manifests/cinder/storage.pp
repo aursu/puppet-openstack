@@ -5,6 +5,8 @@
 # @example
 #   include openstack::cinder::storage
 class openstack::cinder::storage (
+  Openstack::Release
+          $cycle              = $openstack::cycle,
   String  $volume_group       = $openstack::cinder_volume_group,
   Optional[Array[String, 1]]
           $lvm_devices_filter = $openstack::lvm_devices_filter,
@@ -47,7 +49,10 @@ class openstack::cinder::storage (
     'lvm2': ;
     'device-mapper-persistent-data': ;
     'targetcli': ;
-    'python-keystone': ;
+  }
+
+  openstack::package { 'python-keystone':
+    cycle => $cycle,
   }
 
   # [cinder]
