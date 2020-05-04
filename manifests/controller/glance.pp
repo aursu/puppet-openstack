@@ -131,6 +131,8 @@ class openstack::controller::glance (
     'glance_store/stores'                   => 'file,http',
   }
 
+  # https://docs.openstack.org/glance/latest/configuration/configuring.html#configuring-glance-storage-backends
+
   openstack::config { '/etc/glance/glance-api.conf':
     content => $conf_default + $glance_store_default,
     require => Openstack::Package['openstack-glance'],
