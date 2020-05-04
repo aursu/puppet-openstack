@@ -50,7 +50,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     @instances = [] unless @instances
 
     project_id = entity['project_id'] || entity['project']
-      # default project
+    # default project
     project_name = if project_id == 'default'
                      'default'
                    elsif project_id.to_s.empty?
@@ -81,7 +81,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
 
     provider_list.each { |entity| add_instance(entity) }
 
-    @instances
+    @instances || []
   end
 
   def self.prefetch(resources)
