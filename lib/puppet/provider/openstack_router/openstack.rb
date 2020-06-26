@@ -124,6 +124,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     @property_hash[:ensure] = :present
 
     return if self.class.provider_set('--external-gateway', external_gateway_info, name) == false
+    # TODO: openstack router set --external-gateway 107ce2d3-68c7-4c4a-bc04-e29c38ab5282 \
+    #       --fixed-ip subnet=ea91d300-c187-4001-900e-0b715edc4b7d,ip-address=10.100.16.58 59c172eb-91b1-49a4-b7a3-7bb3b48a219d
     @property_hash[:external_gateway_info] = external_gateway_info
 
     subnets.each do |sub|
