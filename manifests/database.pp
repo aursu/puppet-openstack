@@ -46,14 +46,14 @@ define openstack::database (
       if $exported {
         @@mysql_user { "${dbuser}@${dbhost}":
           ensure        => present,
-          password_hash => mysql_password($dbpass),
+          password_hash => mysql::password($dbpass),
           tag           => $database_tag,
         }
       }
       else {
         mysql_user { "${dbuser}@${dbhost}":
           ensure        => present,
-          password_hash => mysql_password($dbpass),
+          password_hash => mysql::password($dbpass),
         }
       }
     }

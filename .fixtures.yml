@@ -20,7 +20,7 @@ fixtures:
       ref: '1.4.0'
     mysql:
       repo: "puppetlabs/mysql"
-      ref: "10.3.0"
+      ref: "10.6.0"
     rabbitmq:
       repo: "puppet/rabbitmq"
       ref: "10.0.0"
