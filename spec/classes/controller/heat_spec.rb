@@ -15,6 +15,7 @@ describe 'openstack::controller::heat' do
       heat_dbpass: 'secret',
     }
   end
+
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do

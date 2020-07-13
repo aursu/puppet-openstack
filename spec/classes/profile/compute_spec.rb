@@ -1,13 +1,6 @@
 require 'spec_helper'
 
-describe 'openstack::compute::nova' do
-  let(:pre_condition) do
-    <<-PRECOND
-    include openstack
-    include openstack::install
-    PRECOND
-  end
-
+describe 'openstack::profile::compute' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) do
