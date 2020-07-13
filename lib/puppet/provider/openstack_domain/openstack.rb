@@ -5,6 +5,11 @@ Puppet::Type.type(:openstack_domain).provide(:openstack, parent: Puppet::Provide
 
   commands openstack: 'openstack'
 
+  def initialize(value = {})
+    super(value)
+    @property_flush = {}
+  end
+
   # Generates method for all properties of the property_hash
   mk_resource_methods
 
