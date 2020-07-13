@@ -31,6 +31,14 @@ module CustomType
     catalog.resources.find { |r| r.is_a?(Puppet::Type.type(entity_type)) && [lookup_key ? r[lookup_key] : nil, r[:name], r[:id]].compact.include?(lookup_id) }
   end
 
+  def domain_instance(lookup_id)
+    entity_instance(lookup_id, :openstack_domain)
+  end
+
+  def domain_resource(lookup_id)
+    entity_resource(lookup_id, :openstack_domain)
+  end
+
   def project_instance(lookup_id)
     entity_instance(lookup_id, :openstack_project)
   end
