@@ -3,6 +3,9 @@
 ---
 fixtures:
   forge_modules:
+    apache:
+      repo: "puppetlabs/apache"
+      ref: "5.5.0"
     archive:
       repo: "puppet/archive"
       ref: "4.4.0"
@@ -35,6 +38,3 @@ fixtures:
       repo: https://github.com/puppetlabs/puppetlabs-yumrepo_core.git
       ref: "tags/1.0.6"
       puppet_version: ">= 6.0.0"
-    apache:
-      repo: https://github.com/aursu/puppetlabs-apache.git
-      ref: "tags/v5.4.0-aursu.3"
