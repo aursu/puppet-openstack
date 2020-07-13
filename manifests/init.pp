@@ -72,9 +72,21 @@ class openstack (
                       $lvm_devices_filter,
   Optional[Array[Stdlib::Unixpath]]
                       $cinder_physical_volumes,
+  # Heat
+  String              $heat_dbname,
+  String              $heat_dbuser,
+  Optional[String]    $heat_dbpass,
+  Optional[String]    $heat_pass,
+
   Stdlib::Host        $controller_host,
   String              $compute_tag,
 
 
 ){
+  # setup OS limits for Ussuri release
+  if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['6', '7'] {
+    if openstack::cyclecmp($cycle, 'ussuri') >= 0 {
+      fail('Starting with the Ussuri release, you will need to use either CentOS8 or RHEL 8')
+    }
+  }
 }

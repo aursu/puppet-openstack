@@ -17,3 +17,6 @@ openstack::cinder_pass: secret
 openstack::cinder_dbpass: secret
 # Neutron
 openstack::neutron_pass: secret
+# Heat
+openstack::heat_pass: secret
+openstack::heat_dbpass: secret
