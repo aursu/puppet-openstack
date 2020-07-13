@@ -9,13 +9,24 @@ class openstack::install (
 ){
   openstack::repository { $cycle: }
 
+  if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '8' {
+    yumrepo { 'PowerTools':
+      enabled => true,
+    }
+
+    $openstackclient = 'python3-openstackclient'
+  }
+  else {
+    $openstackclient = 'python-openstackclient'
+  }
+
   # https://docs.openstack.org/install-guide/environment-packages-rdo.html#finalize-the-installation
   package {
     default:
       ensure  => 'present',
       require => Openstack::Repository[$cycle],
     ;
-    'python-openstackclient':
+    $openstackclient:
     ;
     'openstack-selinux':
     ;
