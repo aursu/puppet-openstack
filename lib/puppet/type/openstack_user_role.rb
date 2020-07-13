@@ -43,6 +43,7 @@ Puppet::Type.newtype(:openstack_user_role) do
 
   newparam(:domain) do
     desc 'Include <domain> (name or ID)'
+    defaultto 'default'
   end
 
   newproperty(:system) do
@@ -56,7 +57,7 @@ Puppet::Type.newtype(:openstack_user_role) do
     desc 'Include <project> (name or ID)'
 
     def insync?(is)
-      # is == :absent in case of non-existing subnets for router
+      # is == :absent in case of non-existing roles for user
       return @should == [:absent] if is.nil? || is == [] || is.to_s == 'absent'
 
       is.flatten.sort == should.flatten.sort
