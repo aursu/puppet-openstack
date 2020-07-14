@@ -14,25 +14,50 @@ Puppet::Type.newtype(:openstack_user) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  def self.title_patterns
+    [
+      [
+        %r{^([^/]+)/([^/]+)$},
+        [
+          [:domain],
+          [:user_name],
+        ],
+      ],
+      [
+        %r{^([^/]+)$},
+        [
+          [:user_name],
+        ],
+      ],
+    ]
+  end
+
+  newparam(:domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Default domain (name or ID)'
+  end
+
+  newparam(:user_name, namevar: true) do
     desc 'New user name'
+  end
+
+  newparam(:name) do
+    desc 'New user name'
+
+    defaultto do
+      (@resource[:domain].to_s == 'default') ? @resource[:user_name] : (@resource[:domain] + '/' + @resource[:user_name])
+    end
   end
 
   newparam(:id) do
     desc 'User ID (read only)'
   end
 
-  newproperty(:domain) do
-    desc 'Default domain (name or ID)'
-    defaultto 'default'
-  end
-
   newproperty(:description) do
-    desc 'Project description'
+    desc 'User description'
   end
 
   newproperty(:enabled) do
-    desc 'Enable project (default)'
+    desc 'Enable user (default)'
 
     newvalues(:true, :false)
     defaultto :true

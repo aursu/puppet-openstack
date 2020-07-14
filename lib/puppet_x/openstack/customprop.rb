@@ -101,10 +101,45 @@ module PuppetX
       validate do |value|
         next if value.to_s == 'absent'
 
-        raise ArgumentError, _('Network must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+        raise ArgumentError, _('User must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
         user = resource.user_instance(value) || resource.user_resource(value)
-        raise ArgumentError, _("Subnet #{value} must be defined in catalog or exist in OpenStack environment") unless user
+        raise ArgumentError, _("User #{value} must be defined in catalog or exist in OpenStack environment") unless user
+      end
+    end
+
+    # parental class with sync check and input valdation for 'domain' property
+    class DomainProperty < Puppet::Property
+      def insync?(is)
+        return @should == [:absent] if is.nil? || is.to_s == 'absent'
+
+        domain = resource.domain_instance(@should)
+        return true if domain && [domain[:name], domain[:id]].include?(is)
+
+        false
+      end
+
+      validate do |value|
+        next if value.to_s == 'absent'
+
+        raise ArgumentError, _('Domain must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+
+        domain = resource.domain_instance(value) || resource.domain_resource(value)
+        raise ArgumentError, _("Domain #{value} must be defined in catalog or exist in OpenStack environment") unless domain
+      end
+    end
+
+    # parental class with sync check and input valdation for 'domain' parameter
+    class DomainParameter < Puppet::Parameter
+      defaultto 'default'
+
+      validate do |value|
+        raise ArgumentError, _('Domain name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+
+        next if value.to_s == 'default'
+
+        domain = resource.domain_instance(value) || resource.domain_resource(value)
+        raise ArgumentError, _("Domain #{value} must be defined in catalog or exist in OpenStack environment") unless domain
       end
     end
   end

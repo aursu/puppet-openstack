@@ -18,11 +18,26 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.provider_list
-    get_list(provider_subcommand)
+    get_list_array(provider_subcommand)
   end
 
+  #   {
+  #   "password_expires_at": null,
+  #   "enabled": true,
+  #   "domain_id": "bdbb92f04f2d40b284b042a27b90500b",
+  #   "id": "cf6ad310ef0d471a9aae6a679e9f285e",
+  #   "options": {},
+  #   "name": "heat_domain_admin"
+  # }
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', *args)
+    cmdout = openstack_caller(provider_subcommand, 'create', '-f', 'json', *args)
+    return cmdout unless cmdout
+
+    begin
+      JSON.parse(cmdout)
+    rescue JSON::JSONError
+      cmdout
+    end
   end
 
   def self.provider_delete(*args)
@@ -33,27 +48,54 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.domain_instances
+    provider_instances(:openstack_domain).map { |d| [d.id, d.name] }.to_h
+  end
+
+  def self.add_instance(entity = {})
+    @instances = [] unless @instances
+
+    # name
+    user_name = entity['name']
+
+    # project
+    entity['project'] = nil if entity['project'].to_s.empty?
+
+    # domain
+    domain_id = entity['domain_id'] || entity['domain']
+    domain_name = if domain_id == 'default'
+                    'default'
+                  else
+                    domain_instances[domain_id]
+                  end
+
+    entity_name = (domain_id == 'default') ? user_name : "#{domain_name}/#{user_name}"
+
+    # [<domain>/]<user>
+    @instances << new(name: entity_name,
+                      ensure: :present,
+                      id: entity['id'],
+                      domain: domain_name,
+                      user_name: user_name,
+                      description: entity['description'],
+                      enabled: entity['enabled'].to_s.to_sym,
+                      email: entity['email'],
+                      project: entity['project'],
+                      provider: name)
+  end
+
+  def self.delete_instance(id)
+    @instances.reject! { |i| i.id == id }
+  end
+
   def self.instances
     return @instances if @instances
-    @instances = []
 
     openstack_command
 
-    provider_list.map do |entity_name, entity|
-      entity['project'] = nil if entity['project'] == ''
+    provider_list.each { |entity| add_instance(entity) }
 
-      @instances << new(name: entity_name,
-                        ensure: :present,
-                        id: entity['id'],
-                        domain: entity['domain'],
-                        description: entity['description'],
-                        enabled: entity['enabled'].to_s.to_sym,
-                        email: entity['email'],
-                        project: entity['project'],
-                        provider: name)
-    end
-
-    @instances
+    @instances || []
   end
 
   def self.prefetch(resources)
@@ -68,15 +110,18 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def create
-    name    = @resource[:name]
-    domain  = @resource.value(:domain)
-    desc    = @resource.value(:description)
-    enabled = @resource.value(:enabled)
-    email   = @resource.value(:email)
-    project = @resource.value(:project)
-    pwd     = @resource.value(:password)
+    domain    = @resource.value(:domain)
+    user_name = @resource.value(:user_name)
+    desc      = @resource.value(:description)
+    enabled   = @resource.value(:enabled)
+    email     = @resource.value(:email)
+    project   = @resource.value(:project)
+    pwd       = @resource.value(:password)
+    name      = (domain == 'default') ? user_name : "#{domain}/#{user_name}"
 
+    @property_hash[:name] = name
     @property_hash[:domain] = domain
+    @property_hash[:user_name] = user_name
     @property_hash[:description] = desc
     @property_hash[:enabled] = enabled
     @property_hash[:email] = email
@@ -94,17 +139,27 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
             else
               '--disable'
             end
-    args << name
+    args << user_name
 
-    self.class.provider_create(*args)
+    cmdout = self.class.provider_create(*args)
+
+    return if cmdout == false
+
+    if cmdout.is_a?(Hash)
+      cmdout['project'] = project if project
+      cmdout['description'] = desc if desc
+      cmdout['email'] = email if email
+      self.class.add_instance(cmdout)
+    end
 
     @property_hash[:ensure] = :present
   end
 
   def destroy
-    name = @resource[:name]
+    user = @property_hash[:id]
 
-    self.class.provider_delete(name)
+    return if self.class.provider_delete(user) == false
+    self.class.delete_instance(user)
 
     @property_hash.clear
   end
@@ -130,20 +185,35 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def password
-    name      = @resource[:name]
+    user_name = @resource.value(:user_name)
+    domain    = @resource.value(:domain)
     user_id   = @property_hash[:id]
     pwd       = @resource.value(:password)
 
-    user_role = user_role_instances.select { |a| a.user == user_id }
-                                   .map { |a| prop_to_array(a.project) }.flatten
+    user_role_project = user_role_instances.select { |a| a.user == user_id }
+                                           .map { |a| prop_to_array(a.project) }.flatten
+
+    user_role_domain = user_role_instances.select { |a| a.user == user_id }
+                                          .map { |a| prop_to_array(a.domain) }.flatten
 
     # get token for first  assigned domain
-    os_project_id = user_role.empty? ? '' : user_role[0]
+    os_project_id = user_role_project.empty? ? '' : user_role_project[0]
 
-    args = ['--os-username', name]
+    os_domain_id = user_role_domain.empty? ? '' : user_role_domain[0]
+    # if os_domain_id is empty - use user domain name as defined in resource
+    os_domain_name = user_role_domain.empty? ? domain : ''
+
+    args = ['--os-username', user_name]
     args += ['--os-project-name', '']
-    args += ['--os-project-id', os_project_id]
+    if os_project_id == ''
+      args += ['--os-project-id', '']
+      args += ['--os-user-domain-name', os_domain_name]
+      args += ['--os-user-domain-id', os_domain_id]
+    else
+      args += ['--os-project-id', os_project_id]
+    end
     args += ['--os-password', pwd]
+
     args += ['-f', 'json']
 
     token = self.class.openstack_caller('token', 'issue', *args)
@@ -158,11 +228,12 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def flush
     return if @property_flush.empty?
     args = []
-    name    = @resource[:name]
-    desc    = @resource.value(:description)
-    email   = @resource.value(:email)
-    pwd     = @resource.value(:password)
-    project = @resource.value(:project)
+    user_name = @resource.value(:user_name)
+    domain    = @resource.value(:domain)
+    desc      = @resource.value(:description)
+    email     = @resource.value(:email)
+    pwd       = @resource.value(:password)
+    project   = @resource.value(:project)
 
     args << '--enable' if @property_flush[:enabled] == :true
     args << '--disable' if @property_flush[:enabled] == :false
@@ -175,7 +246,10 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     @property_flush.clear
 
     return if args.empty?
-    args << name
+
+    args += ['--domain', domain]
+    args << user_name
+
     self.class.provider_set(*args)
   end
 end
