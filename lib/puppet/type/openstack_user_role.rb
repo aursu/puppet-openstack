@@ -19,6 +19,14 @@ Puppet::Type.newtype(:openstack_user_role) do
   def self.title_patterns
     [
       [
+        %r{^([^/]+)/([^/]+)/([^/]+)$},
+        [
+          [:user_domain],
+          [:user],
+          [:role],
+        ],
+      ],
+      [
         %r{^([^/]+)/([^/]+)$},
         [
           [:user],
@@ -28,9 +36,8 @@ Puppet::Type.newtype(:openstack_user_role) do
     ]
   end
 
-  newparam(:name) do
-    desc 'Resource name'
-    defaultto { @resource[:user] + '/' + @resource[:role] }
+  newparam(:user_domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Include <domain> (name or ID)'
   end
 
   newparam(:user, namevar: true) do
@@ -41,9 +48,17 @@ Puppet::Type.newtype(:openstack_user_role) do
     desc 'Role to add to <project>:<user> (name or ID)'
   end
 
+  newparam(:name) do
+    desc 'Resource name'
+
+    defaultto do
+      user_role = @resource[:user] + '/' + @resource[:role]
+      (@resource[:user_domain].to_s == 'default') ? user_role : (@resource[:user_domain] + '/' + user_role)
+    end
+  end
+
   newparam(:domain) do
     desc 'Include <domain> (name or ID)'
-    defaultto 'default'
   end
 
   newproperty(:system) do
@@ -74,11 +89,15 @@ Puppet::Type.newtype(:openstack_user_role) do
   end
 
   autorequire(:openstack_user) do
-    self[:user]
+    (self[:user_domain].to_s == 'default') ? self[:user] : (self[:user_domain] + '/' + self[:user])
   end
 
   autorequire(:openstack_role) do
     self[:role]
+  end
+
+  autorequire(:openstack_domain) do
+    self[:user_domain]
   end
 
   autorequire(:openstack_project) do

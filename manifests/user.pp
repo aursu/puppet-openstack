@@ -5,7 +5,6 @@
 # @example
 #   openstack::user { 'namevar': }
 define openstack::user (
-  String  $project,
   String  $user_pass,
   Enum['present', 'absent']
           $ensure         = 'present',
@@ -13,9 +12,13 @@ define openstack::user (
           $role           = 'member',
   Optional[String]
           $description    = undef,
+  String  $user_domain    = 'default',
 
   # following instructions from https://docs.openstack.org/glance/train/install/install-rdo.html
+  Optional[String]
+          $project        = undef,
   String  $project_domain = 'default',
+
   Boolean $setup_openrc   = false,
   Openstack::Release
           $cycle          = $openstack::cycle,
@@ -26,15 +29,33 @@ define openstack::user (
     default => "OpenStack ${name} user",
   }
 
-  openstack_user { $name:
+  $openstack_user_name = $user_domain ? {
+    'default' => $name,
+    default   => "${user_domain}/${name}"
+  }
+
+  openstack_user { $openstack_user_name:
     ensure      => present,
-    domain      => $project_domain,
+    domain      => $user_domain,
     description => $defined_description,
     password    => $user_pass,
   }
 
-  openstack_user_role { "${name}/${role}":
-    project => $project,
+  # openstack role add
+  # --system <system> | --domain <domain> | --project <project> [--project-domain <project-domain>]
+  # --user <user> [--user-domain <user-domain>] | --group <group> [--group-domain <group-domain>]
+  # --role-domain <role-domain>
+  # --inherited
+  # <role>
+
+  $openstack_user_role_name = $user_domain ? {
+    'default' => "${name}/${role}",
+    default   => "${user_domain}/${name}/${role}"
+  }
+
+  openstack_user_role { $openstack_user_role_name:
+    project     => $project,
+    user_domain => $user_domain,
   }
 
   if $setup_openrc {

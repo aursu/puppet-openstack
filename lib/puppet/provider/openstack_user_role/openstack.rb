@@ -30,7 +30,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
 
     openstack_command
 
-    user_instances = provider_instances(:openstack_user).map { |u| [u.id, u.name] }.to_h
+    user_instances = provider_instances(:openstack_user).map { |u| [u.id, { 'name' => u.user_name, 'domain' => u.domain }] }.to_h
     role_instances = provider_instances(:openstack_role).map { |r| [r.id, r.name] }.to_h
 
     user_role_list = {}
@@ -42,29 +42,32 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
       # in case if group
       next if user_id.to_s.empty?
 
-      user_name = user_instances[user_id]
+      user_name = user_instances[user_id]['name']
+      user_domain = user_instances[user_id]['domain']
       role_name = role_instances[role_id]
 
       # in case of error
       next unless user_name && role_name
 
       user_role_name = "#{user_name}/#{role_name}"
+      entity_name = (user_domain.to_s == 'default') ? user_role_name : "#{user_domain}/#{user_role_name}"
 
-      user_role = if user_role_list[user_role_name]
-                    user_role_list[user_role_name]
+      user_role = if user_role_list[entity_name]
+                    user_role_list[entity_name]
                   else
                     {
                       'system' => [],
                       'domain' => [],
                       'project' => [],
                       'user' => user_id,
+                      'user_domain' => user_domain,
                       'role' => role_id,
                     }
                   end
 
       %w[system domain project].each { |id| user_role[id] << entity[id] unless entity[id].to_s.empty? }
 
-      user_role_list[user_role_name] = user_role
+      user_role_list[entity_name] = user_role
     end
 
     user_role_list.map do |entity_name, entity|
@@ -74,6 +77,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
       @instances << new(name: entity_name,
                         ensure: :present,
                         user: entity['user'],
+                        user_domain: entity['user_domain'],
                         role: entity['role'],
                         system: entity['system'],
                         project: entity['project'],
@@ -96,11 +100,12 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
   end
 
   def create
-    user    = @resource.value(:user)
-    role    = @resource.value(:role)
-    system  = @resource.value(:system)
-    project = @resource.value(:project)
-    domain  = @resource.value(:domain)
+    user        = @resource.value(:user)
+    user_domain = @resource.value(:user_domain)
+    role        = @resource.value(:role)
+    system      = @resource.value(:system)
+    project     = @resource.value(:project)
+    domain      = @resource.value(:domain)
 
     @property_hash[:user] = user
     @property_hash[:role] = role
@@ -113,21 +118,21 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     # <role>
 
     prop_to_array(system).each do |_s|
-      next if self.class.provider_create('--system', 'all', '--user', user, role) == false
+      next if self.class.provider_create('--system', 'all', '--user', user, '--user-domain', user_domain, role) == false
       @property_hash[:system] = :all
       break
     end
 
     domain_prop = []
     prop_to_array(domain).each do |d|
-      next if self.class.provider_create('--domain', d, '--user', user, role) == false
+      next if self.class.provider_create('--domain', d, '--user', user, '--user-domain', user_domain, role) == false
       domain_prop << d
     end
     @property_hash[:domain] = domain_prop unless domain_prop.empty?
 
     project_prop = []
     prop_to_array(project).each do |p|
-      next if self.class.provider_create('--project', p, '--user', user, role) == false
+      next if self.class.provider_create('--project', p, '--user', user, '--user-domain', user_domain, role) == false
       project_prop << p
     end
     @property_hash[:project] = project_prop unless project_prop.empty?
@@ -136,11 +141,12 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
   end
 
   def destroy
-    user    = @resource.value(:user)
-    role    = @resource.value(:role)
-    system  = @resource.value(:system)
-    project = @resource.value(:project)
-    domain  = @resource.value(:domain)
+    user        = @resource.value(:user)
+    user_domain = @resource.value(:user_domain)
+    role        = @resource.value(:role)
+    system      = @resource.value(:system)
+    project     = @resource.value(:project)
+    domain      = @resource.value(:domain)
 
     # openstack role remove
     # --system <system> | --domain <domain> | --project <project> [--project-domain <project-domain>]
@@ -150,16 +156,16 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     # <role>
 
     prop_to_array(system).each do |_s|
-      self.class.provider_delete('--system', 'all', '--user', user, role)
+      self.class.provider_delete('--system', 'all', '--user', user, '--user-domain', user_domain, role)
       break
     end
 
     prop_to_array(domain).each do |d|
-      self.class.provider_delete('--domain', d, '--user', user, role)
+      self.class.provider_delete('--domain', d, '--user', user, '--user-domain', user_domain, role)
     end
 
     prop_to_array(project).each do |p|
-      self.class.provider_delete('--project', p, '--user', user, role)
+      self.class.provider_delete('--project', p, '--user', user, '--user-domain', user_domain, role)
     end
 
     @property_hash.clear
@@ -170,32 +176,34 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
   end
 
   def system=(assign)
-    user    = @resource.value(:user)
-    role    = @resource.value(:role)
+    user        = @resource.value(:user)
+    user_domain = @resource.value(:user_domain)
+    role        = @resource.value(:role)
 
     if prop_to_array(assign).empty?
-      self.class.provider_delete('--system', 'all', '--user', user, role)
+      self.class.provider_delete('--system', 'all', '--user', user, '--user-domain', user_domain, role)
       @property_hash[:system] = nil
     else
-      self.class.provider_create('--system', 'all', '--user', user, role)
+      self.class.provider_create('--system', 'all', '--user', user, '--user-domain', user_domain, role)
       @property_hash[:system] = :all
     end
   end
 
   def project=(assign)
-    user    = @resource.value(:user)
-    role    = @resource.value(:role)
+    user        = @resource.value(:user)
+    user_domain = @resource.value(:user_domain)
+    role        = @resource.value(:role)
 
     is = prop_to_array(@property_hash[:project])
     assign = prop_to_array(assign)
 
     (assign - is).each do |p|
-      next if self.class.provider_create('--project', p, '--user', user, role) == false
+      next if self.class.provider_create('--project', p, '--user', user, '--user-domain', user_domain, role) == false
       is << p
     end
 
     (is - assign).each do |p|
-      self.class.provider_delete('--project', p, '--user', user, role) == false
+      self.class.provider_delete('--project', p, '--user', user, '--user-domain', user_domain, role) == false
     end
 
     @property_hash[:project] = assign
