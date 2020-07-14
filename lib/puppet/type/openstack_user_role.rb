@@ -102,7 +102,15 @@ Puppet::Type.newtype(:openstack_user_role) do
   end
 
   autorequire(:openstack_domain) do
-    self[:user_domain]
+    rv = []
+    rv << self[:user_domain] if self[:user_domain]
+    rv << self[:project_domain] if self[:project_domain]
+    if self[:domain].is_a?(Array)
+      rv += self[:domain]
+    elsif self[:domain]
+      rv << self[:domain]
+    end
+    rv
   end
 
   autorequire(:openstack_project) do

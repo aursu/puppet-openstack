@@ -19,6 +19,9 @@ define openstack::user (
           $project        = undef,
   String  $project_domain = 'default',
 
+  Optional[String]
+          $domain         = undef,
+
   Boolean $setup_openrc   = false,
   Openstack::Release
           $cycle          = $openstack::cycle,
@@ -53,9 +56,18 @@ define openstack::user (
     default   => "${user_domain}/${name}/${role}"
   }
 
-  openstack_user_role { $openstack_user_role_name:
-    project     => $project,
-    user_domain => $user_domain,
+  if $project {
+    openstack_user_role { $openstack_user_role_name:
+      project        => $project,
+      project_domain => $project_domain,
+      user_domain    => $user_domain,
+    }
+  }
+  elsif $domain {
+    openstack_user_role { $openstack_user_role_name:
+      domain      => $domain,
+      user_domain => $user_domain,
+    }
   }
 
   if $setup_openrc {

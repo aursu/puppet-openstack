@@ -57,4 +57,14 @@ class openstack::controller::heat (
   openstack_domain { 'heat':
     description => 'Stack projects and users',
   }
+
+  # openstack user create --domain heat --password-prompt heat_domain_admin
+  # openstack role add --domain heat --user-domain heat --user heat_domain_admin admin
+  openstack::user { 'heat_domain_admin':
+    user_pass   => $heat_pass,
+    role        => 'admin',
+    description => 'Stack projects and users manager',
+    user_domain => 'heat',
+    domain      => 'heat',
+  }
 }
