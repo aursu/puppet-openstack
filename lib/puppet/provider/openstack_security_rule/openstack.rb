@@ -66,11 +66,11 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       range = entity['port_range']
       range = :any if range.to_s.empty?
 
-      rule_name = "#{group_project_name}/#{direction}/#{proto}/#{remote}/#{range}"
+      entity_name = "#{group_project_name}/#{direction}/#{proto}/#{remote}/#{range}"
 
       # [<project>/]<group>/<direction>/<proto>/<remote>/<range>
 
-      @instances << new(name: rule_name,
+      @instances << new(name: entity_name,
                         ensure: :present,
                         id: entity['id'],
                         project: project_name,
