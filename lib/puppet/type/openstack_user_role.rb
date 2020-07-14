@@ -57,6 +57,11 @@ Puppet::Type.newtype(:openstack_user_role) do
     end
   end
 
+  # --project-domain
+  newparam(:project_domain, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Default domain (name or ID)'
+  end
+
   newparam(:domain) do
     desc 'Include <domain> (name or ID)'
   end
