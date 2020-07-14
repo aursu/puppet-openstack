@@ -38,6 +38,11 @@ Puppet::Type.newtype(:openstack_network) do
     desc 'Default project (name or ID)'
   end
 
+  # --project-domain
+  newparam(:project_domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Default domain (name or ID)'
+  end
+
   newproperty(:enabled) do
     desc 'Enable network (default)'
 

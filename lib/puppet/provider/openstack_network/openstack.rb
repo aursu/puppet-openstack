@@ -39,7 +39,12 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
     openstack_command
 
+    project_instances = provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
+
     provider_list.map do |entity_name, entity|
+      project_id = entity['project']
+      project_domain = project_instances[project_id]['domain']
+
       @instances << new(name: entity_name,
                         ensure: :present,
                         id: entity['id'],
@@ -49,7 +54,8 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
                         description: entity['description'],
                         enabled: entity['state'].to_s.to_sym,
                         provider_network_type: entity['network_type'],
-                        project: entity['project'],
+                        project: project_id,
+                        project_domain: project_domain,
                         provider: name)
     end
 
@@ -68,16 +74,16 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def create
-    name     = @resource[:name]
-    project  = @resource.value(:project)
-    shared   = @resource.value(:shared)
-    external = @resource.value(:external)
-    desc     = @resource.value(:description)
-    enabled  = @resource.value(:enabled)
+    name                      = @resource[:name]
+    project                   = @resource.value(:project)
+    project_domain            = @resource.value(:project_domain)
+    shared                    = @resource.value(:shared)
+    external                  = @resource.value(:external)
+    desc                      = @resource.value(:description)
+    enabled                   = @resource.value(:enabled)
     provider_physical_network = @resource.value(:provider_physical_network)
     provider_network_type     = @resource.value(:provider_network_type)
 
-    @property_hash[:project] = project if project && !project.empty?
     @property_hash[:shared] = shared
     @property_hash[:external] = external
     @property_hash[:description] = desc if desc
@@ -86,7 +92,16 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     @property_hash[:provider_network_type] = provider_network_type if provider_network_type
 
     args = []
-    args += ['--project', project] if project
+
+    if project && !project.to_s.empty?
+      @property_hash[:project] = project
+      args += ['--project', project]
+
+      if project_domain && !project_domain.to_s.empty?
+        @property_hash[:project_domain] = project_domain
+        args += ['--project-domain', project_domain]
+      end
+    end
 
     args << '--share' if shared == :true
     args << '--no-share' if shared == :false
@@ -150,12 +165,20 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   def flush
     return if @property_flush.empty?
     args = []
-    name     = @resource[:name]
-    project  = @resource.value(:project)
-    desc     = @resource.value(:description)
+
+    name                  = @resource[:name]
+    project               = @resource.value(:project)
+    project_domain        = @resource.value(:project_domain)
+    desc                  = @resource.value(:description)
     provider_network_type = @resource.value(:provider_network_type)
 
-    args += ['--project', project] if @property_flush[:project]
+    if @property_flush[:project]
+      args += ['--project', project]
+
+      if project_domain && !project_domain.to_s.empty?
+        args += ['--project-domain', project_domain]
+      end
+    end
 
     args << '--share' if @property_flush[:shared] == :true
     args << '--no-share' if @property_flush[:shared] == :false
