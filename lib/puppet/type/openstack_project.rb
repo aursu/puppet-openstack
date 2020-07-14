@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 require 'puppet_x/openstack/customtype'
 require 'puppet_x/openstack/customcomm'
+require 'puppet_x/openstack/customprop'
 
 Puppet::Type.newtype(:openstack_project) do
   extend CustomComm
@@ -15,17 +16,42 @@ Puppet::Type.newtype(:openstack_project) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  def self.title_patterns
+    [
+      [
+        %r{^([^/]+)/([^/]+)$},
+        [
+          [:domain],
+          [:project_name],
+        ],
+      ],
+      [
+        %r{^([^/]+)$},
+        [
+          [:project_name],
+        ],
+      ],
+    ]
+  end
+
+  newparam(:domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Domain owning the project (name or ID)'
+  end
+
+  newparam(:project_name, namevar: true) do
     desc 'Project name'
+  end
+
+  newparam(:name) do
+    desc 'New user name'
+
+    defaultto do
+      (@resource[:domain].to_s == 'default') ? @resource[:project_name] : (@resource[:domain] + '/' + @resource[:project_name])
+    end
   end
 
   newparam(:id) do
     desc 'Project ID (read only)'
-  end
-
-  newproperty(:domain) do
-    desc 'Domain owning the project (name or ID)'
-    defaultto 'default'
   end
 
   newproperty(:description) do

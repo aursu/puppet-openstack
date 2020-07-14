@@ -18,11 +18,18 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_list
-    get_list(provider_subcommand)
+    get_list_array(provider_subcommand)
   end
 
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', *args)
+    cmdout = openstack_caller(provider_subcommand, 'create', '-f', 'json', *args)
+    return cmdout unless cmdout
+
+    begin
+      JSON.parse(cmdout)
+    rescue JSON::JSONError
+      cmdout
+    end
   end
 
   def self.provider_delete(*args)
@@ -33,23 +40,49 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.domain_instances
+    provider_instances(:openstack_domain).map { |d| [d.id, d.name] }.to_h
+  end
+
+  def self.add_instance(entity = {})
+    @instances = [] unless @instances
+
+    # name
+    project_name = entity['name']
+
+    # domain
+    domain_id = entity['domain_id']
+    domain_name = if domain_id == 'default'
+                    'default'
+                  else
+                    domain_instances[domain_id]
+                  end
+
+    entity_name = (domain_id == 'default') ? project_name : "#{domain_name}/#{project_name}"
+
+    # [<domain>/]<user>
+    @instances << new(name: entity_name,
+                      ensure: :present,
+                      id: entity['id'],
+                      domain: domain_name,
+                      project_name: project_name,
+                      description: entity['description'],
+                      enabled: entity['enabled'].to_s.to_sym,
+                      provider: name)
+  end
+
+  def self.delete_instance(id)
+    @instances.reject! { |i| i.id == id }
+  end
+
   def self.instances
     return @instances if @instances
-    @instances = []
 
     openstack_command
 
-    provider_list.map do |entity_name, entity|
-      @instances << new(name: entity_name,
-                        ensure: :present,
-                        id: entity['id'],
-                        domain: entity['domain_id'],
-                        description: entity['description'],
-                        enabled: entity['enabled'].to_s.to_sym,
-                        provider: name)
-    end
+    provider_list.each { |entity| add_instance(entity) }
 
-    @instances
+    @instances || []
   end
 
   def self.prefetch(resources)
@@ -64,12 +97,15 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
   end
 
   def create
-    name    = @resource[:name]
-    domain  = @resource.value(:domain)
-    desc    = @resource.value(:description)
-    enabled = @resource.value(:enabled)
+    project_name = @resource.value(:project_name)
+    domain       = @resource.value(:domain)
+    desc         = @resource.value(:description)
+    enabled      = @resource.value(:enabled)
+    name         = (domain == 'default') ? project_name : "#{domain}/#{project_name}"
 
+    @property_hash[:name] = name
     @property_hash[:domain] = domain
+    @property_hash[:project_name] = project_name
     @property_hash[:description] = desc
     @property_hash[:enabled] = enabled
 
@@ -81,19 +117,23 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
             else
               '--disable'
             end
-    args << name
+    args << project_name
 
     auth_args
 
-    self.class.provider_create(*args)
+    cmdout = self.class.provider_create(*args)
+
+    return if cmdout == false
+    self.class.add_instance(cmdout) if cmdout.is_a?(Hash)
 
     @property_hash[:ensure] = :present
   end
 
   def destroy
-    name = @resource[:name]
+    project = @property_hash[:id]
 
-    self.class.provider_delete(name)
+    return if self.class.provider_delete(project) == false
+    self.class.delete_instance(project)
 
     @property_hash.clear
   end
@@ -113,8 +153,9 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
   def flush
     return if @property_flush.empty?
     args = []
-    name    = @resource[:name]
-    desc    = @resource.value(:description)
+    project_name = @resource.value(:project_name)
+    domain       = @resource.value(:domain)
+    desc         = @resource.value(:description)
 
     args << if @property_flush[:enabled] == :true
               '--enable'
@@ -127,7 +168,8 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
 
     return if args.empty?
 
-    args << name
+    args += ['--domain', domain]
+    args << project_name
 
     auth_args
 
