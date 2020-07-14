@@ -60,7 +60,7 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
 
     entity_name = (domain_id == 'default') ? project_name : "#{domain_name}/#{project_name}"
 
-    # [<domain>/]<user>
+    # [<domain>/]<project>
     @instances << new(name: entity_name,
                       ensure: :present,
                       id: entity['id'],
