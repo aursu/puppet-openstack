@@ -52,6 +52,10 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     provider_instances(:openstack_domain).map { |d| [d.id, d.name] }.to_h
   end
 
+  def self.project_instances
+    provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
+  end
+
   def self.add_instance(entity = {})
     @instances = [] unless @instances
 
@@ -59,7 +63,9 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     user_name = entity['name']
 
     # project
-    entity['project'] = nil if entity['project'].to_s.empty?
+    project_id = entity['project'] unless entity['project'].to_s.empty?
+    project_id_domain = project_instances[project_id]['domain'] if project_id
+    project_domain = project_id_domain || entity['project_domain']
 
     # domain
     domain_id = entity['domain_id'] || entity['domain']
@@ -80,7 +86,8 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
                       description: entity['description'],
                       enabled: entity['enabled'].to_s.to_sym,
                       email: entity['email'],
-                      project: entity['project'],
+                      project: project_id,
+                      project_domain: project_domain,
                       provider: name)
   end
 
@@ -110,14 +117,15 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   end
 
   def create
-    domain    = @resource.value(:domain)
-    user_name = @resource.value(:user_name)
-    desc      = @resource.value(:description)
-    enabled   = @resource.value(:enabled)
-    email     = @resource.value(:email)
-    project   = @resource.value(:project)
-    pwd       = @resource.value(:password)
-    name      = (domain == 'default') ? user_name : "#{domain}/#{user_name}"
+    domain         = @resource.value(:domain)
+    user_name      = @resource.value(:user_name)
+    desc           = @resource.value(:description)
+    enabled        = @resource.value(:enabled)
+    email          = @resource.value(:email)
+    project        = @resource.value(:project) unless @resource.value(:project).to_s.empty?
+    project_domain = @resource.value(:project_domain) unless @resource.value(:project_domain).to_s.empty?
+    pwd            = @resource.value(:password)
+    name           = (domain == 'default') ? user_name : "#{domain}/#{user_name}"
 
     @property_hash[:name] = name
     @property_hash[:domain] = domain
@@ -125,14 +133,23 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     @property_hash[:description] = desc
     @property_hash[:enabled] = enabled
     @property_hash[:email] = email
-    @property_hash[:project] = project
     @property_hash[:password] = pwd
 
     args = []
+
+    if project
+      @property_hash[:project] = project
+      args += ['--project', project]
+
+      if project_domain
+        @property_hash[:project_domain] = project_domain
+        args += ['--project-domain', project_domain]
+      end
+    end
+
     args += ['--domain', domain] if domain
     args += ['--description', desc] if desc
     args += ['--email', email] if email
-    args += ['--project', project] if project
     args += ['--password', pwd] if pwd
     args << if enabled == :true
               '--enable'
@@ -146,7 +163,10 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     return if cmdout == false
 
     if cmdout.is_a?(Hash)
-      cmdout['project'] = project if project
+      if project
+        cmdout['project'] = project
+        cmdout['project_domain'] = project_domain if project_domain
+      end
       cmdout['description'] = desc if desc
       cmdout['email'] = email if email
       self.class.add_instance(cmdout)
@@ -200,6 +220,7 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     os_project_id = user_role_project.empty? ? '' : user_role_project[0]
 
     os_domain_id = user_role_domain.empty? ? '' : user_role_domain[0]
+
     # if os_domain_id is empty - use user domain name as defined in resource
     os_domain_name = user_role_domain.empty? ? domain : ''
 
@@ -228,12 +249,13 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
   def flush
     return if @property_flush.empty?
     args = []
-    user_name = @resource.value(:user_name)
-    domain    = @resource.value(:domain)
-    desc      = @resource.value(:description)
-    email     = @resource.value(:email)
-    pwd       = @resource.value(:password)
-    project   = @resource.value(:project)
+    user_name      = @resource.value(:user_name)
+    domain         = @resource.value(:domain)
+    desc           = @resource.value(:description)
+    email          = @resource.value(:email)
+    pwd            = @resource.value(:password)
+    project        = @resource.value(:project)
+    project_domain = @resource.value(:project_domain)
 
     args << '--enable' if @property_flush[:enabled] == :true
     args << '--disable' if @property_flush[:enabled] == :false
@@ -241,7 +263,10 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     args += ['--password', pwd] if @property_flush[:password]
     args += ['--email', email] if @property_flush[:email]
     args += ['--description', desc] if @property_flush[:description]
-    args += ['--project', project] if @property_flush[:project]
+    if @property_flush[:project]
+      args += ['--project', project]
+      args += ['--project-domain', project_domain] unless project_domain.to_s.empty?
+    end
 
     @property_flush.clear
 

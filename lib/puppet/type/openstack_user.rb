@@ -72,6 +72,11 @@ Puppet::Type.newtype(:openstack_user) do
     desc 'Default project (name or ID)'
   end
 
+  # --project-domain
+  newparam(:project_domain, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Default domain (name or ID)'
+  end
+
   newproperty(:password) do
     desc 'The password of the user.'
 

@@ -33,13 +33,15 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.project_instances
+    provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
+  end
+
   def self.instances
     return @instances if @instances
     @instances = []
 
     openstack_command
-
-    project_instances = provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
 
     provider_list.map do |entity_name, entity|
       project_id = entity['project']
@@ -75,8 +77,8 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
   def create
     name                      = @resource[:name]
-    project                   = @resource.value(:project)
-    project_domain            = @resource.value(:project_domain)
+    project                   = @resource.value(:project) unless @resource.value(:project).to_s.empty?
+    project_domain            = @resource.value(:project_domain) unless @resource.value(:project_domain).to_s.empty?
     shared                    = @resource.value(:shared)
     external                  = @resource.value(:external)
     desc                      = @resource.value(:description)
@@ -93,11 +95,11 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
     args = []
 
-    if project && !project.to_s.empty?
+    if project
       @property_hash[:project] = project
       args += ['--project', project]
 
-      if project_domain && !project_domain.to_s.empty?
+      if project_domain
         @property_hash[:project_domain] = project_domain
         args += ['--project-domain', project_domain]
       end
@@ -174,10 +176,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
     if @property_flush[:project]
       args += ['--project', project]
-
-      if project_domain && !project_domain.to_s.empty?
-        args += ['--project-domain', project_domain]
-      end
+      args += ['--project-domain', project_domain] unless project_domain.to_s.empty?
     end
 
     args << '--share' if @property_flush[:shared] == :true
