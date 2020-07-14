@@ -39,7 +39,7 @@ Puppet::Type.newtype(:openstack_network) do
   end
 
   # --project-domain
-  newparam(:project_domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+  newparam(:project_domain, parent: PuppetX::OpenStack::DomainParameter) do
     desc 'Default domain (name or ID)'
   end
 
