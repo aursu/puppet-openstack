@@ -121,8 +121,8 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     user_name      = @resource.value(:user_name)
     desc           = @resource.value(:description)
     enabled        = @resource.value(:enabled)
-    email          = @resource.value(:email)
-    project        = @resource.value(:project) unless @resource.value(:project).to_s.empty?
+    email          = @resource.value(:email)          unless @resource.value(:email).to_s.empty?
+    project        = @resource.value(:project)        unless @resource.value(:project).to_s.empty?
     project_domain = @resource.value(:project_domain) unless @resource.value(:project_domain).to_s.empty?
     pwd            = @resource.value(:password)
     name           = (domain == 'default') ? user_name : "#{domain}/#{user_name}"
