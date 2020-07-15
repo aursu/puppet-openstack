@@ -23,6 +23,7 @@ define openstack::user (
           $domain         = undef,
 
   Boolean $setup_openrc   = false,
+  Boolean $stack_mgmt     = false,
   Openstack::Release
           $cycle          = $openstack::cycle,
 )
@@ -36,6 +37,7 @@ define openstack::user (
     'default' => $name,
     default   => "${user_domain}/${name}"
   }
+  $openstack_user_role_name = "${openstack_user_name}/${role}"
 
   openstack_user { $openstack_user_name:
     ensure      => $ensure,
@@ -50,18 +52,22 @@ define openstack::user (
   # --role-domain <role-domain>
   # --inherited
   # <role>
-
-  $openstack_user_role_name = $user_domain ? {
-    'default' => "${name}/${role}",
-    default   => "${user_domain}/${name}/${role}"
-  }
-
   if $project {
     openstack_user_role { $openstack_user_role_name:
       ensure         => $ensure,
       project        => $project,
       project_domain => $project_domain,
       user_domain    => $user_domain,
+    }
+
+    if $stack_mgmt {
+      # Add the heat_stack_owner role to the project and user to enable stack management by the user
+      openstack_user_role { "${openstack_user_name}/heat_stack_owner":
+        ensure         => $ensure,
+        project        => $project,
+        project_domain => $project_domain,
+        user_domain    => $user_domain,
+      }
     }
   }
   elsif $domain {
