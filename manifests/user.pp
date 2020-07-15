@@ -38,7 +38,7 @@ define openstack::user (
   }
 
   openstack_user { $openstack_user_name:
-    ensure      => present,
+    ensure      => $ensure,
     domain      => $user_domain,
     description => $defined_description,
     password    => $user_pass,
@@ -58,6 +58,7 @@ define openstack::user (
 
   if $project {
     openstack_user_role { $openstack_user_role_name:
+      ensure         => $ensure,
       project        => $project,
       project_domain => $project_domain,
       user_domain    => $user_domain,
@@ -65,6 +66,7 @@ define openstack::user (
   }
   elsif $domain {
     openstack_user_role { $openstack_user_role_name:
+      ensure      => $ensure,
       domain      => $domain,
       user_domain => $user_domain,
     }
