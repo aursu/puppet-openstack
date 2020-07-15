@@ -67,4 +67,14 @@ class openstack::controller::heat (
     user_domain => 'heat',
     domain      => 'heat',
   }
+
+  # openstack role create heat_stack_owner
+  openstack_role { 'heat_stack_owner':
+    ensure => present,
+  }
+
+  # openstack role create heat_stack_user
+  openstack_role { 'heat_stack_user':
+    ensure => present,
+  }
 }
