@@ -13,6 +13,7 @@ describe 'openstack::controller::heat' do
     {
       heat_pass: 'secret',
       heat_dbpass: 'secret',
+      heat_domain_pass: 'secret',
     }
   end
 

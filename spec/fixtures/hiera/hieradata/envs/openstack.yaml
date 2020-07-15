@@ -22,3 +22,4 @@ openstack::metadata_secret: secret
 # Heat
 openstack::heat_pass: secret
 openstack::heat_dbpass: secret
+openstack::heat_domain_pass: secret

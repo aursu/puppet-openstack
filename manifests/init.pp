@@ -77,6 +77,7 @@ class openstack (
   String              $heat_dbuser,
   Optional[String]    $heat_dbpass,
   Optional[String]    $heat_pass,
+  Optional[String]    $heat_domain_pass,
 
   Stdlib::Host        $controller_host,
   String              $compute_tag,

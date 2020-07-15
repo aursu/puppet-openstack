@@ -51,5 +51,6 @@ openstack::heat_dbname: 'heat'
 openstack::heat_dbuser: 'heat'
 openstack::heat_dbpass: ~
 openstack::heat_pass:  ~
+openstack::heat_domain_pass:  ~
 openstack::controller_host: 'controller'
 openstack::compute_tag: 'openstack'
