@@ -1,19 +1,13 @@
 Facter.add(:nested_virtualization) do
+  confine { File.exist? '/sys/module/kvm_intel/parameters/nested' }
   setcode do
-    # Try intel first
-    nested = false
-    begin
-      return true if File.read('/sys/module/kvm_intel/parameters/nested') =~ %r{Y|1}
-    rescue SystemCallError
-      nested = false
-    end
+    File.read('/sys/module/kvm_intel/parameters/nested') =~ %r{Y|1}
+  end
+end
 
-    begin
-      return true if File.read('/sys/module/kvm_amd/parameters/nested') =~ %r{Y|1}
-    rescue SystemCallError
-      nested = false
-    end
-
-    nested
+Facter.add(:nested_virtualization) do
+  confine { File.exist? '/sys/module/kvm_amd/parameters/nested' }
+  setcode do
+    File.read('/sys/module/kvm_amd/parameters/nested') =~ %r{Y|1}
   end
 end
