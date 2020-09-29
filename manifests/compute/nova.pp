@@ -44,7 +44,8 @@ class openstack::compute::nova (
   # [libvirt]
   # virt_type = qemu
   if $facts['virtualization_support'] {
-    if $nested_virtualization {
+    $nested = $facts['nested_virtualization']
+    if $nested_virtualization and $nested {
       $virt_type = {
         'libvirt/virt_type' => 'kvm',
         # Use the host CPU model exactly
