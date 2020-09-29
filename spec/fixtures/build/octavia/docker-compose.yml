@@ -1,0 +1,14 @@
+version: "3.5"
+services:
+  amphora:
+    command: ["-o", "/root/octavia/diskimage-create/images/amphora-x64-haproxy.qcow2"]
+    volumes:
+      - images:/root/octavia/diskimage-create/images
+    build:
+      context: .
+    privileged: true
+    image: aursu/openstack/amphora:ubuntu-minimal
+
+volumes:
+  images:
+    name: images
