@@ -38,6 +38,8 @@ class openstack::compute::nested_virtualization (
       command => "rmmod ${kmod}",
       path    => '/usr/sbin:/sbin',
       notify  => File['kvm.conf'],
+      # we can not remove it if in use
+      returns => [0, 1],
     }
 
     exec { 'modprobe-kvm':
