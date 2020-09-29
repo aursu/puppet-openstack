@@ -82,7 +82,8 @@ class openstack (
   Stdlib::Host        $controller_host,
   String              $compute_tag,
 
-
+  Boolean             $manage_kmod_package,
+  Boolean             $nested_virtualization,
 ){
   # setup OS limits for Ussuri release
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['6', '7'] {

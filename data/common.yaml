@@ -54,3 +54,5 @@ openstack::heat_pass:  ~
 openstack::heat_domain_pass:  ~
 openstack::controller_host: 'controller'
 openstack::compute_tag: 'openstack'
+openstack::manage_kmod_package: false
+openstack::nested_virtualization: true

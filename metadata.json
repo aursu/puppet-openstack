@@ -1,6 +1,6 @@
 {
   "name": "aursu-openstack",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "author": "aursu",
   "summary": "Installation and management of OpenStack cluster",
   "license": "Apache-2.0",
@@ -44,7 +44,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.10.0 < 7.0.0"
+      "version_requirement": ">= 5.5.0 < 7.0.0"
     }
   ],
   "pdk-version": "1.15.0",

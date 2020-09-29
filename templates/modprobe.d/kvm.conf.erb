@@ -1,0 +1,20 @@
+# Setting modprobe kvm_intel/kvm_amd nested = 1
+# only enables Nested Virtualization until the next reboot or
+# module reload. Uncomment the option applicable
+# to your system below to enable the feature permanently.
+#
+# User changes in this file are preserved across upgrades.
+#
+# For Intel
+<% if @virt_type == 'vmx' && @nested_should -%>
+options kvm_intel nested=1
+<% else -%>
+#options kvm_intel nested=1
+<% end -%>
+#
+# For AMD
+<% if @virt_type == 'svm' && @nested_should -%>
+options kvm_amd nested=1
+<% else -%>
+#options kvm_amd nested=1
+<% end -%>

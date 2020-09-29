@@ -6,14 +6,18 @@
 #   include openstack::compute::nova
 class openstack::compute::nova (
   Openstack::Release
-          $cycle                     = $openstack::cycle,
-  String  $nova_pass                 = $openstack::nova_pass,
+          $cycle                 = $openstack::cycle,
+  String  $nova_pass             = $openstack::nova_pass,
   Stdlib::Host
-          $controller_host           = $openstack::controller_host,
-  String  $compute_tag               = $openstack::compute_tag,
+          $controller_host       = $openstack::controller_host,
+  String  $compute_tag           = $openstack::compute_tag,
+  Boolean $nested_virtualization = $openstack::nested_virtualization,
 ) {
   # https://docs.openstack.org/nova/train/install/compute-install-rdo.html
   include openstack::nova::core
+
+  # Enable KVM-based Nested Virtualization
+  include openstack::compute::nested_virtualization
 
   openstack::package { 'openstack-nova-compute':
     cycle   => $cycle,
@@ -39,9 +43,18 @@ class openstack::compute::nova (
   # egrep -c '(vmx|svm)' /proc/cpuinfo
   # [libvirt]
   # virt_type = qemu
-  if $::virtualization_support {
-    $virt_type = {
-      'libvirt/virt_type' => 'kvm'
+  if $facts['virtualization_support'] {
+    if $nested_virtualization {
+      $virt_type = {
+        'libvirt/virt_type' => 'kvm',
+        # Use the host CPU model exactly
+        'libvirt/cpu_mode'  => 'host-passthrough',
+      }
+    }
+    else {
+      $virt_type = {
+        'libvirt/virt_type' => 'kvm'
+      }
     }
   }
   else {
