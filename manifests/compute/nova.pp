@@ -53,7 +53,11 @@ class openstack::compute::nova (
     }
     else {
       $virt_type = {
-        'libvirt/virt_type' => 'kvm'
+        'libvirt/virt_type' => 'kvm',
+        'libvirt/cpu_mode'  => {
+          ensure => absent,
+          value  => 'host-passthrough',
+        }
       }
     }
   }
