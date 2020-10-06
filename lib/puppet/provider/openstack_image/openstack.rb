@@ -56,7 +56,7 @@ Puppet::Type.type(:openstack_image).provide(:openstack, parent: Puppet::Provider
                         disk_format: entity['disk_format'],
                         visibility: entity['visibility'],
                         project: entity['project'],
-                        protected: entity['protected'],
+                        protected: entity['protected'].to_s.to_sym,
                         size: entity['size'],
                         provider: name)
     end
