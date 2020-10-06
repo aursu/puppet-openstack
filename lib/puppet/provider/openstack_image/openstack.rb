@@ -78,7 +78,7 @@ Puppet::Type.type(:openstack_image).provide(:openstack, parent: Puppet::Provider
   def provider_show
     return @desc if @desc
 
-    image_id  = @property_hash[:id]
+    image_id = @property_hash[:id]
     return {} unless image_id
 
     args = ['-f', 'json', image_id]
@@ -164,13 +164,8 @@ Puppet::Type.type(:openstack_image).provide(:openstack, parent: Puppet::Provider
     # public, private, shared, community
     args << "--#{visibility}" if visibility
 
-    if image_properties
-      image_properties.each { |k, v| args += ['--property', "#{k}=#{v}"] }
-    end
-
-    if tags
-      tags.each { |t| args += ['--tag', t] }
-    end
+    image_properties.each { |k, v| args += ['--property', "#{k}=#{v}"] } if image_properties
+    tags.each { |t| args += ['--tag', t] } if tags
 
     args << name
 
@@ -267,20 +262,12 @@ Puppet::Type.type(:openstack_image).provide(:openstack, parent: Puppet::Provider
 
     args << "--#{visibility}" if @property_flush[:visibility]
 
-    if tags && @property_flush[:tags]
-      tags.each { |t| args += ['--tag', t] }
-    end
-
-    if image_properties && @property_flush[:image_properties]
-      image_properties.each { |k, v| args += ['--property', "#{k}=#{v}"] }
-    end
+    tags.each { |t| args += ['--tag', t] } if tags && @property_flush[:tags]
+    image_properties.each { |k, v| args += ['--property', "#{k}=#{v}"] } if image_properties && @property_flush[:image_properties]
 
     if project && @property_flush[:project]
       args += ['--project', project]
-
-      if project_domain
-        args += ['--project-domain', project_domain]
-      end
+      args += ['--project-domain', project_domain] if project_domain
     end
 
     @property_flush.clear
