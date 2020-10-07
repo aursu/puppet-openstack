@@ -97,7 +97,7 @@ Puppet::Type.newtype(:openstack_image) do
       should = @should[0]
 
       # all properties in @should array must be defined to be in sync
-      should.all? { |p| should[p] == is[p] }
+      should.all? { |k, _v| should[k] == is[k] }
     end
   end
 
