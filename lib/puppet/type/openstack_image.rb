@@ -91,13 +91,12 @@ Puppet::Type.newtype(:openstack_image) do
     end
 
     def insync?(is)
-      # is == :absent in case of non-existing tags for image
       return true if @should == [:absent]
 
       # @should is array of Hashes with single value
       should = @should[0]
 
-      # all tags in @should array must be defined to be in sync
+      # all properties in @should array must be defined to be in sync
       should.all? { |p| should[p] == is[p] }
     end
   end
