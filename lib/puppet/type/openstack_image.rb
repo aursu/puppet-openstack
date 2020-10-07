@@ -45,11 +45,11 @@ Puppet::Type.newtype(:openstack_image) do
   end
 
   newproperty(:tags, array_matching: :all) do
-    desc 'Image tags'
+    desc 'Image tags. Tags could be only added and not removed'
 
     # no removal
     def insync?(is)
-      # is == :absent in case of non-existing tags for image
+      # we do not remove existing tags - therefore it is in sync if :absent
       return true if @should == [:absent]
 
       # all tags in @should array must be defined to be in sync
@@ -60,7 +60,7 @@ Puppet::Type.newtype(:openstack_image) do
       next if value.to_s == 'absent'
       next if value.is_a?(String)
 
-      raise ArgumentError, _('tags must be provided either as a string for single tag or list of strings for multiple tags.')
+      raise ArgumentError, _('Tags must be provided either as a string for single tag or list of strings for multiple tags.')
     end
 
     munge do |value|
@@ -70,18 +70,23 @@ Puppet::Type.newtype(:openstack_image) do
   end
 
   newproperty(:image_properties) do
-    desc 'Image properties'
+    desc 'Image properties. Properties could be only added and not removed'
 
     validate do |value|
+      # allow to use :absent explicitly
       next if value.to_s == 'absent'
+
+      # we accept only Hash of properties
       next if value.is_a?(Hash) && value.all? { |k, _v| k =~ %r{^[-a-z0-9_]+$} }
 
       raise ArgumentError, _('Image properties must be provided as a Hash with keys that match regexp ^[-a-z0-9_]+$')
     end
 
     munge do |value|
+      # allow to use :absent explicitly
       return :absent if value.to_s == 'absent'
 
+      # no type conversion - operate with strings only
       value.map { |k, v| [k, v.to_s] }.to_h
     end
 
@@ -89,8 +94,11 @@ Puppet::Type.newtype(:openstack_image) do
       # is == :absent in case of non-existing tags for image
       return true if @should == [:absent]
 
+      # @should is array of Hashes with single value
+      should = @should[0]
+
       # all tags in @should array must be defined to be in sync
-      @should.all? { |p| @should[p] == is[p] }
+      should.all? { |p| should[p] == is[p] }
     end
   end
 
