@@ -45,13 +45,14 @@ Puppet::Type.type(:openstack_image).provide(:openstack, parent: Puppet::Provider
 
     provider_list.map do |entity_name, entity|
       image_enabled = entity['status'].casecmp?('active')
+      tags = entity['tags'].map { |t| t.to_s }
 
       @instances << new(name: entity_name,
                         ensure: :present,
                         id: entity['id'],
                         enabled: image_enabled.to_s.to_sym,
                         container_format: entity['container_format'],
-                        tags: entity['tags'],
+                        tags: tags,
                         checksum: entity['checksum'],
                         disk_format: entity['disk_format'],
                         visibility: entity['visibility'],
