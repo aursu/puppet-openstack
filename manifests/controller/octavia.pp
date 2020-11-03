@@ -66,17 +66,16 @@ class openstack::controller::octavia (
     default:
       cycle   => $cycle,
     ;
-    'octavia-api':
+    'openstack-octavia-api':
       configs       => [
         '/etc/octavia/octavia.conf',
       ],
       notifyconfigs => false,
     ;
-    'octavia-health-manager': ;
-    'octavia-housekeeping': ;
-    'octavia-worker': ;
-    'python3-octavia': ;
-    'python3-octaviaclient': ;
+    'openstack-octavia-health-manager': ;
+    'openstack-octavia-housekeeping': ;
+    'openstack-octavia-worker': ;
+    'python2-octavia': ;
+    'python2-octaviaclient': ;
   }
-
 }
