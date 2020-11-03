@@ -45,6 +45,18 @@ class openstack::profile::controller {
   # https://docs.openstack.org/heat/train/install/install-rdo.html
   include openstack::controller::heat
 
+  # openstack::cinder::storage provides storage tools
+  # lvm2, device-mapper-persistent-data and targetcli
+  if $openstack::controller::cinder::cinder_storage and $openstack::octavia_build_image {
+    # therefore disable prerequired_packages which are storage tools as well
+    class { 'dockerinstall':
+      prerequired_packages => [],
+    }
+  }
+
+  # https://docs.openstack.org/octavia/latest/install/install.html
+  include openstack::controller::octavia
+
   # TODO: [backup service](https://docs.openstack.org/cinder/train/install/cinder-backup-install-rdo.html)
   # TODO: [Object storage](https://docs.openstack.org/swift/latest/install/)
 }

@@ -23,3 +23,6 @@ openstack::metadata_secret: secret
 openstack::heat_pass: secret
 openstack::heat_dbpass: secret
 openstack::heat_domain_pass: secret
+# Octavia
+openstack::octavia_pass: secret
+openstack::octavia_dbpass: secret

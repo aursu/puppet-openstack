@@ -52,6 +52,11 @@ openstack::heat_dbuser: 'heat'
 openstack::heat_dbpass: ~
 openstack::heat_pass:  ~
 openstack::heat_domain_pass:  ~
+openstack::octavia_dbname: 'octavia'
+openstack::octavia_dbuser: 'octavia'
+openstack::octavia_dbpass: ~
+openstack::octavia_pass: ~
+openstack::octavia_build_image: true
 openstack::controller_host: 'controller'
 openstack::compute_tag: 'openstack'
 openstack::manage_kmod_package: false

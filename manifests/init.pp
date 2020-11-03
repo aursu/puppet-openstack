@@ -79,6 +79,13 @@ class openstack (
   Optional[String]    $heat_pass,
   Optional[String]    $heat_domain_pass,
 
+  # Octavia
+  String              $octavia_dbname,
+  String              $octavia_dbuser,
+  Optional[String]    $octavia_dbpass,
+  Optional[String]    $octavia_pass,
+  Boolean             $octavia_build_image,
+
   Stdlib::Host        $controller_host,
   String              $compute_tag,
 
