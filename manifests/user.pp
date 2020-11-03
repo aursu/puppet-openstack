@@ -97,7 +97,8 @@ define openstack::user (
         'OS_PASSWORD'             => $real_user_pass,
         'OS_AUTH_URL'             => $os_auth_url,
         'OS_IDENTITY_API_VERSION' => '3',
-        'OS_IMAGE_API_VERSION'    => '2'
+        'OS_IMAGE_API_VERSION'    => '2',
+        'OS_VOLUME_API_VERSION'   => '3',
       },
     }
   }
