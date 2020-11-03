@@ -11,7 +11,7 @@ class openstack::octavia::amphora (
 )
 {
   include dockerinstall::params
-  $basedir = $dockerinstall::params::compose_rundir
+  $basedir = $dockerinstall::params::compose_libdir
 
   if $build_image {
     include lsys::docker
