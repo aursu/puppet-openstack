@@ -30,6 +30,7 @@ class openstack::octavia::amphora (
       docker_command => ['-o', '/root/octavia/diskimage-create/images/amphora-x64-haproxy.qcow2'],
       docker_image   => 'openstack/amphora:ubuntu-minimal',
       manage_image   => false,
+      build_image    => true,
       restart        => 'no',
       docker_volume  => ['/var/lib/glance/images:/root/octavia/diskimage-create/images'],
       docker_build   => true,
