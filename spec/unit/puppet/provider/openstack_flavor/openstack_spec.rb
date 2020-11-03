@@ -86,7 +86,7 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
   describe 'new flavor' do
     it do
       expect(Puppet::Util::Execution).to receive(:execute)
-        .with('/usr/bin/openstack flavor create --ram 16384 --disk 10 --swap 0 --vcpus 8 --ephemeral 0 m1.xlarge8')
+        .with('/usr/bin/openstack flavor create --ram 16384 --disk 10 --swap 0 --vcpus 8 --ephemeral 0 --public m1.xlarge8')
       provider.create
     end
   end
