@@ -123,7 +123,7 @@ Puppet::Type.newtype(:openstack_image) do
   end
 
   newproperty(:visibility) do
-    desc 'Port device ID'
+    desc 'Image visibility'
 
     # https://wiki.openstack.org/wiki/Glance-v2-community-image-visibility-design
     defaultto 'public'
