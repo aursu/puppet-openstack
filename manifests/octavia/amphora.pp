@@ -41,13 +41,14 @@ class openstack::octavia::amphora (
   }
 
   openstack_image { 'amphora-x64-haproxy':
-    ensure           => present,
-    file             => '/var/lib/glance/images/amphora-x64-haproxy.qcow2',
-    visibility       => 'private',
-    tags             => [ 'amphora' ],
-    disk_format      => 'qcow2',
-    container_format => 'bare',
-    auth_username    => 'octavia',
-    auth_password    => $octavia_pass,
+    ensure            => present,
+    file              => '/var/lib/glance/images/amphora-x64-haproxy.qcow2',
+    visibility        => 'private',
+    tags              => [ 'amphora' ],
+    disk_format       => 'qcow2',
+    container_format  => 'bare',
+    auth_username     => 'octavia',
+    auth_password     => $octavia_pass,
+    auth_project_name => 'service',
   }
 }

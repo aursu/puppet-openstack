@@ -51,14 +51,15 @@ class openstack::controller::octavia (
   }
 
   openstack_flavor { 'amphora':
-    ensure        => present,
-    disk          => 2,
-    ram           => 1024,
-    vcpus         => 1,
-    visibility    => 'private',
-    auth_username => 'octavia',
-    auth_password => $octavia_pass,
-    require       => Openstack::User['octavia'],
+    ensure            => present,
+    disk              => 2,
+    ram               => 1024,
+    vcpus             => 1,
+    visibility        => 'private',
+    auth_username     => 'octavia',
+    auth_password     => $octavia_pass,
+    auth_project_name => 'service',
+    require           => Openstack::User['octavia'],
   }
 
   openstack::package {
