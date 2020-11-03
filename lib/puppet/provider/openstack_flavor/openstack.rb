@@ -58,12 +58,13 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   end
 
   def create
-    name      = @resource[:name]
-    ram       = @resource.value(:ram)
-    disk      = @resource.value(:disk)
-    ephemeral = @resource.value(:ephemeral)
-    swap      = @resource.value(:swap)
-    vcpus     = @resource.value(:vcpus)
+    name       = @resource[:name]
+    ram        = @resource.value(:ram)
+    disk       = @resource.value(:disk)
+    ephemeral  = @resource.value(:ephemeral)
+    swap       = @resource.value(:swap)
+    vcpus      = @resource.value(:vcpus)
+    visibility = @resource.value(:visibility)
 
     @property_hash[:ram] = ram
     @property_hash[:disk] = disk
@@ -71,11 +72,20 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
     @property_hash[:swap] = swap
     @property_hash[:vcpus] = vcpus
 
+    visibility_flag = if visibility.to_s == 'private'
+                        '--private'
+                      else # default
+                        '--public'
+                      end
+
+    auth_args
+
     self.class.provider_create('--ram', ram,
                                '--disk', disk,
                                '--swap', swap,
                                '--vcpus', vcpus,
                                '--ephemeral', ephemeral,
+                               visibility_flag,
                                name)
 
     @property_hash[:ensure] = :present

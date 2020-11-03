@@ -1,4 +1,9 @@
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/customcomm'
+
 Puppet::Type.newtype(:openstack_flavor) do
+  extend CustomComm
+
   @doc = <<-PUPPET
     @summary
       In OpenStack, a flavor defines the compute, memory, and storage capacity
@@ -41,5 +46,17 @@ Puppet::Type.newtype(:openstack_flavor) do
     desc 'Number of vcpus (default 1)'
     newvalue(%r{\d+})
     defaultto 1
+  end
+
+  newparam(:visibility) do
+    desc 'Flavor visibility'
+
+    defaultto 'public'
+
+    validate do |value|
+      next if %w[public private].include? value.to_s
+
+      raise ArgumentError, _('Flavor visibility must be either public or private')
+    end
   end
 end
