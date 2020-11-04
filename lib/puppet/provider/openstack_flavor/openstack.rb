@@ -13,7 +13,7 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
-    get_list(provider_subcommand)
+    get_list(provider_subcommand, 'name', true, '--all')
   end
 
   def self.provider_create(*args)
