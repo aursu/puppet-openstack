@@ -43,6 +43,7 @@ class openstack::octavia::amphora (
       docker_build   => true,
       privileged     => true,
       before         => Openstack_image['amphora-x64-haproxy'],
+      require        => Archive['/tmp/amphora.tar.gz'],
     }
   }
 
