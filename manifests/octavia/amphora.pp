@@ -24,7 +24,7 @@ class openstack::octavia::amphora (
     }
 
     # Docker context for Amphora image build
-    archive { 'amphora.tar.gz':
+    archive { '/tmp/amphora.tar.gz':
       source       => 'puppet:///modules/openstack/build/amphora.tar.gz',
       extract      => true,
       extract_path => $project_dir,
