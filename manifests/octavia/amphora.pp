@@ -17,12 +17,19 @@ class openstack::octavia::amphora (
     include lsys::docker
 
     $project = 'octavia'
+    $project_dir = "${basedir}/${project}"
+
+    file { $project_dir:
+      ensure => directory,
+    }
 
     # Docker context for Amphora image build
-    file { 'amphora.tar.gz':
-      ensure => file,
-      path   => "${basedir}/${project}/amphora.tar.gz",
-      source => 'puppet:///modules/openstack/build/amphora.tar.gz',
+    archive { 'amphora.tar.gz':
+      source       => 'puppet:///modules/openstack/build/amphora.tar.gz',
+      extract      => true,
+      extract_path => $project_dir,
+      creates      => "${project_dir}/Dockerfile",
+      require      => File[$project_dir],
     }
 
     dockerinstall::webservice { $project:
@@ -34,7 +41,6 @@ class openstack::octavia::amphora (
       restart        => 'no',
       docker_volume  => ['/var/lib/glance/images:/root/octavia/diskimage-create/images'],
       docker_build   => true,
-      docker_context => 'amphora.tar.gz',
       privileged     => true,
       before         => Openstack_image['amphora-x64-haproxy'],
     }
