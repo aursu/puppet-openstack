@@ -58,14 +58,14 @@ describe Puppet::Type.type(:openstack_flavor).provider(:openstack) do
 
     it 'with flavor listing command' do
       expect(Puppet::Util::Execution).to receive(:execute)
-        .with('/usr/bin/openstack flavor list -f json --long')
+        .with('/usr/bin/openstack flavor list -f json --long --all')
 
       described_class.instances
     end
 
     it 'returns an array of defined flavors' do
       allow(Puppet::Util::Execution).to receive(:execute)
-        .with('/usr/bin/openstack flavor list -f json --long')
+        .with('/usr/bin/openstack flavor list -f json --long --all')
         .and_return(flavors)
 
       defined_flavors = described_class.instances

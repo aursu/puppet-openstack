@@ -16,12 +16,6 @@ describe 'openstack::controller::octavia' do
         octavia_dbpass: 'secret',
       }
     end
-    before(:each) do
-      allow(File).to receive(:directory?).and_call_original
-      allow(File).to receive(:directory?).with('/var/lib/compose/octavia/.').and_return(true)
-      allow(File).to receive(:exist?).and_call_original
-      allow(File).to receive(:exist?).with('/var/lib/compose/octavia/./Dockerfile').and_return(true)
-    end
 
     context "on #{os}" do
       let(:facts) do
