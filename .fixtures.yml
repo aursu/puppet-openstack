@@ -43,7 +43,7 @@ fixtures:
       puppet_version: ">= 6.0.0"
     dockerinstall:
       repo: https://github.com/aursu/puppet-dockerinstall.git
-      ref: tags/v0.8.1
+      ref: tags/v0.8.2
     lsys:
       repo: https://github.com/aursu/puppet-lsys.git
       ref: tags/v0.6.6
