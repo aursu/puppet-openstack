@@ -29,7 +29,6 @@ class openstack::octavia::amphora (
       extract      => true,
       extract_path => $project_dir,
       creates      => "${project_dir}/Dockerfile",
-      require      => File[$project_dir],
     }
 
     dockerinstall::webservice { $project:
