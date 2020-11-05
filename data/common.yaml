@@ -57,6 +57,8 @@ openstack::octavia_dbuser: 'octavia'
 openstack::octavia_dbpass: ~
 openstack::octavia_pass: ~
 openstack::octavia_build_image: true
+openstack::octavia_client_ca_pass: ~
+openstack::octavia_server_ca_pass: ~
 openstack::controller_host: 'controller'
 openstack::compute_tag: 'openstack'
 openstack::manage_kmod_package: false

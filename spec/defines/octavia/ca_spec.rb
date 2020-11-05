@@ -1,15 +1,16 @@
 require 'spec_helper'
 
-describe 'openstack::octavia::certs' do
+describe 'openstack::octavia::ca' do
+  let(:title) { 'namevar' }
+  let(:params) do
+    {
+      pass: 'secret',
+    }
+  end
+
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }
-      let(:params) do
-        {
-          client_ca_pass: 'secret',
-          server_ca_pass: 'secret',
-        }
-      end
 
       it { is_expected.to compile }
     end

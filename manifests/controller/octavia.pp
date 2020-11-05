@@ -8,14 +8,16 @@
 class openstack::controller::octavia (
   Openstack::Release
           $cycle          = $openstack::cycle,
-  String  $octavia_pass    = $openstack::octavia_pass,
-  String  $octavia_dbname  = $openstack::octavia_dbname,
-  String  $octavia_dbuser  = $openstack::octavia_dbuser,
-  String  $octavia_dbpass  = $openstack::octavia_dbpass,
-  String  $database_tag    = $openstack::database_tag,
-  String  $admin_pass      = $openstack::admin_pass,
+  String  $octavia_pass   = $openstack::octavia_pass,
+  String  $octavia_dbname = $openstack::octavia_dbname,
+  String  $octavia_dbuser = $openstack::octavia_dbuser,
+  String  $octavia_dbpass = $openstack::octavia_dbpass,
+  String  $database_tag   = $openstack::database_tag,
+  String  $admin_pass     = $openstack::admin_pass,
 )
 {
+  include openstack::octavia::certs
+
   class { 'openstack::octavia::amphora':
     octavia_pass => $octavia_pass,
   }

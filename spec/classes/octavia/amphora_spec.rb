@@ -11,6 +11,7 @@ describe 'openstack::octavia::amphora' do
       octavia_pass: 'secret',
     }
   end
+
   # before(:each) do
   #   allow(File).to receive(:directory?).and_call_original
   #   allow(File).to receive(:directory?).with('/var/lib/compose/octavia/.').and_return(true)

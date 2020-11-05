@@ -26,3 +26,5 @@ openstack::heat_domain_pass: secret
 # Octavia
 openstack::octavia_pass: secret
 openstack::octavia_dbpass: secret
+openstack::octavia_client_ca_pass: secret
+openstack::octavia_server_ca_pass: secret
