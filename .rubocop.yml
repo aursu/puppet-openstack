@@ -40,6 +40,10 @@ Style/BlockDelimiters:
   Description: Prefer braces for chaining. Mostly an aesthetical choice. Better to
     be consistent then.
   EnforcedStyle: braces_for_chaining
+Style/BracesAroundHashParameters:
+  Description: Braces are required by Ruby 2.7. Cop removed from RuboCop v0.80.0.
+    See https://github.com/rubocop-hq/rubocop/pull/7643
+  Enabled: true
 Style/ClassAndModuleChildren:
   Description: Compact style reduces the required amount of indentation.
   EnforcedStyle: compact
@@ -87,29 +91,51 @@ Style/MethodCalledOnDoEndBlock:
   Enabled: true
 Style/StringMethods:
   Enabled: true
-Metrics/BlockLength:
+GetText/DecorateFunctionMessage:
   Enabled: false
-RSpec/ExampleLength:
+GetText/DecorateStringFormattingUsingInterpolation:
   Enabled: false
-Metrics/ClassLength:
+GetText/DecorateStringFormattingUsingPercent:
   Enabled: false
-Metrics/MethodLength:
-  Enabled: false
-RSpec/DescribeClass:
-  Enabled: false
-Style/NumericLiterals:
-  Enabled: false
-Metrics/AbcSize:
-  Enabled: false
-Style/NumericPredicate:
-  Enabled: false
-Metrics/CyclomaticComplexity:
-  Enabled: false
-Metrics/PerceivedComplexity:
+Layout/EndOfLine:
   Enabled: false
 Layout/IndentHeredoc:
   Enabled: false
-Style/ClassAndModuleChildren:
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+Metrics/ParameterLists:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+RSpec/DescribeClass:
+  Enabled: false
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MessageExpectation:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/NestedGroups:
+  Enabled: false
+Style/AsciiComments:
+  Enabled: false
+Style/IfUnlessModifier:
   Enabled: false
 Style/SymbolProc:
+  Enabled: false
+Style/NumericLiterals:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
+Style/NumericPredicate:
   Enabled: false
