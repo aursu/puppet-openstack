@@ -66,7 +66,7 @@ define openstack::octavia::cert (
     # Create the CA certificate.
     $certificate:
       command => "openssl ca -config ${conf} -extensions usr_cert -days 3650 -notext -md sha256 -in csr/${cert_name}.csr.pem -passin pass:${ca_pass_escape} -out certs/${cert_name}.cert.pem", # lint:ignore:140chars
-      creates => $certificate,
+      unless  => "openssl x509 -noout -in ${certificate}",
       require => [
         Exec[$req],
       ],
