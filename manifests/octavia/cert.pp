@@ -18,28 +18,34 @@ define openstack::octavia::cert (
             'unit'    => 'Octavia',
             'org'     => 'OpenStack',
             'country' => 'DE',
-          }
+          },
+  Boolean $bundle      = false,
 )
 {
-  $dir         = "${certs_base}/${ca_dir}"
-  $conf        = "${dir}/openssl.cnf"
-  $private_dir = "${dir}/private"
-  $csr_dir     = "${dir}/csr"
-  $certs       = "${dir}/certs"
-  $private_key = "${dir}/private/${cert_name}.key.pem"
-  $req         = "${dir}/csr/${cert_name}.csr.pem"
-  $certificate = "${dir}/certs/${cert_name}.cert.pem"
-  $subj_str    = openstack::cert_subject($subject)
-  $subj_escape = openstack::shell_escape($subj_str)
+  $dir              = "${certs_base}/${ca_dir}"
+  $conf             = "${dir}/openssl.cnf"
+  $private_dir      = "${dir}/private"
+  $csr_dir          = "${dir}/csr"
+  $certs            = "${dir}/certs"
+  $private_key      = "private/${cert_name}.key.pem"
+  $private_key_path = "${dir}/private/${cert_name}.key.pem"
+  $req              = "csr/${cert_name}.csr.pem"
+  $certificate      = "certs/${cert_name}.cert.pem"
+  $cert_bundle      = "private/${cert_name}.cert-and-key.pem"
+  $subj_str         = openstack::cert_subject($subject)
+  $subj_escape      = openstack::shell_escape($subj_str)
 
   if $pass {
     $pass_escape = openstack::shell_escape($pass)
-    $private_key_command = "openssl genrsa -aes256 -out private/${cert_name}.key.pem -passout pass:${pass_escape} 2048"
-    $req_command = "openssl req -config ${conf} -new -sha256 -key private/${cert_name}.key.pem -passin pass:${pass_escape} -subj ${subj_escape} -out csr/${cert_name}.csr.pem" # lint:ignore:140chars
+
+    $private_key_command = "openssl genrsa -aes256 -out ${private_key} -passout pass:${pass_escape} 2048"
+    $req_command = "openssl req -config ${conf} -new -sha256 -key ${private_key} -passin pass:${pass_escape} -subj ${subj_escape} -out ${req}" # lint:ignore:140chars
+    $bundle_command = "openssl rsa -in ${private_key} -passin pass:${pass_escape} -out ${cert_bundle}"
   }
   else {
-    $private_key_command = "openssl genrsa -out private/${cert_name}.key.pem 2048"
-    $req_command = "openssl req -config ${conf} -new -sha256 -key private/${cert_name}.key.pem -subj ${subj_escape} -out csr/${cert_name}.csr.pem" # lint:ignore:140chars
+    $private_key_command = "openssl genrsa -out ${private_key} 2048"
+    $req_command = "openssl req -config ${conf} -new -sha256 -key ${private_key} -subj ${subj_escape} -out ${req}" # lint:ignore:140chars
+    $bundle_command = "openssl rsa -in ${private_key} -out ${cert_bundle}"
   }
 
   $ca_pass_escape = openstack::shell_escape($ca_pass)
@@ -53,23 +59,32 @@ define openstack::octavia::cert (
     # Create the CA key.
     $private_key:
       command => $private_key_command,
-      creates => $private_key,
-    ;
+      creates => $private_key_path;
     # Create the CA certificate.
     $req:
       command => $req_command,
-      creates => $req,
-      require => [
-        Exec[$private_key],
-      ],
-    ;
+      unless  => "openssl req -noout -in ${req}",
+      require => Exec[$private_key];
     # Create the CA certificate.
     $certificate:
-      command => "openssl ca -config ${conf} -extensions usr_cert -days 3650 -notext -md sha256 -in csr/${cert_name}.csr.pem -passin pass:${ca_pass_escape} -out certs/${cert_name}.cert.pem", # lint:ignore:140chars
+      command => "openssl ca -config ${conf} -extensions usr_cert -days 3650 -notext -md sha256 -in ${req} -passin pass:${ca_pass_escape} -out ${certificate}", # lint:ignore:140chars
       unless  => "openssl x509 -noout -in ${certificate}",
-      require => [
-        Exec[$req],
-      ],
-    ;
+      require => Exec[$req];
+  }
+
+  if $bundle {
+    exec {
+      default:
+        cwd  => $dir,
+        path => '/usr/bin:/bin',
+      ;
+      # Initiate bundle
+      $bundle_command:
+        unless => "openssl rsa -noout -in ${cert_bundle}",
+        before => Exec[$cert_bundle];
+      $cert_bundle:
+        command => "cat ${certificate} >> ${cert_bundle}",
+        unless  => "openssl x509 -noout -in ${cert_bundle}";
+    }
   }
 }

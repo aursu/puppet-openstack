@@ -49,6 +49,7 @@ class openstack::octavia::certs (
       'org'     => 'OpenStack',
       'loc'     => 'Frankfurt',
       'country' => 'DE',
-    }
+    },
+    bundle     => true,
   }
 }
