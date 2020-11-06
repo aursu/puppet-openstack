@@ -111,30 +111,33 @@ class openstack::controller::octavia (
   }
 
   # Create security groups and their rules
-  openstack_security_group { 'lb-mgmt-sec-grp':
-    * => $auth_octavia,
-  }
-
-  openstack_security_group { 'lb-health-mgr-sec-grp':
-    * => $auth_octavia,
+  openstack_security_group {
+    default:
+      project => 'service',
+      *       => $auth_octavia,
+    ;
+    'lb-mgmt-sec-grp': ;
+    'lb-health-mgr-sec-grp': ;
   }
 
   openstack_security_rule {
     default:
       group    => 'lb-mgmt-sec-grp',
+      project  => 'service',
       protocol => 'tcp',
       *        => $auth_octavia,
     ;
-    'lb-mgmt-sec-grp/ingress/icmp/0.0.0.0/0/any':
+    'service/lb-mgmt-sec-grp/ingress/icmp/0.0.0.0/0/any':
       protocol   => 'icmp';
-    'lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/22:22':
+    'service/lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/22:22':
       port_range => '22:22';
-    'lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/9443:9443':
+    'service/lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/9443:9443':
       port_range => '9443:9443';
   }
 
-  openstack_security_rule { 'lb-health-mgr-sec-grp/ingress/udp/0.0.0.0/0/5555:5555':
+  openstack_security_rule { 'service/lb-health-mgr-sec-grp/ingress/udp/0.0.0.0/0/5555:5555':
     group      => 'lb-health-mgr-sec-grp',
+    project    => 'service',
     protocol   => 'udp',
     port_range => '5555:5555',
     *          => $auth_octavia,
