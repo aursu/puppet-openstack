@@ -67,7 +67,7 @@ define openstack::octavia::cert (
       require => Exec[$private_key];
     # Create the CA certificate.
     $certificate:
-      command => "openssl ca -config ${conf} -extensions usr_cert -days 3650 -notext -md sha256 -in ${req} -passin pass:${ca_pass_escape} -out ${certificate}", # lint:ignore:140chars
+      command => "openssl ca -config ${conf} -extensions usr_cert -days 3650 -notext -md sha256 -in ${req} -passin pass:${ca_pass_escape} -out ${certificate} -batch", # lint:ignore:140chars
       unless  => "openssl x509 -noout -in ${certificate}",
       require => Exec[$req];
   }
