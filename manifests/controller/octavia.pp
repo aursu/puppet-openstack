@@ -52,16 +52,20 @@ class openstack::controller::octavia (
     require     => Openstack::User['octavia'],
   }
 
-  openstack_flavor { 'amphora':
-    ensure            => present,
-    disk              => 2,
-    ram               => 1024,
-    vcpus             => 1,
-    visibility        => 'private',
+  $auth_octavia = {
     auth_username     => 'octavia',
     auth_password     => $octavia_pass,
     auth_project_name => 'service',
-    require           => Openstack::User['octavia'],
+  }
+
+  openstack_flavor { 'amphora':
+    ensure     => present,
+    disk       => 2,
+    ram        => 1024,
+    vcpus      => 1,
+    visibility => 'private',
+    require    => Openstack::User['octavia'],
+    *          => $auth_octavia,
   }
 
   openstack::package {
@@ -104,5 +108,31 @@ class openstack::controller::octavia (
     group   => 'octavia',
     mode    => '0711',
     require => User['octavia'],
+  }
+
+  # Create security groups and their rules
+  openstack_security_group {
+    default:
+      * => $auth_octavia,
+    ;
+    'lb-mgmt-sec-grp': ;
+    'lb-health-mgr-sec-grp': ;
+  }
+
+  openstack_security_rule {
+    default:
+      group_name => 'lb-mgmt-sec-grp',
+      protocol   => 'tcp',
+      *          => $auth_octavia,
+    ;
+    'lb-mgmt-sec-grp/ingress/icmp/0.0.0.0/0/any':
+      protocol   => 'icmp';
+    'lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/22:22':
+      port_range => '22:22';
+    'lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/9443:9443':
+      port_range => '9443:9443';
+    'lb-health-mgr-sec-grp/ingress/udp/0.0.0.0/0/5555:5555':
+      protocol   => 'udp',
+      port_range => '5555:5555';
   }
 }
