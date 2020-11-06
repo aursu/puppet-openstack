@@ -144,8 +144,13 @@ Puppet::Type.newtype(:openstack_security_rule) do
   end
 
   autorequire(:openstack_security_group) do
-    rv = [self[:group]]
-    rv << self[:remote_group] if self[:remote_group]
+    if self[:project].to_s.empty?
+      rv = [self[:group]]
+      rv << self[:remote_group] if self[:remote_group]
+    else
+      rv = [ "#{self[:project]}/#{self[:group]}" ]
+      rv << "#{self[:project]}/#{self[:remote_group]}" if self[:remote_group]
+    end
     rv
   end
 
