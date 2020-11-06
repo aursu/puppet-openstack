@@ -131,8 +131,12 @@ class openstack::controller::octavia (
       port_range => '22:22';
     'lb-mgmt-sec-grp/ingress/tcp/0.0.0.0/0/9443:9443':
       port_range => '9443:9443';
-    'lb-health-mgr-sec-grp/ingress/udp/0.0.0.0/0/5555:5555':
-      protocol   => 'udp',
-      port_range => '5555:5555';
+  }
+
+  openstack_security_rule { 'lb-health-mgr-sec-grp/ingress/udp/0.0.0.0/0/5555:5555':
+    group      => 'lb-health-mgr-sec-grp',
+    protocol   => 'udp',
+    port_range => '5555:5555',
+    *          => $auth_octavia,
   }
 }
