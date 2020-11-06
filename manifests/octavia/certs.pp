@@ -68,13 +68,13 @@ class openstack::octavia::certs (
     ;
     "${certs_base}/server_ca.key.pem":
       source => "file://${certs_base}/server_ca/private/ca.key.pem",
-      mode   => '0700';
+      mode   => '0600';
     "${certs_base}/server_ca.cert.pem":
       source => "file://${certs_base}/server_ca/certs/ca.cert.pem";
     "${certs_base}/client_ca.cert.pem":
       source => "file://${certs_base}/client_ca/certs/ca.cert.pem";
     "${certs_base}/client.cert-and-key.pem":
       source => "file://${certs_base}/client_ca/private/client.cert-and-key.pem",
-      mode   => '0700';
+      mode   => '0600';
   }
 }
