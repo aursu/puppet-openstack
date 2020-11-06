@@ -1,6 +1,7 @@
 # @summary Octavia Certificate Configuration
 #
 # Octavia Certificate Configuration
+# See https://docs.openstack.org/octavia/latest/admin/guides/certificates.html
 #
 # @example
 #   include openstack::octavia::certs
@@ -13,6 +14,9 @@ class openstack::octavia::certs (
 
   file { $certs_base:
     ensure => 'directory',
+    mode   => '0700',
+    owner  => 'octavia',
+    group  => 'octavia',
   }
 
   openstack::octavia::ca { 'server_ca':
@@ -51,5 +55,26 @@ class openstack::octavia::certs (
       'country' => 'DE',
     },
     bundle     => true,
+  }
+
+  file {
+    default:
+      owner   => 'octavia',
+      group   => 'octavia',
+      require => [
+        Openstack::Octavia::Ca['server_ca'],
+        Openstack::Octavia::Cert['client'],
+      ]
+    ;
+    "${certs_base}/server_ca.key.pem":
+      source => "file://${certs_base}/server_ca/private/ca.key.pem",
+      mode   => '0700';
+    "${certs_base}/server_ca.cert.pem":
+      source => "file://${certs_base}/server_ca/certs/ca.cert.pem";
+    "${certs_base}/client_ca.cert.pem":
+      source => "file://${certs_base}/client_ca/certs/ca.cert.pem";
+    "${certs_base}/client.cert-and-key.pem":
+      source => "file://${certs_base}/client_ca/private/client.cert-and-key.pem",
+      mode   => '0700';
   }
 }
