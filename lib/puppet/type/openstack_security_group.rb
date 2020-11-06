@@ -40,7 +40,10 @@ Puppet::Type.newtype(:openstack_security_group) do
     ]
   end
 
-  ensurable
+  ensurable do
+    defaultvalues
+    defaultto :present
+  end
 
   newparam(:project, namevar: true) do
     desc "Owner's project (name or ID)"
