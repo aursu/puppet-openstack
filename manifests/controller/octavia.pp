@@ -80,4 +80,29 @@ class openstack::controller::octavia (
     'python2-octavia': ;
     'python2-octaviaclient': ;
   }
+
+  # Identities
+  group { 'octavia':
+    ensure => present,
+    system => true,
+  }
+
+  user { 'octavia':
+    ensure     => present,
+    system     => true,
+    gid        => 'octavia',
+    comment    => 'OpenStack Octavia',
+    home       => '/var/lib/octavia',
+    managehome => true,
+    shell      => '/sbin/nologin',
+    require    => Group['octavia'],
+  }
+
+  file { '/var/lib/octavia':
+    ensure  => directory,
+    owner   => 'octavia',
+    group   => 'octavia',
+    mode    => '0711',
+    require => User['octavia'],
+  }
 }
