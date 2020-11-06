@@ -125,7 +125,7 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
 
     group             = self.class.group_lookup(project, group_name)
     unless group
-      Puppet.warning("Could not find security group ID for group name '#{group_name}' and project '#{group_name}'.")
+      Puppet.warning("Could not find security group ID for group name '#{group_name}' and project '#{project}'.")
       return
     end
 
