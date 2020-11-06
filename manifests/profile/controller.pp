@@ -4,7 +4,10 @@
 #
 # @example
 #   include openstack::profile::controller
-class openstack::profile::controller {
+class openstack::profile::controller (
+  Boolean $manage_docker = lookup('openstack::manage_docker', Boolean, 'first', true),
+)
+{
   include openstack
   include openstack::install
 
@@ -47,11 +50,13 @@ class openstack::profile::controller {
 
   # openstack::cinder::storage provides storage tools
   # lvm2, device-mapper-persistent-data and targetcli
-  if $openstack::controller::cinder::cinder_storage and $openstack::octavia_build_image {
-    # therefore disable prerequired_packages which are storage tools as well
-    class { 'dockerinstall':
-      prerequired_packages => [],
-    }
+  if $manage_docker
+    and $openstack::controller::cinder::cinder_storage
+    and $openstack::octavia_build_image {
+      # therefore disable prerequired_packages which are storage tools as well
+      class { 'dockerinstall':
+        prerequired_packages => [],
+      }
   }
 
   # https://docs.openstack.org/octavia/latest/install/install.html

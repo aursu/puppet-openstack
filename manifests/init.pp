@@ -87,6 +87,7 @@ class openstack (
   Boolean             $octavia_build_image,
   Optional[String]    $octavia_client_ca_pass,
   Optional[String]    $octavia_server_ca_pass,
+  Boolean             $manage_docker,
 
   Stdlib::Host        $controller_host,
   String              $compute_tag,
