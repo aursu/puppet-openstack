@@ -46,8 +46,10 @@ Puppet::Type.newtype(:openstack_security_group) do
     desc "Owner's project (name or ID)"
 
     validate do |value|
+      next if value == :absent
       raise ArgumentError, _('Project name or ID must be a String not %{klass} for %{value}') % { klass: value.class, value: value } unless value.is_a?(String)
 
+      next if value.to_s == ''
       next if value.to_s == 'default'
 
       project = resource.project_instance(value) || resource.project_resource(value)
@@ -63,7 +65,7 @@ Puppet::Type.newtype(:openstack_security_group) do
     desc 'Security group name'
 
     defaultto do
-      @resource[:project].to_s.empty? ? @resource[:group_name] : (@resource[:project] + '/' + @resource[:group_name])
+      (@resource[:project].to_s.empty? || @resource[:project] == :absent) ? @resource[:group_name] : (@resource[:project] + '/' + @resource[:group_name])
     end
   end
 
@@ -77,7 +79,7 @@ Puppet::Type.newtype(:openstack_security_group) do
 
   autorequire(:openstack_project) do
     rv = []
-    rv << self[:project] if self[:project]
+    rv << self[:project] unless (self[:project].to_s.empty? || self[:project] == :absent)
     rv
   end
 end

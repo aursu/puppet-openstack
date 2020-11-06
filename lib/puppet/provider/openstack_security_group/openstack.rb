@@ -98,8 +98,11 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   def create
     group_name = @resource.value(:group_name)
     desc       = @resource.value(:description)
+
     project    = @resource.value(:project)
-    name       = project.to_s.empty? ? group_name : "#{project}/#{group_name}"
+    project    = nil if project.to_s.empty? || project == :absent
+
+    name       = project ? group_name : "#{project}/#{group_name}"
 
     @property_hash[:name] = name
     @property_hash[:group_name] = group_name
@@ -113,7 +116,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     # <name>
 
     args = []
-    args += ['--project', project] if project && !project.empty?
+    args += ['--project', project] if project
     args += ['--description', desc] if desc
     args << group_name
 

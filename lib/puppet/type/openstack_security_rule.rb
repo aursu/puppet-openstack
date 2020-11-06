@@ -26,9 +26,8 @@ Puppet::Type.newtype(:openstack_security_rule) do
   newproperty(:project) do
     desc "Owner's project (name or ID)"
 
-    defaultto ''
-
     validate do |value|
+      next if value == :absent
       raise ArgumentError, _('Project name or ID must be a String not %{klass} for %{value}') % { klass: value.class, value: value } unless value.is_a?(String)
 
       next if value.to_s == ''
