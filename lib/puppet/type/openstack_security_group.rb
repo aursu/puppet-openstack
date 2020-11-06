@@ -22,8 +22,6 @@ Puppet::Type.newtype(:openstack_security_group) do
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/security-group.html
     PUPPET
 
-  ensurable
-
   def self.title_patterns
     [
       [
@@ -41,6 +39,8 @@ Puppet::Type.newtype(:openstack_security_group) do
       ],
     ]
   end
+
+  ensurable
 
   newparam(:project, namevar: true) do
     desc "Owner's project (name or ID)"
