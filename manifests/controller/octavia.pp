@@ -111,12 +111,12 @@ class openstack::controller::octavia (
   }
 
   # Create security groups and their rules
-  openstack_security_group {
-    default:
-      * => $auth_octavia,
-    ;
-    'lb-mgmt-sec-grp': ;
-    'lb-health-mgr-sec-grp': ;
+  openstack_security_group { 'lb-mgmt-sec-grp':
+    * => $auth_octavia,
+  }
+
+  openstack_security_group { 'llb-health-mgr-sec-grp':
+    * => $auth_octavia,
   }
 
   openstack_security_rule {
