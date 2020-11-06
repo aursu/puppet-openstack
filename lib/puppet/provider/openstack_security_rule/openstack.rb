@@ -119,10 +119,11 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
     desc              = @resource.value(:description)
     ethertype         = @resource.value(:ethertype)
 
-    project           = nil if project.to_s.empty? || project == :absent
+
     group             = self.class.group_lookup(project, group_name)
     remote_group      = self.class.group_lookup(project, remote_group_name)
 
+    project    = nil if project.to_s.empty?
     port_range = nil if ['', 'any'].include? port_range.to_s
     proto      = nil if ['', 'any'].include? proto.to_s
 

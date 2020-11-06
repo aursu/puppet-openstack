@@ -55,6 +55,11 @@ Puppet::Type.newtype(:openstack_security_group) do
       project = resource.project_instance(value) || resource.project_resource(value)
       raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
     end
+
+    munge do |value|
+      return '' if value == :absent
+      value
+    end
   end
 
   newparam(:group_name, namevar: true) do
@@ -65,7 +70,7 @@ Puppet::Type.newtype(:openstack_security_group) do
     desc 'Security group name'
 
     defaultto do
-      (@resource[:project].to_s.empty? || @resource[:project] == :absent) ? @resource[:group_name] : (@resource[:project] + '/' + @resource[:group_name])
+      @resource[:project].to_s.empty? ? @resource[:group_name] : (@resource[:project] + '/' + @resource[:group_name])
     end
   end
 
@@ -79,7 +84,7 @@ Puppet::Type.newtype(:openstack_security_group) do
 
   autorequire(:openstack_project) do
     rv = []
-    rv << self[:project] unless (self[:project].to_s.empty? || self[:project] == :absent)
+    rv << self[:project] unless self[:project].to_s.empty?
     rv
   end
 end

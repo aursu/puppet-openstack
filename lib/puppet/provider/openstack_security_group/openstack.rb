@@ -54,7 +54,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     project_name = if project_id == 'default'
                      'default'
                    elsif project_id.to_s.empty?
-                     nil
+                     ''
                    else
                      project_instances[project_id]
                    end
@@ -100,7 +100,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     desc       = @resource.value(:description)
 
     project    = @resource.value(:project)
-    project    = nil if project.to_s.empty? || project == :absent
+    project    = nil if project.to_s.empty?
 
     name       = project ? group_name : "#{project}/#{group_name}"
 

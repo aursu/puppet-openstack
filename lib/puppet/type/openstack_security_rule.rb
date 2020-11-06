@@ -36,6 +36,11 @@ Puppet::Type.newtype(:openstack_security_rule) do
       project = resource.project_instance(value) || resource.project_resource(value)
       raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
     end
+
+    munge do |value|
+      return '' if value == :absent
+      value
+    end
   end
 
   newproperty(:group) do
