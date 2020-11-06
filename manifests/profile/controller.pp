@@ -5,7 +5,7 @@
 # @example
 #   include openstack::profile::controller
 class openstack::profile::controller (
-  Boolean $manage_docker = lookup('openstack::manage_docker', Boolean, 'first', true),
+  Boolean $manage_docker = $openstack::manage_docker,
 )
 {
   include openstack
