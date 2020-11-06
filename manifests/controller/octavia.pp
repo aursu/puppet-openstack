@@ -116,8 +116,8 @@ class openstack::controller::octavia (
       project => 'service',
       *       => $auth_octavia,
     ;
-    'lb-mgmt-sec-grp': ;
-    'lb-health-mgr-sec-grp': ;
+    'service/lb-mgmt-sec-grp': ;
+    'service/lb-health-mgr-sec-grp': ;
   }
 
   openstack_security_rule {
