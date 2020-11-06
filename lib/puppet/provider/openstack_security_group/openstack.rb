@@ -54,12 +54,12 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     project_name = if project_id == 'default'
                      'default'
                    elsif project_id.to_s.empty?
-                     ''
+                     nil
                    else
                      project_instances[project_id]
                    end
     group_name = entity['name']
-    group_project_name = project_name.empty? ? group_name : "#{project_name}/#{group_name}"
+    group_project_name = project_name.to_s.empty? ? group_name : "#{project_name}/#{group_name}"
 
     @instances << new(name: group_project_name,
                       ensure: :present,

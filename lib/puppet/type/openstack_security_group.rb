@@ -45,12 +45,12 @@ Puppet::Type.newtype(:openstack_security_group) do
   newparam(:project, namevar: true) do
     desc "Owner's project (name or ID)"
 
-    defaultto ''
+    # defaultto ''
 
     validate do |value|
       raise ArgumentError, _('Project name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
-      next if value.to_s == ''
+#      next if value.to_s == ''
       next if value.to_s == 'default'
 
       project = resource.project_instance(value) || resource.project_resource(value)

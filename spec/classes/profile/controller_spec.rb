@@ -1,7 +1,12 @@
 require 'spec_helper'
 
 describe 'openstack::profile::controller' do
-  let(:pre_condition) { 'include apache' }
+  let(:pre_condition) do
+    <<-PRECOND
+    include apache
+    include openstack
+    PRECOND
+  end
 
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
