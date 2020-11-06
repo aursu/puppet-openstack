@@ -121,9 +121,9 @@ class openstack::controller::octavia (
 
   openstack_security_rule {
     default:
-      group_name => 'lb-mgmt-sec-grp',
-      protocol   => 'tcp',
-      *          => $auth_octavia,
+      group    => 'lb-mgmt-sec-grp',
+      protocol => 'tcp',
+      *        => $auth_octavia,
     ;
     'lb-mgmt-sec-grp/ingress/icmp/0.0.0.0/0/any':
       protocol   => 'icmp';
