@@ -115,7 +115,7 @@ class openstack::controller::octavia (
     * => $auth_octavia,
   }
 
-  openstack_security_group { 'llb-health-mgr-sec-grp':
+  openstack_security_group { 'lb-health-mgr-sec-grp':
     * => $auth_octavia,
   }
 
