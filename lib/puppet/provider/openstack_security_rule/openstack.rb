@@ -36,7 +36,10 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
   def self.group_lookup(project, group_name)
     return nil unless group_name
 
-    group_instances.find { |_id, group| group['project'] == project && group['name'] == group_name }[0]
+    result = group_instances.find { |_id, group| group['project'] == project && group['name'] == group_name }
+
+    return nil unless result
+    result[0]
   end
 
   def self.instances
@@ -121,6 +124,11 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
 
 
     group             = self.class.group_lookup(project, group_name)
+    unless group
+      Puppet.warning("Could not find security group ID for group name '#{group_name}' and project '#{group_name}'.")
+      return
+    end
+
     remote_group      = self.class.group_lookup(project, remote_group_name)
 
     project    = nil if project.to_s.empty?
