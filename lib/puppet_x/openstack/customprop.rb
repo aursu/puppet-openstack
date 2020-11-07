@@ -142,5 +142,25 @@ module PuppetX
         raise ArgumentError, _("Domain #{value} must be defined in catalog or exist in OpenStack environment") unless domain
       end
     end
+
+    class SSHKeyProperty < Puppet::Property
+      def retrieve
+        provider.provider_show['fingerprint']
+      end
+
+      def insync?(is)
+        return @should == [:absent] if is.nil?
+
+        key_info = provider.key_info(@should)
+
+        return true if key_info.empty?
+        return is == key_info['fingerprint']
+      end
+
+      def sync
+        provider.destroy
+        provider.create
+      end
+    end
   end
 end
