@@ -49,7 +49,6 @@ Puppet::Type.newtype(:openstack_security_group) do
     desc "Owner's project (name or ID)"
 
     validate do |value|
-      next if value == :absent
       raise ArgumentError, _('Project name or ID must be a String not %{klass} for %{value}') % { klass: value.class, value: value } unless value.is_a?(String)
 
       next if value.to_s == ''
@@ -57,11 +56,6 @@ Puppet::Type.newtype(:openstack_security_group) do
 
       project = resource.project_instance(value) || resource.project_resource(value)
       raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
-    end
-
-    munge do |value|
-      return '' if value == :absent
-      value
     end
   end
 

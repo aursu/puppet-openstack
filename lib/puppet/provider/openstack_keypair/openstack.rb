@@ -82,7 +82,7 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
     auth_args
 
     cmdout = self.class.provider_show(*args)
-    return {} if cmdout.nil?
+    return {} unless cmdout
 
     @desc = JSON.parse(cmdout).map { |k, v| [k.downcase.tr(' ', '_'), v] }.to_h
   end
