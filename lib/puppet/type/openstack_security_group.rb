@@ -22,6 +22,11 @@ Puppet::Type.newtype(:openstack_security_group) do
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/security-group.html
     PUPPET
 
+  ensurable do
+    defaultvalues
+    defaultto :present
+  end
+
   def self.title_patterns
     [
       [
@@ -38,11 +43,6 @@ Puppet::Type.newtype(:openstack_security_group) do
         ],
       ],
     ]
-  end
-
-  ensurable do
-    defaultvalues
-    defaultto :present
   end
 
   newparam(:project, namevar: true) do

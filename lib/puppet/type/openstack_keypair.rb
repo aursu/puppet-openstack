@@ -14,11 +14,6 @@ Puppet::Type.newtype(:openstack_keypair) do
     PUPPET
 
   ensurable do
-    defaultvalues
-    defaultto :present
-  end
-
-  ensurable do
     newvalue(:absent) do
       provider.destroy
     end

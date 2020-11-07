@@ -142,4 +142,18 @@ class openstack::controller::octavia (
     port_range => '5555:5555',
     *          => $auth_octavia,
   }
+
+  # Create a key pair for logging in to the amphora instance
+  include openssh
+  class { 'openssh::ssh_keygen':
+    sshkey_generate_enable => true,
+    sshkey_name            => 'Generated-by-Nova',
+    sshkey_user            => 'root',
+    sshkey_dir             => '/root/.ssh',
+  }
+
+  openstack_keypair { 'octavia-access':
+    private_key => '/root/.ssh/id_rsa',
+    require     => Class['openssh::ssh_keygen'],
+  }
 }

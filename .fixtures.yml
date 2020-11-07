@@ -27,6 +27,9 @@ fixtures:
     rabbitmq:
       repo: puppet/rabbitmq
       ref: 10.0.0
+    sshkeys_core:
+      repo: puppetlabs/sshkeys_core
+      puppet_version: ">= 6.0.0"
     stdlib:
       repo: puppetlabs/stdlib
       ref: 6.2.0
@@ -36,16 +39,18 @@ fixtures:
     systemd:
       repo: camptocamp/systemd
       ref: 2.9.0
-  repositories:
     yumrepo_core:
-      repo: https://github.com/puppetlabs/puppetlabs-yumrepo_core.git
-      ref: tags/1.0.6
+      repo: puppetlabs/yumrepo_core
       puppet_version: ">= 6.0.0"
+  repositories:
     dockerinstall:
       repo: https://github.com/aursu/puppet-dockerinstall.git
       ref: tags/v0.8.2
     lsys:
       repo: https://github.com/aursu/puppet-lsys.git
       ref: tags/v0.6.6
+    openssh:
+      repo: https://github.com/aursu/puppet-openssh.git
+      ref: tags/v0.4.4
     tlsinfo:
       repo: https://github.com/aursu/puppet-tlsinfo.git

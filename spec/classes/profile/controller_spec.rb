@@ -5,6 +5,9 @@ describe 'openstack::profile::controller' do
     <<-PRECOND
     include apache
     include openstack
+    include openstack::install
+    include openstack::controller::keystone
+    include openstack::controller::users
     PRECOND
   end
 
