@@ -113,6 +113,9 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
 
   def destroy
     name = @resource[:name]
+
+    auth_args
+
     self.class.provider_delete(name)
   end
 
