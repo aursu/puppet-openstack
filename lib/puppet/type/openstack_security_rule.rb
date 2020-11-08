@@ -33,8 +33,8 @@ Puppet::Type.newtype(:openstack_security_rule) do
       next if value.to_s == ''
       next if value.to_s == 'default'
 
-      project = resource.project_instance(value) || resource.project_resource(value)
-      raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
+      # project = resource.project_instance(value) || resource.project_resource(value)
+      # raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
     end
 
     munge do |value|

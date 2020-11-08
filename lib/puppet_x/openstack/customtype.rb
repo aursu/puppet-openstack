@@ -40,11 +40,11 @@ module CustomType
   end
 
   def project_instance(lookup_id)
-    entity_instance(lookup_id, :openstack_project)
+    entity_instance(lookup_id, :openstack_project, :project_name)
   end
 
   def project_resource(lookup_id)
-    entity_resource(lookup_id, :openstack_project)
+    entity_resource(lookup_id, :openstack_project, :project_name)
   end
 
   def network_instance(lookup_id)

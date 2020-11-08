@@ -113,8 +113,9 @@ class openstack::controller::octavia (
   # Create security groups and their rules
   openstack_security_group {
     default:
-      project => 'service',
       *       => $auth_octavia,
+      project => 'service',
+      require => Openstack::User['octavia'],
     ;
     'service/lb-mgmt-sec-grp': ;
     'service/lb-health-mgr-sec-grp': ;
@@ -122,10 +123,11 @@ class openstack::controller::octavia (
 
   openstack_security_rule {
     default:
+      *        => $auth_octavia,
       group    => 'lb-mgmt-sec-grp',
       project  => 'service',
       protocol => 'tcp',
-      *        => $auth_octavia,
+      require  => Openstack::User['octavia'],
     ;
     'service/lb-mgmt-sec-grp/ingress/icmp/0.0.0.0/0/any':
       protocol   => 'icmp';
@@ -136,11 +138,12 @@ class openstack::controller::octavia (
   }
 
   openstack_security_rule { 'service/lb-health-mgr-sec-grp/ingress/udp/0.0.0.0/0/5555:5555':
+    *          => $auth_octavia,
     group      => 'lb-health-mgr-sec-grp',
     project    => 'service',
     protocol   => 'udp',
     port_range => '5555:5555',
-    *          => $auth_octavia,
+    require    => Openstack::User['octavia'],
   }
 
   # Create a key pair for logging in to the amphora instance
