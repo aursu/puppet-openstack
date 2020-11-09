@@ -31,26 +31,26 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
   def self.ssh_keygen_command(bin = nil)
     cmd = nil
     cmd = Puppet::Util.which(bin) if bin
-    @cmd = if cmd
+    @keygen_cmd = if cmd
              cmd
            else
              command(:ssh_keygen)
            end
-    @cmd
+    @keygen_cmd
   end
 
   def self.ssh_keygen_caller(*args)
-    ssh_keygen_command unless @cmd
+    ssh_keygen_command unless @keygen_cmd
     cmdline = Shellwords.join(args)
 
-    cmd = [@cmd, cmdline].compact.join(' ')
+    cmd = [@keygen_cmd, cmdline].compact.join(' ')
     cmdout = Puppet::Util::Execution.execute(cmd)
 
     return nil if cmdout.nil?
     return nil if cmdout.empty?
     return cmdout
   rescue Puppet::ExecutionFailure => detail
-    Puppet.debug "Execution of #{@cmd} command failed: #{detail}"
+    Puppet.debug "Execution of #{@keygen_cmd} command failed: #{detail}"
     false
   end
 
