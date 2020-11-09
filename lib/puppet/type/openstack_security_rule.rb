@@ -43,15 +43,8 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newproperty(:group) do
+  newproperty(:group, parent: PuppetX::OpenStack::SecurityGroupProperty) do
     desc 'Create rule in this security group (name or ID)'
-
-    validate do |value|
-      raise ArgumentError, _('Security group name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-      group = resource.security_group_instance(value) || resource.security_group_resource(value)
-      raise ArgumentError, _("Security group #{value} must be defined in catalog or exist in OpenStack environment") unless group
-    end
   end
 
   newproperty(:direction) do
@@ -110,15 +103,8 @@ Puppet::Type.newtype(:openstack_security_rule) do
     end
   end
 
-  newproperty(:remote_group) do
+  newproperty(:remote_group, parent: PuppetX::OpenStack::SecurityGroupProperty) do
     desc 'Remote security group (name or ID)'
-
-    validate do |value|
-      raise ArgumentError, _('Remote security group name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-      group = resource.security_group_instance(value) || resource.security_group_resource(value)
-      raise ArgumentError, _("Remote security group #{value} must be defined in catalog or exist in OpenStack environment") unless group
-    end
   end
 
   newproperty(:port_range) do
@@ -144,13 +130,8 @@ Puppet::Type.newtype(:openstack_security_rule) do
   end
 
   autorequire(:openstack_security_group) do
-    if self[:project].to_s.empty?
-      rv = [self[:group]]
-      rv << self[:remote_group] if self[:remote_group]
-    else
-      rv = [ "#{self[:project]}/#{self[:group]}" ]
-      rv << "#{self[:project]}/#{self[:remote_group]}" if self[:remote_group]
-    end
+    rv = [self[:group]]
+    rv << self[:remote_group] if self[:remote_group]
     rv
   end
 
