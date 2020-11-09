@@ -57,6 +57,19 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
     # rubocop:enable Lint/AssignmentInCondition
   end
 
+  # openstack flavor create
+  # [--id <id>]
+  # [--ram <size-mb>]
+  # [--disk <size-gb>]
+  # [--ephemeral-disk <size-gb>]
+  # [--swap <size-mb>]
+  # [--vcpus <num-cpu>]
+  # [--rxtx-factor <factor>]
+  # [--public | --private]
+  # [--property <key=value> [...] ]
+  # [--project <project>]
+  # [--project-domain <project-domain>]
+  # <flavor-name>
   def create
     name       = @resource[:name]
     ram        = @resource.value(:ram)
@@ -105,4 +118,11 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   def exists?
     @property_hash[:ensure] == :present || false
   end
+
+  # openstack flavor set
+  # [--no-property]
+  # [--property <key=value> [...] ]
+  # [--project <project>]
+  # [--project-domain <project-domain>]
+  # <flavor>
 end
