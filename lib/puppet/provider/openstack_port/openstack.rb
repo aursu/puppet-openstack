@@ -221,9 +221,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   end
 
   def device_owner
-    desc = provider_show
-
-    desc['device_owner']
+    provider_show['device_owner']
   end
 
   def device_owner=(owner)
@@ -231,9 +229,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   end
 
   def host_id
-    desc = provider_show
-
-    desc['binding_host_id']
+    provider_show['binding_host_id']
   end
 
   def host_id=(host)
@@ -241,15 +237,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   end
 
   def security_group
-    desc = provider_show
-
-    desc['security_group_ids']
-  end
-
-  def security_group
-    desc = provider_show
-
-    desc['security_group_ids']
+    provider_show['security_group_ids']
   end
 
   # usage: openstack port set [-h] [--description <description>]

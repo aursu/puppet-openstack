@@ -190,6 +190,7 @@ class openstack::controller::octavia (
 
   openstack_port { 'octavia-health-manager-listen-port':
     *              => $auth_octavia,
+    port_security  => true,
     security_group => 'lb-health-mgr-sec-grp',
     project        => 'service',
     device_owner   => 'Octavia:health-mgr',
