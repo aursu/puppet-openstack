@@ -134,6 +134,10 @@ class Puppet::Provider::Openstack < Puppet::Provider
     Puppet::Type.type(entity_type).provider(:openstack).instances
   end
 
+  def self.project_instances
+    provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
+  end
+
   # Look up the current status.
   def properties
     @property_hash[:ensure] = :absent if @property_hash.empty?
