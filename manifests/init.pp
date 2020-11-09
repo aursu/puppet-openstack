@@ -88,6 +88,11 @@ class openstack (
   Optional[String]    $octavia_client_ca_pass,
   Optional[String]    $octavia_server_ca_pass,
   Boolean             $manage_docker,
+  String              $octavia_mgmt_subnet,
+  String              $octavia_mgmt_subnet_start,
+  String              $octavia_mgmt_subnet_end,
+  String              $octavia_mgmt_port_ip,
+  Boolean             $manage_dhcp_directory,
 
   Stdlib::Host        $controller_host,
   String              $compute_tag,

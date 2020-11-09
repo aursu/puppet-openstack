@@ -7,16 +7,28 @@
 #   include openstack::controller::octavia
 class openstack::controller::octavia (
   Openstack::Release
-          $cycle          = $openstack::cycle,
-  String  $octavia_pass   = $openstack::octavia_pass,
-  String  $octavia_dbname = $openstack::octavia_dbname,
-  String  $octavia_dbuser = $openstack::octavia_dbuser,
-  String  $octavia_dbpass = $openstack::octavia_dbpass,
-  String  $database_tag   = $openstack::database_tag,
-  String  $admin_pass     = $openstack::admin_pass,
+          $cycle             = $openstack::cycle,
+  String  $octavia_pass      = $openstack::octavia_pass,
+  String  $octavia_dbname    = $openstack::octavia_dbname,
+  String  $octavia_dbuser    = $openstack::octavia_dbuser,
+  String  $octavia_dbpass    = $openstack::octavia_dbpass,
+  String  $database_tag      = $openstack::database_tag,
+  String  $admin_pass        = $openstack::admin_pass,
+  Stdlib::IP::Address
+          $mgmt_subnet           = $openstack::octavia_mgmt_subnet,
+  Stdlib::IP::Address
+          $mgmt_subnet_start     = $openstack::octavia_mgmt_subnet_start,
+  Stdlib::IP::Address
+          $mgmt_subnet_end       = $openstack::octavia_mgmt_subnet_end,
+  Stdlib::IP::Address
+          $mgmt_port_ip          = $openstack::octavia_mgmt_port_ip,
+  Stdlib::Host
+          $controller_host       = $openstack::controller_host,
+  Boolean $manage_dhcp_directory = $openstack::manage_dhcp_directory,
 )
 {
   include openstack::octavia::certs
+  include openstack::octavia::ssh
 
   class { 'openstack::octavia::amphora':
     octavia_pass => $octavia_pass,
@@ -146,17 +158,49 @@ class openstack::controller::octavia (
     require    => Openstack::User['octavia'],
   }
 
-  # Create a key pair for logging in to the amphora instance
-  include openssh
-  class { 'openssh::ssh_keygen':
-    sshkey_generate_enable => true,
-    sshkey_name            => 'Generated-by-Nova',
-    sshkey_user            => 'root',
-    sshkey_dir             => '/root/.ssh',
+  $octavia_dhclient_dir = '/etc/dhcp/octavia'
+  $octavia_dhclient_conf = "${octavia_dhclient_dir}/dhclient.conf"
+
+  if $manage_dhcp_directory {
+    file { '/etc/dhcp':
+      ensure => directory,
+    }
   }
 
-  openstack_keypair { 'octavia-access':
-    private_key => '/root/.ssh/id_rsa',
-    require     => Class['openssh::ssh_keygen'],
+  file { '/etc/dhcp/octavia':
+    ensure => directory,
+  }
+
+  file { $octavia_dhclient_conf:
+    source => 'puppet:///modules/openstack/octavia/dhclient.conf'
+  }
+
+  openstack_network { 'lb-mgmt-net':
+    *      => $auth_octavia,
+  }
+
+  openstack_subnet { 'lb-mgmt-subnet':
+    *                     => $auth_octavia,
+    network               => 'lb-mgmt-net',
+    subnet_range          => $mgmt_subnet,
+    allocation_pool_start => $mgmt_subnet_start,
+    allocation_pool_end   => $mgmt_subnet_end,
+  }
+
+  openstack_port { 'octavia-health-manager-listen-port':
+    *              => $auth_octavia,
+    security_group => 'lb-health-mgr-sec-grp',
+    project        => 'service',
+    device_owner   => 'Octavia:health-mgr',
+    host_id        => $controller_host,
+    network        => 'lb-mgmt-net',
+    fixed_ips      => {
+      'subnet_id'  => 'lb-mgmt-subnet',
+      'ip_address' => $mgmt_port_ip,
+    },
+    require        => [
+      Openstack_subnet['lb-mgmt-subnet'],
+      Openstack_security_group['service/lb-health-mgr-sec-grp'],
+    ]
   }
 }
