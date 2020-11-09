@@ -76,7 +76,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
                         port_security: entity['is_port_security_enabled'].to_s.to_sym,
                         device_id: entity['device_id'],
                         mac_address: entity['mac_address'],
-                        fixed_ips: entity['fixed_ips'],
+                        fixed_ips: entity['fixed_ip_addresses'],
                         provider: name)
     end
 
