@@ -155,7 +155,7 @@ module PuppetX
       defaultto 'default'
 
       validate do |value|
-        raise ArgumentError, _('Domain name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+        raise ArgumentError, _('Domain name or ID must be a String not %{klass} for %{value}') % { klass: value.class, value: value } unless value.is_a?(String)
 
         next if value.to_s == 'default'
 
