@@ -42,10 +42,6 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
-  def self.project_instances
-    provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
-  end
-
   def self.add_instance(entity = {})
     @instances = [] unless @instances
 
@@ -58,6 +54,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
                    else
                      project_instances[project_id]
                    end
+
     group_name = entity['name']
     group_project_name = project_name.to_s.empty? ? group_name : "#{project_name}/#{group_name}"
 
@@ -96,8 +93,9 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def create
-    group_name = @resource.value(:group_name)
-    desc       = @resource.value(:description)
+    group_name     = @resource.value(:group_name)
+    desc           = @resource.value(:description)
+    project_domain = @resource.value(:project_domain)
 
     project    = @resource.value(:project)
     project    = nil if project.to_s.empty?
@@ -116,7 +114,15 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
     # <name>
 
     args = []
-    args += ['--project', project] if project
+    if project
+      @property_hash[:project] = project
+      args += ['--project', project]
+
+      if project_domain
+        @property_hash[:project_domain] = project_domain
+        args += ['--project-domain', project_domain]
+      end
+    end
     args += ['--description', desc] if desc
     args << group_name
 

@@ -27,48 +27,28 @@ Puppet::Type.newtype(:openstack_security_group) do
     defaultto :present
   end
 
-  def self.title_patterns
-    [
-      [
-        %r{^([^/]+)/([^/]+)$},
-        [
-          [:project],
-          [:group_name],
-        ],
-      ],
-      [
-        %r{^([^/]+)$},
-        [
-          [:group_name],
-        ],
-      ],
-    ]
+  newparam(:name, namevar: true) do
+    desc 'Security group name'
   end
 
-  newparam(:project, namevar: true) do
+  newproperty(:project, parent: PuppetX::OpenStack::ProjectProperty) do
     desc "Owner's project (name or ID)"
 
     validate do |value|
-      raise ArgumentError, _('Project name or ID must be a String not %{klass} for %{value}') % { klass: value.class, value: value } unless value.is_a?(String)
-
       next if value.to_s == ''
       next if value.to_s == 'default'
 
-      # project = resource.project_instance(value) || resource.project_resource(value)
-      # raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless project
+      super(value)
     end
   end
 
-  newparam(:group_name, namevar: true) do
-    desc 'Security group name'
+  # --project-domain
+  newparam(:project_domain, parent: PuppetX::OpenStack::DomainParameter) do
+    desc 'Domain the project belongs to (name or ID).'
   end
 
-  newparam(:name) do
+  newparam(:group_name) do
     desc 'Security group name'
-
-    defaultto do
-      @resource[:project].to_s.empty? ? @resource[:group_name] : (@resource[:project] + '/' + @resource[:group_name])
-    end
   end
 
   newproperty(:id) do
