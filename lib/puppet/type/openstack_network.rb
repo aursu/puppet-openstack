@@ -20,7 +20,10 @@ Puppet::Type.newtype(:openstack_network) do
       https://docs.openstack.org/python-openstackclient/train/cli/command-objects/network.html
     PUPPET
 
-  ensurable
+  ensurable do
+    defaultvalues
+    defaultto :present
+  end
 
   newparam(:name, namevar: true) do
     desc 'New network name'

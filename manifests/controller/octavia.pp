@@ -185,6 +185,7 @@ class openstack::controller::octavia (
     subnet_range          => $mgmt_subnet,
     allocation_pool_start => $mgmt_subnet_start,
     allocation_pool_end   => $mgmt_subnet_end,
+    require               => Openstack_network['lb-mgmt-net']
   }
 
   openstack_port { 'octavia-health-manager-listen-port':
