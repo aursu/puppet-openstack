@@ -52,8 +52,13 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
                    elsif project_id.to_s.empty?
                      ''
                    else
-                     project_instances[project_id]
+                     project_instances[project_id]['name']
                    end
+    project_domain = if project_instances[project_id]
+                       project_instances[project_id]['domain']
+                     else
+                       'default'
+                     end
 
     group_name = entity['name']
     group_project_name = project_name.to_s.empty? ? group_name : "#{project_name}/#{group_name}"
@@ -63,6 +68,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
                       id: entity['id'],
                       group_name: group_name,
                       project: project_name,
+                      project_domain: project_domain,
                       description: entity['description'],
                       provider: name)
   end

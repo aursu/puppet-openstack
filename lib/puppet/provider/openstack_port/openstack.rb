@@ -60,7 +60,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
       project_name = if project_id.to_s.empty?
                        ''
                      else
-                       project_instances[project_id]
+                       project_instances[project_id]['name']
                      end
 
       port_enabled = entity['status'].casecmp?('active')

@@ -33,10 +33,6 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
-  def self.project_instances
-    provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
-  end
-
   def self.instances
     return @instances if @instances
     @instances = []

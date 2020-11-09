@@ -52,10 +52,6 @@ Puppet::Type.type(:openstack_user).provide(:openstack, parent: Puppet::Provider:
     provider_instances(:openstack_domain).map { |d| [d.id, d.name] }.to_h
   end
 
-  def self.project_instances
-    provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
-  end
-
   def self.add_instance(entity = {})
     @instances = [] unless @instances
 

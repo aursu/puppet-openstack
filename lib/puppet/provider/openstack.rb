@@ -135,7 +135,7 @@ class Puppet::Provider::Openstack < Puppet::Provider
   end
 
   def self.project_instances
-    provider_instances(:openstack_project).map { |p| [p.id, p.name] }.to_h
+    provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
   end
 
   # Look up the current status.

@@ -24,10 +24,6 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
     openstack_caller(provider_subcommand, 'remove', *args)
   end
 
-  def self.project_instances
-    provider_instances(:openstack_project).map { |p| [p.id, { 'name' => p.project_name, 'domain' => p.domain }] }.to_h
-  end
-
   def self.user_instances
     provider_instances(:openstack_user).map { |u| [u.id, { 'name' => u.user_name, 'domain' => u.domain }] }.to_h
   end
