@@ -92,7 +92,7 @@ Puppet::Type.newtype(:openstack_subnet) do
     desc 'DNS server for this subnet (repeat option to set multiple DNS servers)'
 
     def insync?(is)
-      return @should == [:absent] if is.nil? || is == []
+      return @should == [:absent] if is.nil? || is == [] || is.to_s == 'absent'
       is.flatten.sort == should.flatten.sort
     end
 

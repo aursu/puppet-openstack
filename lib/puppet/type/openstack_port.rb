@@ -126,7 +126,7 @@ Puppet::Type.newtype(:openstack_port) do
     desc 'Security group to associate with this port.'
 
     def insync?(is)
-      return @should == [:absent] if is.nil? || is == []
+      return @should == [:absent] if is.nil? || is == [] || is.to_s == 'absent'
 
       # all security groups in @should array should be defined to be in sync
       (@should.compact - is).empty?
