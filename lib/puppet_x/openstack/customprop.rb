@@ -155,7 +155,13 @@ module PuppetX
         key_info = provider.key_info(@should)
 
         return true if key_info.empty?
-        is == key_info['fingerprint']
+
+        fnc, prn = key_info['fingerprint'].downcase.split(':', 2)
+        if fnc == 'md5'
+          is == prn
+        else
+          is == key_info['fingerprint']
+        end
       end
 
       def sync
