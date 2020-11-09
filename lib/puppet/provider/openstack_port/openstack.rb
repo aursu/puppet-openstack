@@ -26,7 +26,8 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
              '-c', 'status',
              '-c', 'device_id',
              '-c', 'network_id',
-             '-c', 'is_port_security_enabled')
+             '-c', 'is_port_security_enabled',
+             '-c', 'project_id')
   end
 
   def self.provider_create(*args)
@@ -41,6 +42,10 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.provider_show(*args)
+    openstack_caller(provider_subcommand, 'show', *args)
+  end
+
   def self.instances
     return @instances if @instances
     @instances = []
@@ -51,11 +56,19 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
       entity_name = entity['name'].to_s
       entity_name = "port-#{entity_id}" if entity_name.empty?
 
+      project_id = entity['project_id']
+      project_name = if project_id.to_s.empty?
+                       ''
+                     else
+                       project_instances[project_id]
+                     end
+
       port_enabled = entity['status'].casecmp?('active')
 
       @instances << new(name: entity_name,
                         ensure: :present,
-                        real_name: entity['name'].to_s,
+                        port_name: entity['name'].to_s,
+                        project: project_name,
                         id: entity_id,
                         network: entity['network_id'],
                         description: entity['description'],
@@ -63,7 +76,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
                         port_security: entity['is_port_security_enabled'].to_s.to_sym,
                         device_id: entity['device_id'],
                         mac_address: entity['mac_address'],
-                        fixed_ips: entity['fixed_ip_addresses'],
+                        fixed_ips: entity['fixed_ips'],
                         provider: name)
     end
 
@@ -79,6 +92,19 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
       end
     end
     # rubocop:enable Lint/AssignmentInCondition
+  end
+
+  def provider_show
+    return @desc if @desc
+
+    port_id = @property_hash[:id]
+    return {} unless port_id
+
+    args = ['-f', 'json', port_id]
+    cmdout = self.class.provider_show(*args)
+    return {} if cmdout.nil?
+
+    @desc = JSON.parse(cmdout).map { |k, v| [k.downcase.tr(' ', '_'), v] }.to_h
   end
 
   # openstack port create
@@ -104,21 +130,40 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   # <name>
 
   def create
-    name    = @resource[:name]
-    network = @resource.value(:network)
-    desc    = @resource.value(:description)
-    enabled = @resource.value(:enabled)
-    port_security = @resource.value(:port_security)
-    device_id = @resource.value(:device_id)
+    name           = @resource[:name]
+    network        = @resource.value(:network)
+    desc           = @resource.value(:description)
+    enabled        = @resource.value(:enabled)
+    port_security  = @resource.value(:port_security)
+    device_id      = @resource.value(:device_id)
+    project        = @resource.value(:project)
+    project_domain = @resource.value(:project_domain)
+    security_group = @resource.value(:security_group)
+    device_owner   = @resource.value(:device_owner)
+    host_id        = @resource.value(:host_id)
+    fixed_ips      = @resource.value(:fixed_ips)
 
-    @property_hash[:real_name] = name
+    project = nil if project.to_s.empty?
+
+    @property_hash[:port_name] = name
     @property_hash[:network] = network
     @property_hash[:description] = desc
     @property_hash[:enabled] = enabled
     @property_hash[:port_security] = port_security
     @property_hash[:device_id] = device_id
+    @property_hash[:device_owner] = device_owner if device_owner
+    @property_hash[:host_id] = host_id if host_id
 
     args = []
+    if project
+      @property_hash[:project] = project
+      args += ['--project', project]
+
+      if project_domain
+        @property_hash[:project_domain] = project_domain
+        args += ['--project-domain', project_domain]
+      end
+    end
     args += ['--network', network]
     args += ['--description', desc] if desc
     args << '--enable' if enabled == :true
@@ -126,7 +171,10 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
     args << '--enable-port-security' if port_security == :true
     args << '--disable-port-security' if port_security == :false
     args += ['--device', device_id] if device_id
-
+    args += ['--device-owner', device_owner] if device_owner
+    args += ['--host', host_id] if host_id
+    security_group.each { |g| args += ['--security-group', g] } if security_group
+    fixed_ips.each { |ip| args += ['--fixed-ip', "subnet=#{ip['subnet_id']},ip-address=#{ip['ip_address']}"] } if fixed_ips
     args << name
 
     auth_args
@@ -164,6 +212,38 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
     @property_flush[:device_id] = id
   end
 
+  def device_owner
+    desc = provider_show
+
+    desc['device_owner']
+  end
+
+  def device_owner=(owner)
+    @property_flush[:device_owner] = owner
+  end
+
+  def host_id
+    desc = provider_show
+
+    desc['binding_host_id']
+  end
+
+  def host_id=(host)
+    @property_flush[:host] = host
+  end
+
+  def security_group
+    desc = provider_show
+
+    desc['security_group_ids']
+  end
+
+  def security_group
+    desc = provider_show
+
+    desc['security_group_ids']
+  end
+
   # usage: openstack port set [-h] [--description <description>]
   # [--device <device-id>] [--mac-address <mac-address>]
   # [--device-owner <device-owner>]
@@ -181,16 +261,17 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   # [--data-plane-status <status>] [--tag <tag>]
   # [--no-tag]
   # <port>
-
   def flush
-    real_name = @property_hash[:real_name]
-    return if @property_flush.empty? && !real_name.to_s.empty?
+    port_name = @property_hash[:port_name]
+    return if @property_flush.empty? && !port_name.to_s.empty?
 
     args = []
-    name      = @resource[:name]
-    id        = @resource.value(:id)
-    desc      = @resource.value(:description)
-    device_id = @resource.value(:device_id)
+    name         = @resource[:name]
+    id           = @resource.value(:id)
+    desc         = @resource.value(:description)
+    device_id    = @resource.value(:device_id)
+    device_owner = @resource.value(:device_owner)
+    host_id      = @resource.value(:host_id)
 
     args << '--enable' if @property_flush[:enabled] == :true
     args << '--disable' if @property_flush[:enabled] == :false
@@ -200,9 +281,11 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
     args << '--enable-port-security' if @property_flush[:port_security] == :true
     args << '--disable-port-security' if @property_flush[:port_security] == :false
 
-    args += ['--name', name] if real_name.to_s.empty?
+    args += ['--name', name] if port_name.to_s.empty?
 
     args += ['--device', device_id] if @property_flush[:device_id]
+    args += ['--device-owner', device_owner] if @property_flush[:device_owner]
+    args += ['--host', host_id] if @property_flush[:host_id]
 
     @property_flush.clear
 
