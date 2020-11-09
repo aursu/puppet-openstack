@@ -99,6 +99,7 @@ class openstack (
 
   Boolean             $manage_kmod_package,
   Boolean             $nested_virtualization,
+  Stdlib::Host        $octavia_mgmt_port_host = $facts['fqdn'],
 ){
   # setup OS limits for Ussuri release
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['6', '7'] {

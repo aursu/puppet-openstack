@@ -271,23 +271,30 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   # <port>
   def flush
     port_name = @property_hash[:port_name]
+    port_id   = @property_hash[:id]
+
     return if @property_flush.empty? && !port_name.to_s.empty?
 
     args = []
-    name         = @resource[:name]
-    id           = @resource.value(:id)
-    desc         = @resource.value(:description)
-    device_id    = @resource.value(:device_id)
-    device_owner = @resource.value(:device_owner)
-    host_id      = @resource.value(:host_id)
+    name           = @resource[:name]
+    id             = @resource.value(:id)
+    desc           = @resource.value(:description)
+    device_id      = @resource.value(:device_id)
+    device_owner   = @resource.value(:device_owner)
+    host_id        = @resource.value(:host_id)
+    security_group = @resource.value(:security_group)
 
     args << '--enable' if @property_flush[:enabled] == :true
     args << '--disable' if @property_flush[:enabled] == :false
 
     args += ['--description', desc] if @property_flush[:description]
 
-    args << '--enable-port-security' if @property_flush[:port_security] == :true
-    args << '--disable-port-security' if @property_flush[:port_security] == :false
+    if security_group
+      args << '--enable-port-security'
+    else
+      args << '--enable-port-security' if @property_flush[:port_security] == :true
+      args << '--disable-port-security' if @property_flush[:port_security] == :false
+    end
 
     args += ['--name', name] if port_name.to_s.empty?
 
@@ -299,7 +306,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
 
     return if args.empty?
 
-    args << id
+    args << port_id
 
     auth_args
 

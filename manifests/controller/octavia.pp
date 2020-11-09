@@ -23,7 +23,7 @@ class openstack::controller::octavia (
   Stdlib::IP::Address
           $mgmt_port_ip          = $openstack::octavia_mgmt_port_ip,
   Stdlib::Host
-          $controller_host       = $openstack::controller_host,
+          $mgmt_port_host        = $openstack::octavia_mgmt_port_host,
   Boolean $manage_dhcp_directory = $openstack::manage_dhcp_directory,
 )
 {
@@ -193,7 +193,7 @@ class openstack::controller::octavia (
     security_group => 'lb-health-mgr-sec-grp',
     project        => 'service',
     device_owner   => 'Octavia:health-mgr',
-    host_id        => $controller_host,
+    host_id        => $mgmt_port_host,
     network        => 'lb-mgmt-net',
     fixed_ips      => {
       'subnet_id'  => 'lb-mgmt-subnet',
