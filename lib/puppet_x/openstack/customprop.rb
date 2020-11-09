@@ -170,7 +170,7 @@ module PuppetX
         return @should == [:absent] if is.nil? || is.to_s == 'absent'
 
         group = resource.security_group_instance(@should)
-        return true if group && [group[:name], group[:id]].include?(is)
+        return true if group && [group[:name], group[:id], group[:group_name]].include?(is)
 
         false
       end
