@@ -129,6 +129,27 @@ module PuppetX
       end
     end
 
+    # parental class with sync check and input valdation for 'security_group' property
+    class SecurityGroupProperty < Puppet::Property
+      def insync?(is)
+        return @should == [:absent] if is.nil?
+
+        group = resource.security_group_instance(@should)
+        return true if group && [group[:name], group[:id]].include?(is)
+
+        false
+      end
+
+      validate do |value|
+        next if value.to_s == 'absent'
+
+        raise ArgumentError, _('Security group must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+
+        group = resource.security_group_instance(value) || resource.security_group_resource(value)
+        raise ArgumentError, _("Security group #{value} must be defined in catalog or exist in OpenStack environment") unless group
+      end
+    end
+
     # parental class with sync check and input valdation for 'domain' parameter
     class DomainParameter < Puppet::Parameter
       defaultto 'default'
@@ -143,6 +164,7 @@ module PuppetX
       end
     end
 
+    # ssh key
     class SSHKeyProperty < Puppet::Property
       def retrieve
         provider.provider_show['fingerprint']
@@ -154,7 +176,7 @@ module PuppetX
         key_info = provider.key_info(@should)
 
         return true if key_info.empty?
-        return is == key_info['fingerprint']
+        is == key_info['fingerprint']
       end
 
       def sync
