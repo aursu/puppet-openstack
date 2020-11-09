@@ -171,12 +171,16 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
     args += ['--description', desc] if desc
     args << '--enable' if enabled == :true
     args << '--disable' if enabled == :false
-    args << '--enable-port-security' if port_security == :true
-    args << '--disable-port-security' if port_security == :false
     args += ['--device', device_id] if device_id
     args += ['--device-owner', device_owner] if device_owner
     args += ['--host', host_id] if host_id
-    security_group.each { |g| args += ['--security-group', g] } if security_group
+    if security_group
+      args << '--enable-port-security'
+      security_group.each { |g| args += ['--security-group', g] }
+    else
+      args << '--enable-port-security' if port_security == :true
+      args << '--disable-port-security' if port_security == :false
+    end
     fixed_ips.each { |ip| args += ['--fixed-ip', "subnet=#{ip['subnet_id']},ip-address=#{ip['ip_address']}"] } if fixed_ips
     args << name
 
