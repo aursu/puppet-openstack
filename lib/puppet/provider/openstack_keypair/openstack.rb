@@ -98,10 +98,11 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
     args = []
     if public_key && File.exist?(public_key)
       args += ['--public-key', public_key]
-    elsif private_key && File.exist?(private_key)
+    elsif private_key
+      File.unlink(private_key) if File.exist?(private_key)
       args += ['--private-key', private_key]
     else
-      warning _('Can not locate either --public-key or --private-key')
+      warning _('Can not use either --public-key (file does not exist) or --private-key (not specified)')
       return
     end
     args << name
@@ -113,6 +114,10 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
 
   def destroy
     name = @resource[:name]
+    private_key = @resource.value(:private_key)
+
+    # --private-key will be generated only if file absent
+    File.unlink(private_key) if File.exist?(private_key)
 
     auth_args
 
