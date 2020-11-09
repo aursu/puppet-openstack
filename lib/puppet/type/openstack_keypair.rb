@@ -37,7 +37,6 @@ Puppet::Type.newtype(:openstack_keypair) do
 
   newproperty(:public_key, parent: PuppetX::OpenStack::SSHKeyProperty) do
     desc 'Filename for public key to add. If not used, creates a private key.'
-
   end
 
   newproperty(:private_key, parent: PuppetX::OpenStack::SSHKeyProperty) do

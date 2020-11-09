@@ -122,14 +122,13 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
     desc              = @resource.value(:description)
     ethertype         = @resource.value(:ethertype)
 
-
     group             = self.class.group_lookup(project, group_name)
     unless group
       Puppet.warning("Could not find security group ID for group name '#{group_name}' and project '#{project}'.")
       return
     end
 
-    remote_group      = self.class.group_lookup(project, remote_group_name)
+    remote_group = self.class.group_lookup(project, remote_group_name)
 
     project    = nil if project.to_s.empty?
     port_range = nil if ['', 'any'].include? port_range.to_s

@@ -69,7 +69,7 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
       size: size,
       fingerprint: fprint,
       type: name_type.pop,
-      name: name_type.join(' ')
+      name: name_type.join(' '),
     }
   end
 
