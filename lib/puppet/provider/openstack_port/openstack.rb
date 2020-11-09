@@ -143,6 +143,9 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
     host_id        = @resource.value(:host_id)
     fixed_ips      = @resource.value(:fixed_ips)
 
+    # should be Array of hashes
+    fixed_ips      = [fixed_ips] if fixed_ips.is_a?(Hash)
+
     project = nil if project.to_s.empty?
 
     @property_hash[:port_name] = name
