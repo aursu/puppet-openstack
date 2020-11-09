@@ -145,6 +145,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
 
     # should be Array of hashes
     fixed_ips      = [fixed_ips] if fixed_ips.is_a?(Hash)
+    security_group = [security_group].flatten
 
     project = nil if project.to_s.empty?
 
