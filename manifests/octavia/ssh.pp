@@ -31,8 +31,8 @@ class openstack::octavia::ssh (
   }
 
   openstack_keypair { 'octavia_ssh_key':
-    *           => $auth_octavia,
-    private_key => "${octavia_ssh_dir}/id_rsa",
-    require     => Class['openssh::ssh_keygen'],
+    *          => $auth_octavia,
+    public_key => "${octavia_ssh_dir}/id_rsa.pub",
+    require    => Class['openssh::ssh_keygen'],
   }
 }

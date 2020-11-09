@@ -99,7 +99,6 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
     if public_key && File.exist?(public_key)
       args += ['--public-key', public_key]
     elsif private_key
-      File.unlink(private_key) if File.exist?(private_key)
       args += ['--private-key', private_key]
     else
       warning _('Can not use either --public-key (file does not exist) or --private-key (not specified)')
