@@ -156,11 +156,11 @@ module PuppetX
 
         return true if key_info.empty?
 
-        fnc, prn = key_info['fingerprint'].downcase.split(':', 2)
+        fnc, prn = key_info[:fingerprint].downcase.split(':', 2)
         if fnc == 'md5'
           is == prn
         else
-          is == key_info['fingerprint']
+          is == key_info[:fingerprint]
         end
       end
 
