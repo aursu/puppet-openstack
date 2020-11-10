@@ -9,7 +9,7 @@ Puppet::Functions.create_function(:'openstack::show_instance', Puppet::Functions
   def type_instances(scope, entity_type, lookup_id, lookup_key = nil)
 
     instances = Puppet::Type.type(entity_type).instances.select { |r|
-      [lookup_key ? r[lookup_key] : nil, r[:name], r[:id]].compact.include?(lookup_id)
+      [lookup_key ? r[lookup_key.to_sym] : nil, r[:name], r[:id]].compact.include?(lookup_id)
     }
     return nil if instances.empty?
 
