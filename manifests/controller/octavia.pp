@@ -206,7 +206,7 @@ class openstack::controller::octavia (
     ]
   }
 
-  $resource_info = openstack::show_instance('openstack_port', 'octavia-health-manager-listen-port', 'port_name')
+  $resource_info = openstack::show_resource('Openstack_port', 'octavia-health-manager-listen-port', 'port_name')
   notify { 'octavia-health-manager-listen-port':
     message => "${resource_info}",
   }
