@@ -205,9 +205,4 @@ class openstack::controller::octavia (
       Openstack_security_group['service/lb-health-mgr-sec-grp'],
     ]
   }
-
-  $resource_info = openstack::show_resource('Openstack_port', 'octavia-health-manager-listen-port', 'port_name')
-  notify { 'octavia-health-manager-listen-port':
-    message => "${resource_info}",
-  }
 }
