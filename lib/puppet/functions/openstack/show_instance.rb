@@ -17,10 +17,10 @@ Puppet::Functions.create_function(:'openstack::show_instance', Puppet::Functions
   end
 
   def openstack_show(scope, entity_type, lookup_id, lookup_key = nil)
-    resourse = type_instances(scope, entity_type.to_sym, lookup_id, lookup_key)
+    resource = type_instances(scope, entity_type.to_sym, lookup_id, lookup_key)
 
-    if resourse
-      resourse.map { |k, v| [k.to_s, v.value] }.to_h
+    if resource
+      resource.map { |k, v| [k.to_s, v.value] }.to_h
     else
       nil
     end
