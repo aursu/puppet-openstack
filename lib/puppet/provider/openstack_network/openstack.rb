@@ -18,7 +18,11 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_list
-    get_list(provider_subcommand)
+    if Facter.value(:openstack)
+      Facter.value(:openstack)['networks']
+    else
+      get_list(provider_subcommand)
+    end
   end
 
   def self.provider_create(*args)
@@ -33,31 +37,38 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.add_instance(entity_name, entity = {})
+    @instances = [] unless @instances
+
+    project_id =            entity['project']      || entity['project_id']
+    external = entity['router_type']  || entity['router:external']
+    admin_state_up        = entity['state']        || entity['admin_state_up']
+    provider_network_type = entity['network_type'] || entity['provider:network_type']
+
+    project_domain = project_instances[project_id]['domain']
+
+    @instances << new(name: entity_name,
+                      ensure: :present,
+                      id: entity['id'],
+                      subnets: entity['subnets'],
+                      external: external.to_s.to_sym,
+                      shared: entity['shared'].to_s.to_sym,
+                      description: entity['description'],
+                      enabled: admin_state_up.to_s.to_sym,
+                      provider_network_type: provider_network_type,
+                      project: project_id,
+                      project_domain: project_domain,
+                      provider: name)
+  end
+
   def self.instances
     return @instances if @instances
-    @instances = []
 
     openstack_command
 
-    provider_list.map do |entity_name, entity|
-      project_id = entity['project']
-      project_domain = project_instances[project_id]['domain']
+    provider_list.each { |entity| add_instance(*entity) }
 
-      @instances << new(name: entity_name,
-                        ensure: :present,
-                        id: entity['id'],
-                        subnets: entity['subnets'],
-                        external: entity['router_type'].to_s.to_sym,
-                        shared: entity['shared'].to_s.to_sym,
-                        description: entity['description'],
-                        enabled: entity['state'].to_s.to_sym,
-                        provider_network_type: entity['network_type'],
-                        project: project_id,
-                        project_domain: project_domain,
-                        provider: name)
-    end
-
-    @instances
+    @instances || []
   end
 
   def self.prefetch(resources)
