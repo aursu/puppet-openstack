@@ -162,6 +162,7 @@ class Facter::Util::OpenstackClient
 end
 
 Facter.add(:openstack, :type => :aggregate) do
+  confine { File.exist? '/etc/keystone/admin-openrc.sh' }
   osclient = Facter::Util::OpenstackClient.new()
 
   chunk(:cycle) do
