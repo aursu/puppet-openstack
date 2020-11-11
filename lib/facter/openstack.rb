@@ -145,7 +145,7 @@ class Facter::Util::OpenstackClient
     nil
   end
 
-  def api_get_list(request_uri, object_list, key = 'name')
+  def api_get_list(request_uri, object_list, key = 'name', filter = [])
     ret = {}
     jout = api_get_list_array(request_uri, object_list)
     jout.each do |p|
