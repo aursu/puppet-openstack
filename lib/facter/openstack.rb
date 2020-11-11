@@ -204,55 +204,51 @@ Facter.add(:openstack, :type => :aggregate) do
     openstack
   end
 
-  chunk(:domain) do
-    { 'domain' => osclient.api_get_list('domains') }
+  chunk(:domains) do
+    { 'domains' => osclient.api_get_list('domains') }
   end
 
-  chunk(:flavor) do
-    { 'flavor' => osclient.api_get_list('flavors') }
+  chunk(:flavors) do
+    { 'flavors' => osclient.api_get_list('flavors') }
   end
 
-  chunk(:network) do
-    { 'network' => osclient.api_get_list('networks') }
+  chunk(:networks) do
+    { 'networks' => osclient.api_get_list('networks') }
   end
 
-  chunk(:port) do
-    { 'port' => osclient.api_get_list_array('ports') }
+  chunk(:ports) do
+    { 'ports' => osclient.api_get_list_array('ports') }
   end
 
-  chunk(:project) do
-      { 'project' => osclient.api_get_list('projects') }
+  chunk(:projects) do
+      { 'projects' => osclient.api_get_list('projects') }
   end
 
-  chunk(:role) do
-    { 'role' => osclient.api_get_list('roles') }
+  chunk(:routers) do
+    { 'routers' => osclient.api_get_list('routers') }
   end
 
-  chunk(:router) do
-    { 'router' => osclient.api_get_list('routers') }
+  chunk(:security_groups) do
+    { 'security_groups' => osclient.api_get_list_array('security-groups', 'security_groups') }
   end
 
-  chunk(:security_group) do
-    { 'security_group' => osclient.api_get_list_array('security-groups', 'security_groups') }
+  chunk(:security_group_rules, :require => :security_groups ) do
+    { 'security_group_rules' => osclient.api_get_list_array('security-group-rules', 'security_group_rules') }
   end
 
-  chunk(:security_group_rule, :require => :security_group ) do |group|
-    { 'security_group_rule' => osclient.api_get_list_array('security-group-rules', 'security_group_rules') }
+  chunk(:subnets) do
+    { 'subnets' => osclient.api_get_list('subnets') }
   end
 
-  chunk(:subnet) do
-    { 'subnet' => osclient.api_get_list('subnets') }
+  chunk(:users) do
+    { 'users' => osclient.api_get_list_array('users') }
   end
 
-  chunk(:user) do
-    { 'user' => osclient.api_get_list_array('users') }
+  chunk(:roles) do
+    { 'roles' => osclient.api_get_list('roles') }
   end
 
-  chunk(:user_role) do
-    { 'user_role' => osclient.api_get_list_array('roles') }
-  end
-
-  chunk(:floating_ip) do
-      { 'floating_ip' => osclient.api_get_list_array('floatingips') }
+  chunk(:floatingips) do
+      { 'floatingips' => osclient.api_get_list_array('floatingips') }
   end
 end
