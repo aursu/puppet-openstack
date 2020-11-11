@@ -40,8 +40,8 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   def self.add_instance(entity_name, entity = {})
     @instances = [] unless @instances
 
-    project_id =            entity['project']      || entity['project_id']
-    external = entity['router_type']  || entity['router:external']
+    project_id            = entity['project']      || entity['project_id']
+    external              = entity['router_type']  || entity['router:external']
     admin_state_up        = entity['state']        || entity['admin_state_up']
     provider_network_type = entity['network_type'] || entity['provider:network_type']
 
