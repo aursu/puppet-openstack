@@ -5,7 +5,6 @@ class Facter::Util::OpenstackClient
   def initialize
     @conf = nil
     @env = nil
-    openstack_command
     @token_expire = Time.now
     @token = nil
   end
@@ -37,63 +36,6 @@ class Facter::Util::OpenstackClient
               .select { |k, _v| k =~ %r{OS_} }
 
     @env = Hash[env]
-  end
-
-  def openstack_command(bin = nil)
-    cmd = Puppet::Util.which(bin) if bin
-    @cmd = if cmd
-              cmd
-            else
-              Puppet::Util.which('openstack')
-            end
-  end
-
-  def openstack_caller(subcommand, *args)
-    # read environment variables for OpenStack authentication
-    return nil unless auth_env
-    openstack_command unless @cmd
-
-    cmdline = Shellwords.join(args)
-
-    cmd = [@cmd, subcommand, cmdline].compact.join(' ')
-
-    Puppet::Util.withenv(@env) do
-      cmdout = Puppet::Util::Execution.execute(cmd)
-      return nil if cmdout.nil?
-      return nil if cmdout.empty?
-      return cmdout
-    end
-  rescue Puppet::ExecutionFailure => detail
-    Puppet.debug "Execution of #{@cmd} command failed: #{detail}"
-    false
-  end
-
-  def get_list_array(subcommand, long = true, *moreargs)
-    args = ['list', '-f', 'json'] + (long ? ['--long'] : [])
-    args += moreargs
-
-    cmdout = openstack_caller(subcommand, *args)
-    return [] if cmdout.nil?
-
-    jout = JSON.parse(cmdout)
-    jout.map do |j|
-      j.map { |k, v| [k.downcase.tr(' ', '_'), v] }.to_h
-    end
-  end
-
-  def get_list(entity, key = 'name', long = true, *args)
-    ret = {}
-    jout = get_list_array(entity, long, *args)
-    jout.each do |p|
-      if key.is_a?(Array)
-        idx = key.map { |i| p[i] }.join(':')
-        ret[idx] = p
-      else
-        idx = p[key]
-        ret[idx] = p.reject { |k, _v| k == key }
-      end
-    end
-    ret
   end
 
   def req_submit(uri, req, limit = 5)
