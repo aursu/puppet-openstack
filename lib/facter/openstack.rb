@@ -38,6 +38,7 @@ class Facter::Util::OpenstackClient
     @env = Hash[env]
   end
 
+  # send request 'req' to server described by URI 'uri'
   def req_submit(uri, req, limit = 5)
     begin
       Net::HTTP.start(
@@ -68,6 +69,7 @@ class Facter::Util::OpenstackClient
     end
   end
 
+  # use HTTP GET request to the server
   def url_get(url, header = {})
     uri = URI(url)
     req = Net::HTTP::Get.new(uri, header)
@@ -75,12 +77,33 @@ class Facter::Util::OpenstackClient
     req_submit(uri, req)
   end
 
+  # use HTTP POST request to the server
   def url_post(url, data, header = { 'Content-Type' => 'application/json' })
     uri = URI(url)
     req = Net::HTTP::Post.new(uri, header)
     req.body = data
 
     req_submit(uri, req)
+  end
+
+  def api_url(request_uri)
+    return nil unless auth_env
+
+    api_auth   = auth_env['OS_AUTH_URL']
+    api_uri    = URI(api_auth)
+    api_host   = api_uri.host
+    api_scheme = api_uri.scheme
+
+    case request_uri
+    when 'flavors'
+      api = "#{api_scheme}://#{api_host}:8774/v2.1"
+    when 'networks', 'ports', 'security-groups', 'security-group-rules', 'routers', 'subnets'
+      api = "#{api_scheme}://#{api_host}:9696/v2.0"
+    else
+      api = api_auth
+    end
+
+    "#{api}/#{request_uri}"
   end
 
   def auth_object
@@ -104,11 +127,10 @@ class Facter::Util::OpenstackClient
   end
 
   def auth_token
-    return nil unless auth_env
     return @token if @token && @token_expire > Time.now
 
-    auth_url   = auth_env['OS_AUTH_URL']
-    tokens_url = "#{auth_url}/auth/tokens"
+    tokens_url = api_url('auth/tokens')
+    return nil unless tokens_url
 
     code, header, body = url_post(tokens_url, auth_object.to_json)
     body_hash          = JSON.parse(body) if body
@@ -119,18 +141,9 @@ class Facter::Util::OpenstackClient
   end
 
   def api_get(request_uri)
-    case request_uri
-    when 'flavors'
-      api = 'http://controller:8774/v2.1'
-    when 'networks', 'ports', 'security-groups', 'security-group-rules', 'routers', 'subnets'
-      api = 'http://controller:9696/v2.0'
-    else
-      return nil unless auth_env
+    url = api_url(request_uri)
 
-      api = auth_env['OS_AUTH_URL']
-    end
-
-    url = "#{api}/#{request_uri}"
+    return nil unless url
 
     code, header, body = url_get(url, { 'X-Auth-Token' => auth_token })
     body_hash          = JSON.parse(body) if body
@@ -139,13 +152,16 @@ class Facter::Util::OpenstackClient
     nil
   end
 
-  def api_get_list_array(request_uri, object_list)
+  def api_get_list_array(request_uri, object_list = nil)
     body_hash = api_get(request_uri)
+
+    object_list = request_uri unless object_list
+
     return body_hash[object_list] if body_hash.is_a?(Hash)
     nil
   end
 
-  def api_get_list(request_uri, object_list, key = 'name', filter = [])
+  def api_get_list(request_uri, object_list = nil, key = 'name', filter = [])
     ret = {}
     jout = api_get_list_array(request_uri, object_list)
     jout.each do |p|
@@ -163,6 +179,7 @@ end
 
 Facter.add(:openstack, :type => :aggregate) do
   confine { File.exist? '/etc/keystone/admin-openrc.sh' }
+
   osclient = Facter::Util::OpenstackClient.new()
 
   chunk(:cycle) do
@@ -188,31 +205,31 @@ Facter.add(:openstack, :type => :aggregate) do
   end
 
   chunk(:domain) do
-    { 'domain' => osclient.api_get_list('domains', 'domains') }
+    { 'domain' => osclient.api_get_list('domains') }
   end
 
   chunk(:flavor) do
-    { 'flavor' => osclient.api_get_list('flavors', 'flavors') }
+    { 'flavor' => osclient.api_get_list('flavors') }
   end
 
   chunk(:network) do
-    { 'network' => osclient.api_get_list('networks', 'networks') }
+    { 'network' => osclient.api_get_list('networks') }
   end
 
   chunk(:port) do
-    { 'port' => osclient.api_get_list_array('ports', 'ports') }
+    { 'port' => osclient.api_get_list_array('ports') }
   end
 
   chunk(:project) do
-      { 'project' => osclient.api_get_list('projects', 'projects') }
+      { 'project' => osclient.api_get_list('projects') }
   end
 
   chunk(:role) do
-    { 'role' => osclient.api_get_list('roles', 'roles') }
+    { 'role' => osclient.api_get_list('roles') }
   end
 
   chunk(:router) do
-    { 'router' => osclient.api_get_list('routers', 'routers') }
+    { 'router' => osclient.api_get_list('routers') }
   end
 
   chunk(:security_group) do
@@ -224,18 +241,18 @@ Facter.add(:openstack, :type => :aggregate) do
   end
 
   chunk(:subnet) do
-    { 'subnet' => osclient.api_get_list('subnets', 'subnets') }
+    { 'subnet' => osclient.api_get_list('subnets') }
   end
 
   chunk(:user) do
-    { 'user' => osclient.api_get_list_array('users', 'users') }
+    { 'user' => osclient.api_get_list_array('users') }
   end
 
   chunk(:user_role) do
-    { 'user_role' => osclient.api_get_list_array('roles', 'roles') }
+    { 'user_role' => osclient.api_get_list_array('roles') }
   end
 
   chunk(:floating_ip) do
-      { 'floating_ip' => osclient.api_get_list_array('floatingips', 'floatingips') }
+      { 'floating_ip' => osclient.api_get_list_array('floatingips') }
   end
 end
