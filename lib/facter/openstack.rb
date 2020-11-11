@@ -176,19 +176,19 @@ class Facter::Util::OpenstackClient
     @token        = header['x-subject-token'][0]
   end
 
-  def api_get(uri)
-    case uri
-    when 'domains'
-      return nil unless auth_env
-
-      api = auth_env['OS_AUTH_URL']
+  def api_get(request_uri)
+    case request_uri
     when 'flavors'
       api = 'http://controller:8774/v2.1'
     when 'networks'
       api = 'http://controller:9696/v2.0'
+    else
+      return nil unless auth_env
+
+      api = auth_env['OS_AUTH_URL']
     end
 
-    url = "#{api}/#{uri}"
+    url = "#{api}/#{request_uri}"
 
     code, header, body = url_get(url, { 'X-Auth-Token' => auth_token })
     body_hash          = JSON.parse(body) if body
@@ -270,7 +270,7 @@ Facter.add(:openstack, :type => :aggregate) do
   end
 
   chunk(:project) do
-      { 'project' => osclient.api_get_list('projects', 'projects', 'id', [:links, :tags, :options]) }
+      { 'project' => osclient.api_get_list('projects', 'projects', 'id') }
   end
 
   chunk(:role) do
