@@ -188,7 +188,9 @@ class openstack::controller::octavia (
     require               => Openstack_network['lb-mgmt-net']
   }
 
-  openstack_port { 'octavia-health-manager-listen-port':
+  $mgmt_port_name = 'octavia-health-manager-listen-port'
+
+  openstack_port { $mgmt_port_name:
     *              => $auth_octavia,
     port_security  => true,
     security_group => 'lb-health-mgr-sec-grp',
@@ -204,5 +206,23 @@ class openstack::controller::octavia (
       Openstack_subnet['lb-mgmt-subnet'],
       Openstack_security_group['service/lb-health-mgr-sec-grp'],
     ]
+  }
+
+  if $facts['openstack'] {
+    $mgmt_net = $facts['openstack']['networks']['lb-mgmt-net']
+    if $mgmt_net {
+      $netid = $mgmt_net['id']
+      $brname = $netid[0,10]
+
+      $mgmt_port_select = $facts['openstack']['ports'].filter |$port| {
+        $port['name'] == $mgmt_port_name and $port['network_id'] == $netid
+      }
+      $mgmt_port = $mgmt_port_select[0]
+      $mgmt_port_mac = $mgmt_port['mac_address']
+    }
+    else {
+      $brname = undef
+      $mgmt_port_mac = undef
+    }
   }
 }

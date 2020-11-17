@@ -18,7 +18,11 @@ Puppet::Type.type(:openstack_domain).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
-    get_list(provider_subcommand, 'name', false)
+    if Facter.value(:openstack)
+      Facter.value(:openstack)['domains']
+    else
+      get_list(provider_subcommand, 'name', false)
+    end
   end
 
   def self.provider_create(*args)
@@ -40,7 +44,7 @@ Puppet::Type.type(:openstack_domain).provide(:openstack, parent: Puppet::Provide
     openstack_command
 
     provider_list.map do |entity_name, entity|
-      @instances << new(name: entity_name,
+      @instances << new(name: entity_name.to_s.downcase,
                         ensure: :present,
                         id: entity['id'],
                         description: entity['description'],
