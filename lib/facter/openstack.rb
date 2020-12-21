@@ -1,6 +1,7 @@
 require 'json'
 require 'shellwords'
 
+# OpenStack client
 class Facter::Util::OpenstackClient
   def initialize
     @conf = nil
@@ -27,8 +28,7 @@ class Facter::Util::OpenstackClient
     @env = nil
 
     # read file content and remove shell quotes
-    data = File.open(@conf).readlines
-                .map { |l| Puppet::Util::Execution.execute("echo #{l}") }
+    data = File.open(@conf).readlines.map { |l| Puppet::Util::Execution.execute("echo #{l}") }
 
     # translate file data into OpenStack env variables hash
     env = data.map { |l| l.sub('export', '').strip }
@@ -40,33 +40,31 @@ class Facter::Util::OpenstackClient
 
   # send request 'req' to server described by URI 'uri'
   def req_submit(uri, req, limit = 5)
-    begin
-      Net::HTTP.start(
-        uri.host,
-        uri.port,
-        use_ssl: uri.scheme == 'https',
-        read_timeout: 5,
-        open_timeout: 5
-      ) do |http|
-        http.request(req) do |res|
-          if res.is_a?(Net::HTTPSuccess)
-            return res.code, res.to_hash, res.body
-          elsif res.is_a?(Net::HTTPRedirection)
-            # stop redirection loop
-            return nil if limit.zero?
+    Net::HTTP.start(
+      uri.host,
+      uri.port,
+      use_ssl: uri.scheme == 'https',
+      read_timeout: 5,
+      open_timeout: 5,
+    ) do |http|
+      http.request(req) do |res|
+        return res.code, res.to_hash, res.body if res.is_a?(Net::HTTPSuccess)
 
-            # follow redirection
-            url = res['location']
-            return req_submit(URI(url), req, limit - 1)
-          else
-            return res.code, res.to_hash, nil
-          end
+        if res.is_a?(Net::HTTPRedirection)
+          # stop redirection loop
+          return nil if limit.zero?
+
+          # follow redirection
+          url = res['location']
+          return req_submit(URI(url), req, limit - 1)
         end
+
+        return res.code, res.to_hash, nil
       end
-    rescue SocketError, Net::OpenTimeout
-      Puppet.warning "URL #{uri.to_s} fetch error"
-      return nil
     end
+  rescue SocketError, Net::OpenTimeout
+    Puppet.warning "URL #{uri} fetch error"
+    return nil
   end
 
   # use HTTP GET request to the server
@@ -115,14 +113,14 @@ class Facter::Util::OpenstackClient
             user: {
               name: @env['OS_USERNAME'],
               password: @env['OS_PASSWORD'],
-              domain: { name: @env['OS_USER_DOMAIN_NAME'] }
-            }
-          }
+              domain: { name: @env['OS_USER_DOMAIN_NAME'] },
+            },
+          },
         },
         scope: {
-          system: { all: true }
-        }
-      }
+          system: { all: true },
+        },
+      },
     }
   end
 
@@ -132,7 +130,7 @@ class Facter::Util::OpenstackClient
     tokens_url = api_url('auth/tokens')
     return nil unless tokens_url
 
-    code, header, body = url_post(tokens_url, auth_object.to_json)
+    _code, header, body = url_post(tokens_url, auth_object.to_json)
     body_hash          = JSON.parse(body) if body
     expires_at         = body_hash['token']['expires_at'] if body_hash.is_a?(Hash) && body_hash['token'].is_a?(Hash)
 
@@ -145,8 +143,8 @@ class Facter::Util::OpenstackClient
 
     return nil unless url
 
-    code, header, body = url_get(url, { 'X-Auth-Token' => auth_token })
-    body_hash          = JSON.parse(body) if body
+    _code, _header, body = url_get(url, 'X-Auth-Token' => auth_token)
+    body_hash = JSON.parse(body) if body
 
     return body_hash if body_hash.is_a?(Hash)
     nil
@@ -177,17 +175,17 @@ class Facter::Util::OpenstackClient
   end
 end
 
-Facter.add(:openstack, :type => :aggregate) do
+Facter.add(:openstack, type: :aggregate) do
   confine { File.exist? '/etc/keystone/admin-openrc.sh' }
 
-  osclient = Facter::Util::OpenstackClient.new()
+  osclient = Facter::Util::OpenstackClient.new
 
   chunk(:cycle) do
     openstack = {}
     if Puppet::Util.which('nova-manage')
-      nova_version = Puppet::Util::Execution.execute('nova-manage --version', { :combine => true})
+      nova_version = Puppet::Util::Execution.execute('nova-manage --version', combine: true)
 
-      m = /^(\d+)/.match(nova_version)
+      m = %r{^(\d+)}.match(nova_version)
       maj = m[0].to_i
 
       openstack[:cycle] = {
@@ -221,7 +219,7 @@ Facter.add(:openstack, :type => :aggregate) do
   end
 
   chunk(:projects) do
-      { 'projects' => osclient.api_get_list('projects') }
+    { 'projects' => osclient.api_get_list('projects') }
   end
 
   chunk(:routers) do
@@ -232,7 +230,7 @@ Facter.add(:openstack, :type => :aggregate) do
     { 'security_groups' => osclient.api_get_list_array('security-groups', 'security_groups') }
   end
 
-  chunk(:security_group_rules, :require => :security_groups ) do
+  chunk(:security_group_rules, require: :security_groups) do
     { 'security_group_rules' => osclient.api_get_list_array('security-group-rules', 'security_group_rules') }
   end
 
@@ -249,6 +247,6 @@ Facter.add(:openstack, :type => :aggregate) do
   end
 
   chunk(:floatingips) do
-      { 'floatingips' => osclient.api_get_list_array('floatingips') }
+    { 'floatingips' => osclient.api_get_list_array('floatingips') }
   end
 end

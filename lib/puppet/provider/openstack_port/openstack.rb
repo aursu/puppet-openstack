@@ -265,7 +265,6 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
 
     args = []
     name           = @resource[:name]
-    id             = @resource.value(:id)
     desc           = @resource.value(:description)
     device_id      = @resource.value(:device_id)
     device_owner   = @resource.value(:device_owner)

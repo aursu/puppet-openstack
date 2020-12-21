@@ -32,10 +32,10 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
     cmd = nil
     cmd = Puppet::Util.which(bin) if bin
     @keygen_cmd = if cmd
-             cmd
-           else
-             command(:ssh_keygen)
-           end
+                    cmd
+                  else
+                    command(:ssh_keygen)
+                  end
     @keygen_cmd
   end
 
