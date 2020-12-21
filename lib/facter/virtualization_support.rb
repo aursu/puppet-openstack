@@ -1,4 +1,5 @@
 Facter.add(:virtualization_support) do
+  confine { Facter.value(:kernel) != 'windows' }
   setcode do
     cpu_flags = File.readlines('/proc/cpuinfo').grep(%r{flags})
 
