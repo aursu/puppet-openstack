@@ -27,6 +27,7 @@ class openstack::controller::octavia (
   Boolean $manage_dhcp_directory = $openstack::manage_dhcp_directory,
 )
 {
+  # https://docs.openstack.org/octavia/latest/install/install-ubuntu.html
   include openstack::octavia::certs
   include openstack::octavia::ssh
 

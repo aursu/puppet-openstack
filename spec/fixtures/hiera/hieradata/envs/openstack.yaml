@@ -12,6 +12,35 @@ openstack::placement_pass: secret
 # Nova
 openstack::nova_dbpass: secret
 openstack::nova_pass: secret
+openstack::nova_priv_key: >
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEpAIBAAKCAQEAu6sBoD8P1gvlWwKvpY03jbiM4O4kaH5J4Wp6V6kKZELF1oHl
+  3EnGlMTszSMQ6X0flxCSamJHle7EVq3b9XQFkoKq5s4U+1EuDADdf7aD7puZP3hR
+  sysvwJ/X21ZAkqD+Ckv2gmLilDLyr5zLZzo9loGowUqQL5BlWQ7lIuexeIbeJWUh
+  jrkVzma+TDmnVGMLS5EwGGn9itDqbdfpPVlhECwuUW4n7lhLkASG7/L6M+Btv53f
+  GcvLYKviLObL8giCt8WC46OwSprLciwCkeUsyHCulPJD8VINyFiEEESt7fc42ekJ
+  gWUOnuvbEBHpSovwClh+cMVXSlX1lfE+Q0pzfQIDAQABAoIBAQCht/Q3vgAMiMXF
+  TqRD+lREGSO1dSIEtcc+q73vqmidC3lmpxuIYD7y1lvlTnF1c3B0gkBZ0oUzq8Sf
+  mUSx2KAwp89UA4TLKSKQD3LQalx4krdVnX5x8iY9TMD7bvFIKdmgz+MGauYrpVfC
+  g1A4jVSjTOo6XuGvSzQ6sX49PQGPBNca8LoL6UfjIYVZ3KtSIVjq5YA5b1zMsJ+b
+  RvtKslsJH3dc8ZrLHTDBWPQUnOsPyn/X/nnCh+3TwrCENPz+tjTc0rvauJf+ZvkW
+  cYDi2JgNCcaFSueXORsYgnlOz38Ld7jxSMU3oA/4ul0fV05wgJy4wdM8vZ0S+Ylx
+  O13VyZWVAoGBAOizCRt8N3bEWYd5LfIthDTxBrRx69rA47WZLePSMpagef1M8zg8
+  xzw7x/lFsogJ1+XDlDiGe2QQyV4lWdvLlx4o2PY7MR+TbUDSIkEXKyWlZA6+tdet
+  DcFbLVuuuQjOf6G5xMoidfD1LiGNi7+sgbAk0zjbwWmyJj8lyeeIqYvDAoGBAM51
+  pYollYtrLYuz4/Ytpz6hFM5rFwObLjsJbOQwUdCCIkozbIShZceS9xjdoOeZ9YfV
+  K6UFRksb+IbRV8dnkmY8QN1EElz4ur3YjqEnNFCEuOJUsMxyZCelyGz9rP/T94b7
+  zCa+80m89+7theoMNr+zxfB2ugXzuPujvWXyDk+/AoGAFx1htDc8kzGh6xEgfUQE
+  M/YVQmtmkE5E0E8s/cpteATs2TqBln6DE/qkPKCtwVGo/ovU92B0dVYtioqPSIQK
+  uNY55wuuL4LHgX7eJDUW9iBdthE/ovLvwNs7wDW076kDiJ8ZazLNIGhacr7KuPl7
+  0HF4AdfieItXvUIVskgi/10CgYEAuBLeT+goh9A8IGV35uJXTZiSk2OZdkaiFlLV
+  +jE2kJ+l8OAebbX0p9ZZZpsbPcLfzYZ6zjuAq7C5iYIWMBwgw/QOpPhvIuNEo8Tz
+  ja0FkJB0wp5drzqCH3NI2hvmZYVYGMpg/16aTPElYKn3DnBrU8n1veos+ueM0xbu
+  43jH18MCgYBg5oEVIhahaxD5WeoXT3J09PKp7Zw8gi5FT8b0Q19mRbEcB8yph96j
+  iYRfYAI43/Z11HhyXRia8mbPY5bJjGYqJsiTtGybCRo0MQvCleunmT6bkqyF/Fz9
+  hJlye219NYOwOFfNXP1+A+7LQjXj3K6umv+EYrGijD7pHknyhFQaVA==
+  -----END RSA PRIVATE KEY-----
+openstack::nova_pub_key: AAAAB3NzaC1yc2EAAAADAQABAAABAQC7qwGgPw/WC+VbAq+ljTeNuIzg7iRofknhanpXqQpkQsXWgeXcScaUxOzNIxDpfR+XEJJqYkeV7sRWrdv1dAWSgqrmzhT7US4MAN1/toPum5k/eFGzKy/An9fbVkCSoP4KS/aCYuKUMvKvnMtnOj2WgajBSpAvkGVZDuUi57F4ht4lZSGOuRXOZr5MOadUYwtLkTAYaf2K0Opt1+k9WWEQLC5RbifuWEuQBIbv8voz4G2/nd8Zy8tgq+Is5svyCIK3xYLjo7BKmstyLAKR5SzIcK6U8kPxUg3IWIQQRK3t9zjZ6QmBZQ6e69sQEelKi/AKWH5wxVdKVfWV8T5DSnN9
 # Cinder
 openstack::cinder_pass: secret
 openstack::cinder_dbpass: secret

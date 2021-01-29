@@ -39,6 +39,8 @@ class openstack (
   String              $nova_dbuser,
   Optional[String]    $nova_pass,
   Optional[String]    $nova_dbpass,
+  Optional[String]    $nova_priv_key,
+  Optional[String]    $nova_pub_key,
   # Neutron
   String              $neutron_dbname,
   String              $neutron_dbuser,
