@@ -6,8 +6,10 @@
 #   include openstack::nova::core
 class openstack::nova::core (
   String  $nova_pass                 = $openstack::nova_pass,
-  String  $priv_key                  = $openstack::nova_priv_key,
-  String  $pub_key                   = $openstack::nova_pub_key,
+  Optional[String]
+          $priv_key                  = $openstack::nova_priv_key,
+  Optional[String]
+          $pub_key                   = $openstack::nova_pub_key,
   String  $rabbitmq_user             = $openstack::rabbitmq_user,
   Stdlib::Host
           $rabbitmq_host             = $openstack::rabbitmq_host,
@@ -48,16 +50,20 @@ class openstack::nova::core (
   }
 
   # SSH settings
-  openssh::priv_key { 'nova@compute':
-    key_data   => $priv_key,
-    user_name  =>  'nova',
-    sshkey_dir => '/var/lib/nova/.ssh',
+  if $priv_key {
+    openssh::priv_key { 'nova@compute':
+      key_data   => $priv_key,
+      user_name  =>  'nova',
+      sshkey_dir => '/var/lib/nova/.ssh',
+    }
   }
 
-  openssh::auth_key { 'nova@compute':
-    sshkey        => $pub_key,
-    sshkey_user   => 'nova',
-    sshkey_target => '/var/lib/nova/.ssh/authorized_keys',
+  if $pub_key {
+    openssh::auth_key { 'nova@compute':
+      sshkey        => $pub_key,
+      sshkey_user   => 'nova',
+      sshkey_target => '/var/lib/nova/.ssh/authorized_keys',
+    }
   }
 
   $conf_default = {
