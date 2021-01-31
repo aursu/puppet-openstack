@@ -60,10 +60,13 @@ class openstack::nova::core (
 
   if $pub_key {
     openssh::auth_key { 'nova@compute':
-      sshkey        => $pub_key,
-      sshkey_user   => 'nova',
-      sshkey_target => '/var/lib/nova/.ssh/authorized_keys',
+      sshkey            => $pub_key,
+      sshkey_user       => 'nova',
+      sshkey_target     => '/var/lib/nova/.ssh/authorized_keys',
+      sshkey_export_tag => 'nova',
     }
+
+    Sshkey <<| tag == 'nova_known_host' |>>
   }
 
   $conf_default = {
