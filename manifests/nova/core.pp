@@ -37,7 +37,7 @@ class openstack::nova::core (
     gid        => 'nova',
     comment    => 'OpenStack Nova Daemons',
     home       => '/var/lib/nova',
-    shell      => '/sbin/nologin',
+    shell      => '/bin/bash',
     managehome => true,
   }
 
