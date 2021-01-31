@@ -63,6 +63,8 @@ class openstack::nova::core (
       sshkey            => $pub_key,
       sshkey_user       => 'nova',
       sshkey_target     => '/var/lib/nova/.ssh/authorized_keys',
+      # export host key to avoid error 'Host key verification failed.'
+      sshkey_export     => true,
       sshkey_export_tag => 'nova',
     }
 
