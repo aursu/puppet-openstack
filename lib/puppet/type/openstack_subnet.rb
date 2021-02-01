@@ -132,6 +132,8 @@ Puppet::Type.newtype(:openstack_subnet) do
     net_name = self[:network]
     raise Puppet::Error, 'Network must be provided' unless net_name
 
+    return true unless catalog
+
     net = network_instance(net_name) || network_resource(net_name)
     raise Puppet::Error, 'Network must be defined in catalog or existing in environment' unless net
   end
