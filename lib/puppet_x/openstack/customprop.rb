@@ -19,10 +19,10 @@ module PuppetX
 
         raise ArgumentError, _('Project name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
-        return true unless resource.catalog
+        # return true unless resource.catalog
 
-        proj = resource.project_instance(value) || resource.project_resource(value)
-        raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless proj
+        # proj = resource.project_instance(value) || resource.project_resource(value)
+        # raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless proj
       end
     end
 
