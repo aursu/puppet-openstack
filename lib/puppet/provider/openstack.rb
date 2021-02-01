@@ -102,7 +102,7 @@ class Puppet::Provider::Openstack < Puppet::Provider
     args += moreargs
 
     cmdout = openstack_caller(subcommand, *args)
-    return [] if cmdout.nil?
+    return [] unless cmdout
 
     jout = JSON.parse(cmdout)
     jout.map do |j|
