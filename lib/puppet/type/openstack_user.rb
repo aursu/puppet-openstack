@@ -32,15 +32,15 @@ Puppet::Type.newtype(:openstack_user) do
     ]
   end
 
-  newparam(:domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+  newparam(:domain, parent: PuppetX::OpenStack::DomainParameter) do
     desc 'Default domain (name or ID)'
   end
 
-  newparam(:user_name, namevar: true) do
+  newparam(:user_name) do
     desc 'New user name'
   end
 
-  newparam(:name) do
+  newparam(:name, namevar: true) do
     desc 'New user name'
 
     defaultto do

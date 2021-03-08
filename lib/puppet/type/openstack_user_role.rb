@@ -36,19 +36,19 @@ Puppet::Type.newtype(:openstack_user_role) do
     ]
   end
 
-  newparam(:user_domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+  newparam(:user_domain, parent: PuppetX::OpenStack::DomainParameter) do
     desc 'Include <domain> (name or ID)'
   end
 
-  newparam(:user, namevar: true) do
+  newparam(:user) do
     desc 'Include <user> (name or ID)'
   end
 
-  newparam(:role, namevar: true) do
+  newparam(:role) do
     desc 'Role to add to <project>:<user> (name or ID)'
   end
 
-  newparam(:name) do
+  newparam(:name, namevar: true) do
     desc 'Resource name'
 
     defaultto do

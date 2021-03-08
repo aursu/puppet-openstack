@@ -11,7 +11,7 @@ define openstack::repository (
   include openstack::repo
 
   # https://releases.openstack.org
-  $available_series = ['ocata', 'pike', 'queens', 'rocky', 'stein', 'train', 'ussuri']
+  $available_series = ['ocata', 'pike', 'queens', 'rocky', 'stein', 'train', 'ussuri', 'victoria']
   $eol_series = ['ocata', 'pike']
 
   if $cycle in $eol_series {

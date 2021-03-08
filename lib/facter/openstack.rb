@@ -197,6 +197,7 @@ Facter.add(:openstack, type: :aggregate) do
         19 => 'stein',
         20 => 'train',
         21 => 'ussuri',
+        22 => 'victoria',
       }[maj]
     end
     openstack

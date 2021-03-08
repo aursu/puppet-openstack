@@ -34,15 +34,15 @@ Puppet::Type.newtype(:openstack_project) do
     ]
   end
 
-  newparam(:domain, namevar: true, parent: PuppetX::OpenStack::DomainParameter) do
+  newparam(:domain, parent: PuppetX::OpenStack::DomainParameter) do
     desc 'Domain owning the project (name or ID)'
   end
 
-  newparam(:project_name, namevar: true) do
+  newparam(:project_name) do
     desc 'Project name'
   end
 
-  newparam(:name) do
+  newparam(:name, namevar: true) do
     desc 'New user name'
 
     defaultto do

@@ -10,10 +10,7 @@ class openstack::install (
   openstack::repository { $cycle: }
 
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '8' {
-    yumrepo { 'PowerTools':
-      enabled => true,
-    }
-
+    # PowerTools repo should be enabled
     $openstackclient = 'python3-openstackclient'
   }
   else {

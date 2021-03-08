@@ -13,6 +13,34 @@ Puppet::Type.newtype(:openstack_security_rule) do
       other resources on the network.
     PUPPET
 
+  def self.title_patterns
+    [
+      [
+        # <group>/<direction>/<proto>/<remote>/<range>
+        %r{^([^/]+)/(ingress|egress)/([^/]+)/([0-9a-f.:]+(?:/\d\d?)?)/(any|type=\d+|type=\d+:code=\d+|\d+:\d+)$},
+        [
+          [:group],
+          [:direction],
+          [:protocol],
+          [:remote_ip],
+          [:port_range],
+        ],
+      ],
+      [
+        # <project>/<group>/<direction>/<proto>/<remote>/<range>
+        %r{^([^/]+)/([^/]+)/(ingress|egress)/([^/]+)/([0-9a-f.:]+(?:/\d\d?)?)/(any|type=\d+|type=\d+:code=\d+|\d+:\d+)$},
+        [
+          [:project],
+          [:group],
+          [:direction],
+          [:protocol],
+          [:remote_ip],
+          [:port_range],
+        ],
+      ],
+    ]
+  end
+
   ensurable
 
   newparam(:name, namevar: true) do

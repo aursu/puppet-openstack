@@ -10,7 +10,7 @@ Puppet::Functions.create_function(:'openstack::cyclecmp') do
   def cyclecmp(x, y)
     cycles = %w[
       kilo liberty mitaka newton ocata pike queens
-      rocky stein train ussuri
+      rocky stein train ussuri victoria
     ]
 
     [x, y].each do |c|
