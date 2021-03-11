@@ -14,6 +14,7 @@ class openstack::controller::dashboard (
   Stdlib::Host
           $memcached_host       = $openstack::memcached_host,
   Integer $memcached_port       = $openstack::memcached_port,
+  String  $httpd_tag            = $openstack::httpd_tag,
 )
 {
   include apache::params
@@ -142,11 +143,13 @@ class openstack::controller::dashboard (
           require        => 'all granted',
         },
       ],
+      tag                 => $httpd_tag,
     }
   }
 
   apache::custom_config { 'openstack-dashboard':
     content => template('openstack/openstack-dashboard.conf.erb'),
+    tag     => $httpd_tag,
   }
 
   Package['openstack-dashboard'] ~> File <| title == $confd_dir |>

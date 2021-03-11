@@ -1,6 +1,7 @@
 ---
 openstack::cycle: 'train'
 openstack::database_tag: 'openstack'
+openstack::httpd_tag: 'openstack'
 openstack::rabbitmq_host: 'controller'
 openstack::rabbitmq_user: 'openstack'
 openstack::rabbitmq_port: 5672

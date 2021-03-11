@@ -7,6 +7,7 @@
 class openstack (
   Openstack::Release  $cycle,
   String              $database_tag,
+  String              $httpd_tag,
   String              $rabbitmq_host,
   String              $rabbitmq_user,
   Integer             $rabbitmq_port,

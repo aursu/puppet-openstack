@@ -6,8 +6,8 @@
 #   include openstack::controller::placementweb
 class openstack::controller::placementweb (
   Openstack::Release
-          $cycle    = $openstack::cycle,
-  String $httpd_tag = 'openstack',
+          $cycle     = $openstack::cycle,
+  String  $httpd_tag = $openstack::httpd_tag,
 )
 {
   include apache::params
@@ -63,6 +63,7 @@ class openstack::controller::placementweb (
 
   apache::custom_config { 'wsgi-placement':
     content => template('openstack/wsgi-placement.conf.erb'),
+    tag     => $httpd_tag,
     notify  => Class['Apache::Service'],
   }
 }

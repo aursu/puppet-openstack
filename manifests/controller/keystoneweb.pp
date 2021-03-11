@@ -6,8 +6,8 @@
 #   include openstack::controller::keystoneweb
 class openstack::controller::keystoneweb (
   Openstack::Release
-          $cycle    = $openstack::cycle,
-  String $httpd_tag = 'openstack',
+          $cycle     = $openstack::cycle,
+  String  $httpd_tag = $openstack::httpd_tag,
 )
 {
   # https://docs.openstack.org/keystone/train/install/keystone-install-rdo.html#configure-the-apache-http-server
@@ -84,6 +84,7 @@ class openstack::controller::keystoneweb (
   # @@apache::custom_config
   apache::custom_config { 'wsgi-keystone':
     content => template('openstack/wsgi-keystone.conf.erb'),
+    tag     => $httpd_tag,
     notify  => Class['Apache::Service'],
   }
 }
