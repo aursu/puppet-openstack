@@ -18,7 +18,7 @@ Puppet::Type.newtype(:openstack_router) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'New router name'
   end
 

@@ -19,7 +19,7 @@ Puppet::Type.newtype(:openstack_domain) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'Domain name'
   end
 

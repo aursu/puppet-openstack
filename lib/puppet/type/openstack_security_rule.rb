@@ -17,8 +17,9 @@ Puppet::Type.newtype(:openstack_security_rule) do
     [
       [
         # <group>/<direction>/<proto>/<remote>/<range>
-        %r{^([^/]+)/(ingress|egress)/([^/]+)/([0-9a-f.:]+(?:/\d\d?)?)/(any|type=\d+|type=\d+:code=\d+|\d+:\d+)$},
+        %r{^(([^/]+)/(ingress|egress)/([^/]+)/([0-9a-f.:]+(?:/\d\d?)?)/(any|type=\d+|type=\d+:code=\d+|\d+:\d+))$},
         [
+          [:name],
           [:group],
           [:direction],
           [:protocol],
@@ -28,8 +29,9 @@ Puppet::Type.newtype(:openstack_security_rule) do
       ],
       [
         # <project>/<group>/<direction>/<proto>/<remote>/<range>
-        %r{^([^/]+)/([^/]+)/(ingress|egress)/([^/]+)/([0-9a-f.:]+(?:/\d\d?)?)/(any|type=\d+|type=\d+:code=\d+|\d+:\d+)$},
+        %r{^(([^/]+)/([^/]+)/(ingress|egress)/([^/]+)/([0-9a-f.:]+(?:/\d\d?)?)/(any|type=\d+|type=\d+:code=\d+|\d+:\d+))$},
         [
+          [:name],
           [:project],
           [:group],
           [:direction],

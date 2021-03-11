@@ -13,7 +13,7 @@ Puppet::Type.newtype(:openstack_flavor) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc "A descriptive name. XX.SIZE_NAME is typically not required, though
     some third party tools may rely on it."
   end

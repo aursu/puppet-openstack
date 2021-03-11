@@ -25,7 +25,7 @@ Puppet::Type.newtype(:openstack_network) do
     defaultto :present
   end
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'New network name'
   end
 

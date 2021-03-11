@@ -31,7 +31,7 @@ Puppet::Type.newtype(:openstack_keypair) do
     end
   end
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'Keypair name'
   end
 

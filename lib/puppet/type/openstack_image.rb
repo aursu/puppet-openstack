@@ -14,7 +14,7 @@ Puppet::Type.newtype(:openstack_image) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'Image name'
   end
 

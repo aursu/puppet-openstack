@@ -17,19 +17,25 @@ Puppet::Type.newtype(:openstack_user) do
   def self.title_patterns
     [
       [
-        %r{^([^/]+)/([^/]+)$},
+        %r{^(([^/]+)/([^/]+))$},
         [
+          [:name],
           [:domain],
           [:user_name],
         ],
       ],
       [
-        %r{^([^/]+)$},
+        %r{^(([^/]+))$},
         [
+          [:name],
           [:user_name],
         ],
       ],
     ]
+  end
+
+  newparam(:name, namevar: true) do
+    desc 'New user name'
   end
 
   newparam(:domain, parent: PuppetX::OpenStack::DomainParameter) do
@@ -38,14 +44,6 @@ Puppet::Type.newtype(:openstack_user) do
 
   newparam(:user_name) do
     desc 'New user name'
-  end
-
-  newparam(:name, namevar: true) do
-    desc 'New user name'
-
-    defaultto do
-      (@resource[:domain].to_s == 'default') ? @resource[:user_name] : (@resource[:domain] + '/' + @resource[:user_name])
-    end
   end
 
   newparam(:id) do

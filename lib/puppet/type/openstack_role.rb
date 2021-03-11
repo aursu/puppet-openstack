@@ -15,7 +15,7 @@ Puppet::Type.newtype(:openstack_role) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'New role name'
   end
 

@@ -17,7 +17,7 @@ Puppet::Type.newtype(:openstack_port) do
 
   ensurable
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'Port name'
   end
 

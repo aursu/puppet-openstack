@@ -27,7 +27,7 @@ Puppet::Type.newtype(:openstack_security_group) do
     defaultto :present
   end
 
-  newparam(:name, namevar: true) do
+  newparam(:name) do
     desc 'Security group name'
   end
 
