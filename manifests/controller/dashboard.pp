@@ -43,7 +43,7 @@ class openstack::controller::dashboard (
       order_after => 'SESSION_ENGINE',
     },
     'OPENSTACK_KEYSTONE_URL'                 => {
-      value       => '"http://%s:5000/v3" % OPENSTACK_HOST',
+      value       => '"http://%s/identity/v3" % OPENSTACK_HOST',
       order_after => 'OPENSTACK_HOST',
     },
     'OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT' => 'True',
