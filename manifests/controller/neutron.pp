@@ -18,6 +18,7 @@ class openstack::controller::neutron (
   String  $provider_physical_network = $openstack::provider_physical_network,
 )
 {
+  # https://docs.openstack.org/releasenotes/neutron/victoria.html
   include openstack::neutron::core
 
   # https://docs.openstack.org/neutron/train/install/controller-install-rdo.html
