@@ -54,8 +54,19 @@ class openstack::controller::placement (
   }
 
   # OpenStack Placement plugin
-  package { 'python2-osc-placement':
-    ensure => 'installed',
+  if $facts['os']['name'] in ['RedHat', 'CentOS'] {
+    case $facts['os']['release']['major'] {
+      '7': {
+        package { 'python2-osc-placement':
+          ensure => 'installed',
+        }
+      }
+      default: {
+          package { 'python3-osc-placement':
+            ensure => 'installed',
+          }
+      }
+    }
   }
 
   $conf_default = {
