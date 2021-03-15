@@ -4,8 +4,8 @@ Puppet::Type.type(:djangosetting).provide(:ruby) do
   # Without initvars commands won't work.
   initvars
 
-  commands python: 'python' if Facter.value(:osfamily) == 'RedHat' && Facter.value((:operatingsystemmajrelease).to_i == 7
-  commands python: 'python2' if Facter.value(:osfamily) == 'RedHat' && Facter.value((:operatingsystemmajrelease).to_i > 7
+  commands python: 'python' if Facter.value(:osfamily) == 'RedHat' && Facter.value(:operatingsystemmajrelease).to_i == 7
+  commands python: 'python2' if Facter.value(:osfamily) == 'RedHat' && Facter.value(:operatingsystemmajrelease).to_i > 7
 
   # https://docs.puppet.com/guides/provider_development.html
   def exists?
