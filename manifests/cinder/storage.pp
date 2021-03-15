@@ -106,6 +106,6 @@ class openstack::cinder::storage (
   if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['7'] {
     service { 'lvm2-lvmetad':
       require => Package['lvm2'],
-    ;
+    }
   }
 }
