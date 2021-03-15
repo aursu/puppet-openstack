@@ -51,7 +51,16 @@ class openstack::cinder::storage (
     'targetcli': ;
   }
 
-  openstack::package { 'python-keystone':
+  if $facts['os']['family'] == 'RedHat' {
+    if $facts['os']['release']['major'] in ['8'] {
+      $python_keystone = 'python3-keystone'
+    }
+    else {
+      $python_keystone = 'python-keystone'
+    }
+  }
+
+  openstack::package { $python_keystone:
     cycle => $cycle,
   }
 
@@ -89,11 +98,14 @@ class openstack::cinder::storage (
       subscribe => Openstack::Config['/etc/cinder/cinder.conf'],
       require   => File['/var/lib/cinder'],
     ;
-    'lvm2-lvmetad':
-      require => Package['lvm2'],
-    ;
     'target':
       require => Package['targetcli'],
+    ;
+  }
+
+  if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['7'] {
+    service { 'lvm2-lvmetad':
+      require => Package['lvm2'],
     ;
   }
 }
