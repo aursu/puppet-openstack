@@ -23,6 +23,7 @@ class openstack::nova::core (
   Stdlib::IP::Address
           $mgmt_interface_ip_address = $openstack::mgmt_interface_ip_address,
   String  $placement_pass            = $openstack::placement_pass,
+  String  $sshkey_export_tag         = $openstack::sshkey_export_tag,
 )
 {
   # Identities
@@ -65,10 +66,10 @@ class openstack::nova::core (
       sshkey_target     => '/var/lib/nova/.ssh/authorized_keys',
       # export host key to avoid error 'Host key verification failed.'
       sshkey_export     => true,
-      sshkey_export_tag => 'nova',
+      sshkey_export_tag => $sshkey_export_tag,
     }
 
-    Sshkey <<| tag == 'nova_known_host' |>>
+    Sshkey <<| tag == "${sshkey_export_tag}_known_host" |>>
   }
 
   $conf_default = {

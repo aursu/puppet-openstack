@@ -70,5 +70,6 @@ openstack::manage_docker: true
 openstack::manage_dhcp_directory: true
 openstack::controller_host: 'controller'
 openstack::compute_tag: 'openstack'
+openstack::sshkey_export_tag: 'nova'
 openstack::manage_kmod_package: false
 openstack::nested_virtualization: true
