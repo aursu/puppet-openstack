@@ -51,7 +51,7 @@ class openstack::controller::dashboard (
       {
           "identity": 3,
           "image": 2,
-          "volume":3
+          "volume": 3
       }
       |-EOT
     'OPENSTACK_KEYSTONE_DEFAULT_DOMAIN'     => "'Default'",

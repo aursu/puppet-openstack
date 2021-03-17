@@ -107,12 +107,6 @@ class openstack::nova::core (
     # [DEFAULT]
     # my_ip = MANAGEMENT_INTERFACE_IP_ADDRESS
     'DEFAULT/my_ip'                           => $mgmt_interface_ip_address,
-    ### enable support for the Networking service
-    # [DEFAULT]
-    # use_neutron = true
-    # firewall_driver = nova.virt.firewall.NoopFirewallDriver
-    'DEFAULT/use_neutron'                     => 'true',
-    'DEFAULT/firewall_driver'                 => 'nova.virt.firewall.NoopFirewallDriver',
     ### location of the Image service API
     # [glance]
     # api_servers = http://controller:9292
