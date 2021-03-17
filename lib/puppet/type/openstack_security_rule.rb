@@ -120,6 +120,10 @@ Puppet::Type.newtype(:openstack_security_rule) do
       default: any (all protocols)
       PUPPET
     end
+
+    munge do |value|
+      value.to_s
+    end
   end
 
   newproperty(:remote_ip) do
@@ -152,6 +156,10 @@ Puppet::Type.newtype(:openstack_security_rule) do
       next if value.to_s =~ %r{^\d+:\d+$}
 
       raise ArgumentError, _("Destination port range or ICMP type and code #{value} must be a port range (<start>:<end>), ICMP type and optional code (type=<ICMP type>[:code=<ICMP code>]) or :any")
+    end
+
+    munge do |value|
+      value.to_s
     end
   end
 

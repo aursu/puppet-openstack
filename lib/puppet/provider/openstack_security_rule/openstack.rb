@@ -62,12 +62,12 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       direction = entity['direction']
 
       proto = entity['ip_protocol']
-      proto = :any if proto.to_s.empty?
+      proto = 'any' if proto.to_s.empty?
 
       remote = entity['ip_range']
 
       range = entity['port_range']
-      range = :any if range.to_s.empty?
+      range = 'any' if range.to_s.empty?
 
       entity_name = "#{group_project_name}/#{direction}/#{proto}/#{remote}/#{range}"
 
