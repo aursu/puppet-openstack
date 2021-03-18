@@ -21,6 +21,9 @@ class openstack::controller::heat (
   Integer $memcached_port   = $openstack::memcached_port,
 )
 {
+  # Doc: https://docs.openstack.org/heat/victoria/template_guide/hot_guide.html
+  # Doc: https://docs.openstack.org/heat/latest/template_guide/basic_resources.html
+  #
   # Manual for Train: https://docs.openstack.org/heat/train/install/install-rdo.html
   openstack::database { $heat_dbname:
     dbuser       => $heat_dbuser,

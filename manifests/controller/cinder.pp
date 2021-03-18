@@ -14,6 +14,11 @@ class openstack::controller::cinder (
   Boolean $cinder_storage            = $openstack::cinder_storage,
 )
 {
+  # Notes:
+  # 2021-03-18 13:22:55.765 727175 ERROR oslo_messaging.rpc.server cinder.exception.ImageTooBig:
+  # Image a4bcdd42-caea-4037-bb76-7f79c367511a size exceeded available disk space: There is no space
+  # on /var/lib/cinder/conversion to convert image. Requested: 107374182400, available: 44265283584.
+
   include openstack::cinder::core
 
   if $cinder_storage {
