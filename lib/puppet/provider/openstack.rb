@@ -92,11 +92,13 @@ class Puppet::Provider::Openstack < Puppet::Provider
   def self.get_list_array(entity, long = true, *moreargs)
     openstack_command unless @cmd
 
-    args = ['list', '-f', 'json'] + (long ? ['--long'] : [])
-    subcommand = entity
-    if @cmd == 'neutron'
+    case @cmd
+    when 'neutron', %r{/neutron$}
       args = ['-f', 'json'] + (long ? ['--long'] : [])
       subcommand = "#{entity}-list"
+    else
+      args = ['list', '-f', 'json'] + (long ? ['--long'] : [])
+      subcommand = entity
     end
 
     args += moreargs
