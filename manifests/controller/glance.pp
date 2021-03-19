@@ -18,6 +18,9 @@ class openstack::controller::glance (
   Integer $memcached_port = $openstack::memcached_port,
 )
 {
+  include openstack::glance::core
+  $filesystem_store_datadir = $openstack::glance::core::filesystem_store_datadir
+
   # https://docs.openstack.org/glance/train/install/install-rdo.html
   # verification: https://docs.openstack.org/glance/train/install/verify.html
   openstack::database { $glance_dbname:
@@ -50,31 +53,6 @@ class openstack::controller::glance (
     configs => [
       '/etc/glance/glance-api.conf',
     ],
-  }
-
-  # Identities
-  group { 'glance':
-    ensure => present,
-    system => true,
-  }
-
-  user { 'glance':
-    ensure     => present,
-    system     => true,
-    gid        => 'glance',
-    comment    => 'OpenStack Glance Daemons',
-    home       => '/var/lib/glance',
-    managehome => true,
-    shell      => '/sbin/nologin',
-    require    => Group['glance'],
-  }
-
-  file { '/var/lib/glance':
-    ensure  => directory,
-    owner   => 'glance',
-    group   => 'glance',
-    mode    => '0711',
-    require => User['glance'],
   }
 
   # reported bug: https://bugs.launchpad.net/glance/+bug/1672778
@@ -127,7 +105,7 @@ class openstack::controller::glance (
     # default_store = file
     # filesystem_store_datadir = /var/lib/glance/images/
     'glance_store/default_store'            => 'file',
-    'glance_store/filesystem_store_datadir' => '/var/lib/glance/images/',
+    'glance_store/filesystem_store_datadir' => $filesystem_store_datadir,
     'glance_store/stores'                   => 'file,http',
   }
 
