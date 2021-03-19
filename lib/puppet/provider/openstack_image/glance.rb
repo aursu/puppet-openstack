@@ -4,7 +4,8 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   desc 'manage ports for OpenStack.'
 
   commands glance: 'glance', openstack: 'openstack'
-  defaultfor :openstack['cycle'] => 'victoria'
+
+  defaultfor :osfamily => :redhat, :operatingsystemmajrelease => ["8"]
 
   def initialize(value = {})
     super(value)
