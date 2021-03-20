@@ -32,6 +32,6 @@ class openstack::glance::core {
       require => User['glance'],
     ;
     '/var/lib/glance': mode => '0711';
-    '/var/lib/glance/images': mode => '0750';
+    $filesystem_store_datadir: mode => '0750';
   }
 }
