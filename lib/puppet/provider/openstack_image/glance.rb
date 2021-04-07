@@ -5,7 +5,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
 
   commands glance: 'glance', openstack: 'openstack'
 
-  defaultfor :osfamily => :redhat, :operatingsystemmajrelease => ["8"]
+  defaultfor osfamily: :redhat, operatingsystemmajrelease: ['8']
 
   def initialize(value = {})
     super(value)
@@ -127,20 +127,20 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
     properties.map { |k, v| [k, v.to_s] }.to_h
   end
 
-#   usage: glance image-create [--architecture <ARCHITECTURE>]
-#   [--protected [True|False]] [--name <NAME>]
-#   [--instance-uuid <INSTANCE_UUID>]
-#   [--min-disk <MIN_DISK>] [--visibility <VISIBILITY>]
-#   [--kernel-id <KERNEL_ID>]
-#   [--tags <TAGS> [<TAGS> ...]]
-#   [--os-version <OS_VERSION>]
-#   [--disk-format <DISK_FORMAT>]
-#   [--os-distro <OS_DISTRO>] [--id <ID>]
-#   [--owner <OWNER>] [--ramdisk-id <RAMDISK_ID>]
-#   [--min-ram <MIN_RAM>]
-#   [--container-format <CONTAINER_FORMAT>]
-#   [--hidden [True|False]] [--property <key=value>]
-#   [--file <FILE>] [--progress] [--store <STORE>]
+  # usage: glance image-create [--architecture <ARCHITECTURE>]
+  # [--protected [True|False]] [--name <NAME>]
+  # [--instance-uuid <INSTANCE_UUID>]
+  # [--min-disk <MIN_DISK>] [--visibility <VISIBILITY>]
+  # [--kernel-id <KERNEL_ID>]
+  # [--tags <TAGS> [<TAGS> ...]]
+  # [--os-version <OS_VERSION>]
+  # [--disk-format <DISK_FORMAT>]
+  # [--os-distro <OS_DISTRO>] [--id <ID>]
+  # [--owner <OWNER>] [--ramdisk-id <RAMDISK_ID>]
+  # [--min-ram <MIN_RAM>]
+  # [--container-format <CONTAINER_FORMAT>]
+  # [--hidden [True|False]] [--property <key=value>]
+  # [--file <FILE>] [--progress] [--store <STORE>]
   def create
     name             = @resource[:name]
     container_format = @resource.value(:container_format)
@@ -181,7 +181,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
     args += ['--protected', 'False'] if protected == :false
 
     # public, private, shared, community
-    args += ['--visibility', visibility]  if visibility
+    args += ['--visibility', visibility] if visibility
 
     image_properties.each { |k, v| args += ['--property', "#{k}=#{v}"] } if image_properties
 
@@ -234,34 +234,34 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
     id = @property_hash[:id]
     tags = @property_hash[:tags]
 
-    tags.each { |t|
+    tags.each do |t|
       next if prop.include?(t)
       self.class.provider_tag(id, t)
-    }
+    end
 
-    prop.each { |t|
+    prop.each do |t|
       next if tags.include?(t)
       self.class.provider_untag(id, t)
-    }
+    end
   end
 
   def image_properties=(prop)
     @property_flush[:image_properties] = prop
   end
 
-#   usage: glance image-update [--architecture <ARCHITECTURE>]
-#   [--protected [True|False]] [--name <NAME>]
-#   [--instance-uuid <INSTANCE_UUID>]
-#   [--min-disk <MIN_DISK>] [--visibility <VISIBILITY>]
-#   [--kernel-id <KERNEL_ID>]
-#   [--os-version <OS_VERSION>]
-#   [--disk-format <DISK_FORMAT>]
-#   [--os-distro <OS_DISTRO>] [--owner <OWNER>]
-#   [--ramdisk-id <RAMDISK_ID>] [--min-ram <MIN_RAM>]
-#   [--container-format <CONTAINER_FORMAT>]
-#   [--hidden [True|False]] [--property <key=value>]
-#   [--remove-property key]
-#   <IMAGE_ID>
+  # usage: glance image-update [--architecture <ARCHITECTURE>]
+  # [--protected [True|False]] [--name <NAME>]
+  # [--instance-uuid <INSTANCE_UUID>]
+  # [--min-disk <MIN_DISK>] [--visibility <VISIBILITY>]
+  # [--kernel-id <KERNEL_ID>]
+  # [--os-version <OS_VERSION>]
+  # [--disk-format <DISK_FORMAT>]
+  # [--os-distro <OS_DISTRO>] [--owner <OWNER>]
+  # [--ramdisk-id <RAMDISK_ID>] [--min-ram <MIN_RAM>]
+  # [--container-format <CONTAINER_FORMAT>]
+  # [--hidden [True|False]] [--property <key=value>]
+  # [--remove-property key]
+  # <IMAGE_ID>
   def flush
     return if @property_flush.empty?
 
@@ -283,22 +283,22 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
     args += ['--disk-format', disk_format] if @property_flush[:disk_format]
 
     # public, private, shared, community
-    args += ['--visibility', visibility]  if visibility
+    args += ['--visibility', visibility] if visibility
 
     if @property_flush[:image_properties]
       prop = @property_flush[:image_properties]
 
       # remove properties
-      image_properties.each { |k, v|
+      image_properties.each do |k, _v|
         next if prop[k]
         args += ['--remove-property', k]
-      }
+      end
 
       # set properties
-      prop.each { |k, v|
+      prop.each do |k, v|
         next if image_properties[k] == v
         args += ['--property', "#{k}=#{v}"]
-      }
+      end
     end
 
     @property_flush.clear
