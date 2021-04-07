@@ -94,8 +94,25 @@ class openstack::controller::octavia (
     'openstack-octavia-health-manager': ;
     'openstack-octavia-housekeeping': ;
     'openstack-octavia-worker': ;
-    'python2-octavia': ;
-    'python2-octaviaclient': ;
+  }
+
+  if $facts['os']['name'] in ['RedHat', 'CentOS'] {
+    case $facts['os']['release']['major'] {
+      '7': {
+        package {
+          default: ensure => 'installed';
+          'python2-octavia': ;
+          'python2-octaviaclient': ;
+        }
+      }
+      default: {
+          package {
+            default: ensure => 'installed';
+            'python3-octavia': ;
+            'python3-octaviaclient': ;
+          }
+      }
+    }
   }
 
   # Identities
