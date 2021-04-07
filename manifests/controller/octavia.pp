@@ -106,11 +106,11 @@ class openstack::controller::octavia (
         }
       }
       default: {
-          package {
-            default: ensure => 'installed';
-            'python3-octavia': ;
-            'python3-octaviaclient': ;
-          }
+        package {
+          default: ensure => 'installed';
+          'python3-octavia': ;
+          'python3-octaviaclient': ;
+        }
       }
     }
   }
