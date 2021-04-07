@@ -226,21 +226,21 @@ class openstack::controller::octavia (
     ]
   }
 
-  if $facts['openstack'] {
-    $mgmt_net = $facts['openstack']['networks']['lb-mgmt-net']
-    if $mgmt_net {
-      $netid = $mgmt_net['id']
-      $brname = $netid[0,10]
+  # if $facts['openstack'] {
+  #   $mgmt_net = $facts['openstack']['networks']['lb-mgmt-net']
+  #   if $mgmt_net {
+  #     $netid = $mgmt_net['id']
+  #     $brname = $netid[0,10]
 
-      $mgmt_port_select = $facts['openstack']['ports'].filter |$port| {
-        $port['name'] == $mgmt_port_name and $port['network_id'] == $netid
-      }
-      $mgmt_port = $mgmt_port_select[0]
-      $mgmt_port_mac = $mgmt_port['mac_address']
-    }
-    else {
-      $brname = undef
-      $mgmt_port_mac = undef
-    }
-  }
+  #     $mgmt_port_select = $facts['openstack']['ports'].filter |$port| {
+  #       $port['name'] == $mgmt_port_name and $port['network_id'] == $netid
+  #     }
+  #     $mgmt_port = $mgmt_port_select[0]
+  #     $mgmt_port_mac = $mgmt_port['mac_address']
+  #   }
+  #   else {
+  #     $brname = undef
+  #     $mgmt_port_mac = undef
+  #   }
+  # }
 }
