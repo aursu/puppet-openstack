@@ -27,6 +27,26 @@ Puppet::Type.newtype(:openstack_security_group) do
     defaultto :present
   end
 
+  def self.title_patterns
+    [
+      [
+        %r{^(([^/]+)/([^/]+))$},
+        [
+          [:name],
+          [:project],
+          [:group_name],
+        ],
+      ],
+      [
+        %r{^(([^/]+))$},
+        [
+          [:name],
+          [:group_name],
+        ],
+      ],
+    ]
+  end
+
   newparam(:name) do
     desc 'Security group name'
   end
@@ -42,13 +62,13 @@ Puppet::Type.newtype(:openstack_security_group) do
     end
   end
 
+  newparam(:group_name) do
+    desc 'Security group name'
+  end
+
   # --project-domain
   newparam(:project_domain, parent: PuppetX::OpenStack::DomainParameter) do
     desc 'Domain the project belongs to (name or ID).'
-  end
-
-  newparam(:group_name) do
-    desc 'Security group name'
   end
 
   newproperty(:id) do

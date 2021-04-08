@@ -34,7 +34,7 @@
     },
     {
       "name": "aursu/openssh",
-      "version_requirement": ">= 0.4.4 < 1.0.0"
+      "version_requirement": ">= 0.4.8 < 1.0.0"
     },
     {
       "name": "puppetlabs/stdlib",

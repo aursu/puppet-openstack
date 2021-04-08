@@ -51,6 +51,6 @@ fixtures:
       ref: tags/v0.6.6
     openssh:
       repo: https://github.com/aursu/puppet-openssh.git
-      ref: tags/v0.4.4
+      ref: tags/v0.6.1
     tlsinfo:
       repo: https://github.com/aursu/puppet-tlsinfo.git
