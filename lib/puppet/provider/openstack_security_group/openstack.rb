@@ -45,6 +45,7 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   def self.add_instance(entity = {})
     @instances = [] unless @instances
 
+    entity_id = entity['id']
     project_id = entity['project_id'] || entity['project']
     # default project
     project_name = if project_id == 'default'
@@ -59,9 +60,16 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
                      else
                        'default'
                      end
-
     group_name = entity['name']
-    group_project_name = project_name.to_s.empty? ? group_name : "#{project_name}/#{group_name}"
+
+    entity_name = group_name.to_s
+    entity_name = "group-#{entity_id}" if entity_name.empty?
+
+    group_project_name = if group_name.to_s.empty?
+                           entity_name
+                         else
+                           project_name.to_s.empty? ? group_name : "#{project_name}/#{group_name}"
+                         end
 
     @instances << new(name: group_project_name,
                       ensure: :present,
