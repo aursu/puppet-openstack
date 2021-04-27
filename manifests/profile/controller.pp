@@ -53,4 +53,11 @@ class openstack::profile::controller (
 
   # TODO: [backup service](https://docs.openstack.org/cinder/train/install/cinder-backup-install-rdo.html)
   # TODO: [Object storage](https://docs.openstack.org/swift/latest/install/)
+
+  # Services
+  # systemctl restart neutron-linuxbridge-agent.service neutron-metadata-agent.service neutron-l3-agent.service neutron-server.service neutron-dhcp-agent.service
+  # systemctl restart openstack-cinder-scheduler.service openstack-cinder-api.service openstack-cinder-volume.service
+  # systemctl restart openstack-heat-engine.service openstack-heat-api.service openstack-heat-api-cfn.service
+  # systemctl restart openstack-nova-api.service openstack-nova-novncproxy.service openstack-nova-conductor.service openstack-nova-scheduler.service
+  # systemctl restart openstack-glance-api.service
 }
