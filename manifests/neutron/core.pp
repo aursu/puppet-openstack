@@ -52,6 +52,7 @@ class openstack::neutron::core (
       ],
       require => Openstack::Package['openstack-neutron-common'],
     ;
+    'conntrack-tools': ;
   }
 
   # Identities
