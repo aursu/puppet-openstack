@@ -5,7 +5,7 @@ openstack --os-compute-api-version 2.74 server create --flavor m1.small2 \
     --nic net-id=b6744bc4-4034-4028-abf3-71a3e19d144a,v4-fixed-ip=172.16.100.49 \
     --volume=ef6c83e8-b7bb-4f70-9f0f-01ae051e263a \
     --host=dev-web-005.intern.crytek.de \
-    --security-group a32b794b-aeb7-4e3c-9a61-907deeb2c8be --security-group dca259ff-7511-4438-b303-db0024d43f66 \
+    --security-group a32b794b-aeb7-4e3c-9a61-907deeb2c8be --security-group 8efb4230-5534-4e74-a8e9-63ac226104d8 \
     --key-name cloud-images kubec-01
 
 openstack --os-compute-api-version 2.74 server create --flavor m1.large4 \
