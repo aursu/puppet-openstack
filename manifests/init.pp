@@ -2,6 +2,9 @@
 #
 # A description of what this class does
 #
+# @param nova_key_setup_root
+#   Setup SSH  private/public key into root account as well
+#
 # @example
 #   include openstack
 class openstack (
@@ -42,6 +45,7 @@ class openstack (
   Optional[String]    $nova_dbpass,
   Optional[String]    $nova_priv_key,
   Optional[String]    $nova_pub_key,
+  Boolean             $nova_key_setup_root,
   # Neutron
   String              $neutron_dbname,
   String              $neutron_dbuser,

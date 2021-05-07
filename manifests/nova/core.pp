@@ -10,6 +10,7 @@ class openstack::nova::core (
           $priv_key                  = $openstack::nova_priv_key,
   Optional[String]
           $pub_key                   = $openstack::nova_pub_key,
+  Boolean $key_setup_root            = $openstack::nova_key_setup_root,
   String  $rabbitmq_user             = $openstack::rabbitmq_user,
   Stdlib::Host
           $rabbitmq_host             = $openstack::rabbitmq_host,
@@ -57,6 +58,13 @@ class openstack::nova::core (
       user_name  =>  'nova',
       sshkey_dir => '/var/lib/nova/.ssh',
     }
+
+    if $key_setup_root {
+      openssh::priv_key { 'root@compute':
+        key_data  => $priv_key,
+        user_name => 'root',
+      }
+    }
   }
 
   if $pub_key {
@@ -67,6 +75,16 @@ class openstack::nova::core (
       # export host key to avoid error 'Host key verification failed.'
       sshkey_export     => true,
       sshkey_export_tag => $sshkey_export_tag,
+    }
+
+    if $key_setup_root {
+      openssh::auth_key { 'root@compute':
+        sshkey            => $pub_key,
+        sshkey_user       => 'root',
+        # export host key to avoid error 'Host key verification failed.'
+        sshkey_export     => true,
+        sshkey_export_tag => $sshkey_export_tag,
+      }
     }
 
     Sshkey <<| tag == "${sshkey_export_tag}_known_host" |>>

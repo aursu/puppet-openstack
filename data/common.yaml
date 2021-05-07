@@ -27,6 +27,7 @@ openstack::nova_dbpass: ~
 openstack::nova_pass: ~
 openstack::nova_priv_key: ~
 openstack::nova_pub_key: ~
+openstack::nova_key_setup_root: true
 openstack::neutron_dbname: 'neutron'
 openstack::neutron_dbuser: 'neutron'
 openstack::neutron_dbpass: ~
