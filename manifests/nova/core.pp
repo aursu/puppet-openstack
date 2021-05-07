@@ -81,8 +81,8 @@ class openstack::nova::core (
       openssh::auth_key { 'root@compute':
         sshkey            => $pub_key,
         sshkey_user       => 'root',
-        # export host key to avoid error 'Host key verification failed.'
-        sshkey_export     => true,
+        # root Sshkey export is included by default via openssh::keys
+        sshkey_export     => false,
         sshkey_export_tag => $sshkey_export_tag,
       }
     }
