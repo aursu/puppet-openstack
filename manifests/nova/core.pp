@@ -87,7 +87,7 @@ class openstack::nova::core (
       }
     }
 
-    Sshkey <<| tag == "${sshkey_export_tag}_known_host" |>>
+    Sshkey <<| tag == $sshkey_export_tag |>>
   }
 
   $conf_default = {
