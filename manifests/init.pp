@@ -51,6 +51,8 @@ class openstack (
   String              $neutron_dbuser,
   Optional[String]    $neutron_dbpass,
   Optional[String]    $neutron_pass,
+  String              $neutron_ml2_extension_drivers,
+
   Optional[String]    $metadata_secret,
   String              $provider_physical_network,
   Optional[Stdlib::IP::Address]

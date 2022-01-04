@@ -19,3 +19,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 1.1.1
+
+**Features**
+
+* Added ability to set ml2/extension_drivers
+
+**Bugfixes**
+
+**Known Issues**

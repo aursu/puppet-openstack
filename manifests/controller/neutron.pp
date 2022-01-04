@@ -16,6 +16,7 @@ class openstack::controller::neutron (
   String  $admin_pass                = $openstack::admin_pass,
   String  $nova_pass                 = $openstack::nova_pass,
   String  $provider_physical_network = $openstack::provider_physical_network,
+  String  $ml2_extension_drivers     = $openstack::neutron_ml2_extension_drivers,
 )
 {
   # https://docs.openstack.org/releasenotes/neutron/victoria.html
@@ -112,7 +113,7 @@ class openstack::controller::neutron (
     'ml2/type_drivers'            => 'flat,vlan,vxlan',
     'ml2/tenant_network_types'    => 'vxlan',
     'ml2/mechanism_drivers'       => 'linuxbridge,l2population',
-    'ml2/extension_drivers'       => 'port_security',
+    'ml2/extension_drivers'       => $ml2_extension_drivers,
     # [ml2_type_flat]
     # flat_networks = provider
     'ml2_type_flat/flat_networks' => $provider_physical_network,
