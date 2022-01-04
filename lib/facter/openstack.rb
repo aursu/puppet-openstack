@@ -33,7 +33,7 @@ class Facter::Util::OpenstackClient
     # translate file data into OpenStack env variables hash
     env = data.map { |l| l.sub('export', '').strip }
               .map { |e| e.split('=', 2) }
-              .select { |k, _v| k =~ %r{OS_} }
+              .select { |k, _v| k.include?('OS_') }
 
     @env = Hash[env]
   end
@@ -64,7 +64,7 @@ class Facter::Util::OpenstackClient
     end
   rescue SocketError, Net::OpenTimeout
     Puppet.warning "URL #{uri} fetch error"
-    return nil
+    nil
   end
 
   # use HTTP GET request to the server

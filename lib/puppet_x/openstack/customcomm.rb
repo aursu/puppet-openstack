@@ -30,7 +30,7 @@ module CustomComm
 
       validate do |value|
         next if value == :absent
-        if value.to_s !~ %r{^\d+$}
+        unless value.to_s.match?(%r{^\d+$})
           raise Puppet::Error, 'Identity API version must be a positive integer'
         end
       end
@@ -41,7 +41,7 @@ module CustomComm
 
       validate do |value|
         next if value == :absent
-        if value.to_s !~ %r{^\d+$}
+        unless value.to_s.match?(%r{^\d+$})
           raise Puppet::Error, 'Image API version must be a positive integer'
         end
       end

@@ -228,7 +228,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
 
     (is - assign).each do |p|
       args = ['--project', p] + project_domain_args + ['--user', user, '--user-domain', user_domain, role]
-      self.class.provider_delete(*args) == false
+      self.class.provider_delete(*args)
     end
 
     @property_hash[:project] = assign

@@ -39,14 +39,7 @@ end
 RSpec.configure do |c|
   c.default_facts = default_facts
   c.hiera_config = File.join(fixture_path, '/hiera/hiera.yaml')
-
-  c.mock_with :rspec do |mocks|
-    # We really should have this on, but it breaks a _lot_ of tests. We'll
-    # need to go through and fix those tests first before it can be enabled
-    # for real.
-    mocks.verify_partial_doubles = false
-  end
-
+  c.mock_with :rspec
   c.before :each do
     # set to strictest setting for testing
     # by default Puppet runs at warning level
@@ -55,6 +48,18 @@ RSpec.configure do |c|
   end
   c.filter_run_excluding(bolt: true) unless ENV['GEM_BOLT']
   c.after(:suite) do
+  end
+
+  # Filter backtrace noise
+  backtrace_exclusion_patterns = [
+    %r{spec_helper},
+    %r{gems},
+  ]
+
+  if c.respond_to?(:backtrace_exclusion_patterns)
+    c.backtrace_exclusion_patterns = backtrace_exclusion_patterns
+  elsif c.respond_to?(:backtrace_clean_patterns)
+    c.backtrace_clean_patterns = backtrace_exclusion_patterns
   end
 end
 

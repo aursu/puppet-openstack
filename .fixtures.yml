@@ -5,52 +5,52 @@ fixtures:
   forge_modules:
     apache:
       repo: puppetlabs/apache
-      ref: 5.5.0
+      ref: 7.0.0
     archive:
       repo: puppet/archive
-      ref: 4.4.0
+      ref: 6.0.2
     concat:
       repo: puppetlabs/concat
-      ref: 6.2.0
+      ref: 7.1.1
+    dockerinstall:
+      repo: aursu/dockerinstall
+      ref: 0.12.1
     inifile:
       repo: 'puppetlabs/inifile'
-      ref: 4.1.0
+      ref: 5.2.0
     kmod:
       repo: 'camptocamp/kmod'
-      ref: 2.4.0
+      ref: 2.5.0
     lvm:
       repo: 'puppetlabs/lvm'
       ref: 1.4.0
     mysql:
       repo: puppetlabs/mysql
-      ref: 10.6.0
+      ref: 12.0.1
     rabbitmq:
       repo: puppet/rabbitmq
-      ref: 10.0.0
+      ref: 11.1.0
     sshkeys_core:
       repo: puppetlabs/sshkeys_core
       puppet_version: ">= 6.0.0"
     stdlib:
       repo: puppetlabs/stdlib
-      ref: 6.2.0
+      ref: 8.1.0
     sysctl:
       repo: thias/sysctl
-      ref: 1.0.6
+      ref: 1.0.7
     systemd:
       repo: camptocamp/systemd
-      ref: 2.9.0
+      ref: 3.0.0
     yumrepo_core:
       repo: puppetlabs/yumrepo_core
       puppet_version: ">= 6.0.0"
   repositories:
-    dockerinstall:
-      repo: https://github.com/aursu/puppet-dockerinstall.git
-      ref: tags/v0.8.2
     lsys:
       repo: https://github.com/aursu/puppet-lsys.git
-      ref: tags/v0.6.6
+      ref: tags/v0.24.3
     openssh:
       repo: https://github.com/aursu/puppet-openssh.git
-      ref: tags/v0.6.1
+      ref: tags/v0.6.7
     tlsinfo:
       repo: https://github.com/aursu/puppet-tlsinfo.git

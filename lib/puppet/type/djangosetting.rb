@@ -27,7 +27,7 @@ Puppet::Type.newtype(:djangosetting) do
   newparam(:name) do
     isnamevar
     validate do |value|
-      raise ArgumentError, 'name should be valid python identifier' unless value =~ %r{^[a-zA-Z_][a-zA-Z0-9_]*}
+      raise ArgumentError, 'name should be valid python identifier' unless value.match?(%r{^[a-zA-Z_][a-zA-Z0-9_]*})
     end
   end
 
@@ -44,7 +44,7 @@ Puppet::Type.newtype(:djangosetting) do
   newparam(:order_after) do
     desc 'An optional variable name used to specify the variable after which we will add any new.'
     validate do |value|
-      raise ArgumentError, 'after should be valid python identifier' unless value =~ %r{^[a-zA-Z_][a-zA-Z0-9_]*}
+      raise ArgumentError, 'after should be valid python identifier' unless value.match?(%r{^[a-zA-Z_][a-zA-Z0-9_]*})
     end
 
     newvalues(%r{[a-zA-Z_][a-zA-Z0-9_]*})

@@ -48,7 +48,7 @@ Puppet::Type.type(:openstack_keypair).provide(:openstack, parent: Puppet::Provid
 
     return nil if cmdout.nil?
     return nil if cmdout.empty?
-    return cmdout
+    cmdout
   rescue Puppet::ExecutionFailure => detail
     Puppet.debug "Execution of #{@keygen_cmd} command failed: #{detail}"
     false

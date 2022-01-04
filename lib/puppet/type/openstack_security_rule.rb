@@ -151,9 +151,9 @@ Puppet::Type.newtype(:openstack_security_rule) do
       raise ArgumentError, _('Destination port range must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
 
       next if value.to_s == 'any'
-      next if value.to_s =~ %r{^type=\d+$}
-      next if value.to_s =~ %r{^type=\d+:code=\d+$}
-      next if value.to_s =~ %r{^\d+:\d+$}
+      next if value.to_s.match?(%r{^type=\d+$})
+      next if value.to_s.match?(%r{^type=\d+:code=\d+$})
+      next if value.to_s.match?(%r{^\d+:\d+$})
 
       raise ArgumentError, _("Destination port range or ICMP type and code #{value} must be a port range (<start>:<end>), ICMP type and optional code (type=<ICMP type>[:code=<ICMP code>]) or :any")
     end

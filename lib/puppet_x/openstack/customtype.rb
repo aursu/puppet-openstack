@@ -101,8 +101,13 @@ module CustomType
           # We always want to use the "first" provider instance we find, unless the resource
           # is already managed and has a different provider set
           if other = provider_instances[instance.name] # rubocop:disable Lint/AssignmentInCondition
-            Puppet.debug  '%s %s found in both %s and %s; skipping the %s version' %
-                          [name.to_s.capitalize, instance.name, other.class.name, instance.class.name, instance.class.name]
+            Puppet.debug  '%{name} %{instance_name} found in both %{other_class_name} and %{instance_class_name}; skipping the %{instance_class_name} version' %
+                          {
+                            name: name.to_s.capitalize,
+                            instance_name: instance.name,
+                            other_class_name: other.class.name,
+                            instance_class_name: instance.class.name
+                          }
             next
           end
           provider_instances[instance.name] = instance

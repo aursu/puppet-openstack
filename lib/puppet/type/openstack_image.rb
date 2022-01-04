@@ -175,7 +175,7 @@ Puppet::Type.newtype(:openstack_image) do
     end
 
     validate do |value|
-      next if value.to_s =~ %r{^[0-9]+$}
+      next if value.to_s.match?(%r{^[0-9]+$})
       raise ArgumentError, _('min_disk must be provided as a number.')
     end
   end
@@ -193,7 +193,7 @@ Puppet::Type.newtype(:openstack_image) do
     end
 
     validate do |value|
-      next if value.to_s =~ %r{^[0-9]+$}
+      next if value.to_s.match?(%r{^[0-9]+$})
       raise ArgumentError, _('min_disk must be provided as a number.')
     end
   end

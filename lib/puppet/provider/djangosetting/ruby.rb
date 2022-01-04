@@ -58,14 +58,14 @@ Puppet::Type.type(:djangosetting).provide(:ruby) do
   #           true - means variable exists and its value is desired
   #           false - means variable does not exists
   #           nil - means variable exists but with different value
-  def get_lines # rubocop:disable Style/AccessorMethodName
+  def get_lines
     @exists = nil
     # if value is nil or empty - read file content
     if value.nil? || value.empty?
       content = pyrun(config)
       lines = content.split(%r{\n+})
 
-      @line = lines.select { |l| l.index("#{name}=") == 0 }.last
+      @line = lines.reverse.find { |l| l.index("#{name}=") == 0 }
       @exists = false if @line.nil?
     else
       content = pyrun(config, "#{name}=#{value}")
