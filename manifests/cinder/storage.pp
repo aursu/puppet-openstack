@@ -51,17 +51,19 @@ class openstack::cinder::storage (
     'targetcli': ;
   }
 
-  if $facts['os']['family'] == 'RedHat' {
-    if $facts['os']['release']['major'] in ['8'] {
-      $python_keystone = 'python3-keystone'
+  if openstack::cyclecmp($cycle, 'xena') < 0 {
+    if $facts['os']['family'] == 'RedHat' {
+      if $facts['os']['release']['major'] in ['8'] {
+        $python_keystone = 'python3-keystone'
+      }
+      else {
+        $python_keystone = 'python-keystone'
+      }
     }
-    else {
-      $python_keystone = 'python-keystone'
-    }
-  }
 
-  openstack::package { $python_keystone:
-    cycle => $cycle,
+    openstack::package { $python_keystone:
+      cycle => $cycle,
+    }
   }
 
   # [cinder]

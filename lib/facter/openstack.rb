@@ -95,7 +95,7 @@ class Facter::Util::OpenstackClient
     case request_uri
     when 'flavors'
       api = "#{api_scheme}://#{api_host}:8774/v2.1"
-    when 'networks', 'ports', 'security-groups', 'security-group-rules', 'routers', 'subnets'
+    when 'networks', 'ports', 'security-groups', 'security-group-rules', 'routers', 'subnets', 'floatingips'
       api = "#{api_scheme}://#{api_host}:9696/v2.0"
     else
       api = api_auth
@@ -198,6 +198,9 @@ Facter.add(:openstack, type: :aggregate) do
         20 => 'train',
         21 => 'ussuri',
         22 => 'victoria',
+        23 => 'wallaby',
+        24 => 'xena',
+        25 => 'yoga',
       }[maj]
     end
     openstack
@@ -215,9 +218,9 @@ Facter.add(:openstack, type: :aggregate) do
     { 'networks' => osclient.api_get_list('networks') }
   end
 
-  chunk(:ports) do
-    { 'ports' => osclient.api_get_list_array('ports') }
-  end
+  # chunk(:ports) do
+  #   { 'ports' => osclient.api_get_list_array('ports') }
+  # end
 
   chunk(:projects) do
     { 'projects' => osclient.api_get_list('projects') }
@@ -227,13 +230,13 @@ Facter.add(:openstack, type: :aggregate) do
     { 'routers' => osclient.api_get_list('routers') }
   end
 
-  chunk(:security_groups) do
-    { 'security_groups' => osclient.api_get_list_array('security-groups', 'security_groups') }
-  end
+  # chunk(:security_groups) do
+  #   { 'security_groups' => osclient.api_get_list_array('security-groups', 'security_groups') }
+  # end
 
-  chunk(:security_group_rules, require: :security_groups) do
-    { 'security_group_rules' => osclient.api_get_list_array('security-group-rules', 'security_group_rules') }
-  end
+  # chunk(:security_group_rules, require: :security_groups) do
+  #   { 'security_group_rules' => osclient.api_get_list_array('security-group-rules', 'security_group_rules') }
+  # end
 
   chunk(:subnets) do
     { 'subnets' => osclient.api_get_list('subnets') }

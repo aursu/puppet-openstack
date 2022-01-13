@@ -48,6 +48,9 @@ class openstack::controller::glance (
     require     => Openstack::User['glance'],
   }
 
+  # TODO: Per-Tenant Quotas
+  # https://docs.openstack.org/glance/xena/admin/quotas.html
+
   openstack::package { 'openstack-glance':
     cycle   => $cycle,
     configs => [

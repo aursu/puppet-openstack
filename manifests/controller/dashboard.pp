@@ -63,28 +63,52 @@ class openstack::controller::dashboard (
     $dashboard_openstack_neutron_network = {}
   }
   else {
-    $dashboard_openstack_neutron_network = {
-      'OPENSTACK_NEUTRON_NETWORK'             => @(EOT),
-        {
-          'enable_auto_allocated_network': False,
-          'enable_distributed_router': False,
-          'enable_ha_router': False,
-          'enable_ipv6': True,
-          'enable_rbac_policy': True,
-          'default_dns_nameservers': [],
-          'supported_provider_types': ['*'],
-          'segmentation_id_range': {},
-          'extra_provider_types': {},
-          'supported_vnic_types': ['*'],
-          'physical_networks': [],
-          'enable_router': False,
-          'enable_quotas': False,
-          'enable_lb': False,
-          'enable_firewall': False,
-          'enable_vpn': False,
-          'enable_fip_topology_check': False,
-        }
-        |-EOT
+    if openstack::cyclecmp($cycle, 'xena') < 0 {
+      $dashboard_openstack_neutron_network = {
+        'OPENSTACK_NEUTRON_NETWORK'             => @(EOT),
+          {
+            'enable_auto_allocated_network': False,
+            'enable_distributed_router': False,
+            'enable_ha_router': False,
+            'enable_ipv6': True,
+            'enable_rbac_policy': True,
+            'default_dns_nameservers': [],
+            'supported_provider_types': ['*'],
+            'segmentation_id_range': {},
+            'extra_provider_types': {},
+            'supported_vnic_types': ['*'],
+            'physical_networks': [],
+            'enable_router': False,
+            'enable_quotas': False,
+            'enable_lb': False,
+            'enable_firewall': False,
+            'enable_vpn': False,
+            'enable_fip_topology_check': False,
+          }
+          |-EOT
+      }
+    }
+    else {
+      $dashboard_openstack_neutron_network = {
+        'OPENSTACK_NEUTRON_NETWORK'             => @(EOT),
+          {
+            'enable_auto_allocated_network': False,
+            'enable_distributed_router': False,
+            'enable_ha_router': False,
+            'enable_ipv6': True,
+            'enable_rbac_policy': True,
+            'default_dns_nameservers': [],
+            'supported_provider_types': ['*'],
+            'segmentation_id_range': {},
+            'extra_provider_types': {},
+            'supported_vnic_types': ['*'],
+            'physical_networks': [],
+            'enable_router': False,
+            'enable_quotas': False,
+            'enable_fip_topology_check': False,
+          }
+          |-EOT
+      }
     }
   }
 

@@ -5,6 +5,8 @@
 # @example
 #   include openstack::controller::cinder
 class openstack::controller::cinder (
+  Openstack::Release
+          $cycle                     = $openstack::cycle,
   String  $cinder_dbname             = $openstack::cinder_dbname,
   String  $cinder_dbuser             = $openstack::cinder_dbuser,
   String  $cinder_dbpass             = $openstack::cinder_dbpass,
@@ -38,16 +40,22 @@ class openstack::controller::cinder (
     require   => Openstack::Project['service'],
   }
 
-  openstack::service { 'cinderv2':
-    service     => 'volumev2',
-    description => 'OpenStack Block Storage',
-    endpoint    => {
-      public   => 'http://controller:8776/v2/%(project_id)s',
-      internal => 'http://controller:8776/v2/%(project_id)s',
-      admin    => 'http://controller:8776/v2/%(project_id)s',
-    },
-    admin_pass  => $admin_pass,
-    require     => Openstack::User['cinder'],
+  # Beginning with the Xena release, the Block Storage services
+  # require only one service entity.
+  if openstack::cyclecmp($cycle, 'xena') < 0 {
+    openstack::service { 'cinderv2':
+      service     => 'volumev2',
+      description => 'OpenStack Block Storage',
+      endpoint    => {
+        public   => 'http://controller:8776/v2/%(project_id)s',
+        internal => 'http://controller:8776/v2/%(project_id)s',
+        admin    => 'http://controller:8776/v2/%(project_id)s',
+      },
+      admin_pass  => $admin_pass,
+      require     => Openstack::User['cinder'],
+    }
+
+    Openstack::Service['cinderv2'] -> Openstack::Service['cinderv3']
   }
 
   openstack::service { 'cinderv3':
@@ -59,10 +67,7 @@ class openstack::controller::cinder (
       admin    => 'http://controller:8776/v3/%(project_id)s',
     },
     admin_pass  => $admin_pass,
-    require     => [
-      Openstack::User['cinder'],
-      Openstack::Service['cinderv2'],
-    ]
+    require     => Openstack::User['cinder'],
   }
 
   # [cinder]
