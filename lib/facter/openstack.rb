@@ -261,21 +261,23 @@ Facter.add(:octavia, type: :aggregate) do
   osclient = Facter::Util::OpenstackClient.new
 
   chunk(:networks) do
-    { 'networks' => Facter.value(:openstack)['networks'].select { |net, _| net == 'lb-mgmt-net' } }
+    Facter.value(:openstack)['networks'].select { |net, _| net == 'lb-mgmt-net' }
   end
 
   chunk(:subnets) do
-    { 'subnets' => Facter.value(:openstack)['subnets'].select { |subnet, _| subnet == 'lb-mgmt-subnet' } }
+    Facter.value(:openstack)['subnets'].select { |subnet, _| subnet == 'lb-mgmt-subnet' }
   end
 
   chunk(:ports) do
-    { 'ports' => osclient.api_get_list_array('ports').select { |port| port['name'] == 'octavia-health-manager-listen-port' } }
+    osclient.api_get_list_array('ports').select { |port| port['name'] == 'octavia-health-manager-listen-port' }
   end
 
   aggregate do |chunks|
     summary = chunks
 
-    net = chunks['networks']['lb-mgmt-net']
+    puts chunks
+
+    net = chunks[:networks]['lb-mgmt-net']
     if net
       netid = net['id']
       summary['NETID'] = netid
@@ -284,12 +286,12 @@ Facter.add(:octavia, type: :aggregate) do
       end
     end
 
-    subnet = chunks['subnets']['lb-mgmt-subnet']
+    subnet = chunks[:subnets]['lb-mgmt-subnet']
     if subnet
       summary['SUBNET_ID'] = subnet['id']
     end
 
-    port = chunks['ports'][0]
+    port = chunks[:ports][0]
     if port
       summary['MGMT_PORT_ID'] = port['id']
       summary['MGMT_PORT_MAC'] = port['mac_address']
