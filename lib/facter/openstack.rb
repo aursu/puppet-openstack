@@ -260,5 +260,7 @@ Facter.add(:octavia, type: :aggregate) do
 
   osclient = Facter::Util::OpenstackClient.new
 
-  Facter.value(:openstack)
+  chunk(:users) do
+    { 'users' => Facter.value(:openstack)['users'].select { |user, _| user == 'octavia' } }
+  end
 end
