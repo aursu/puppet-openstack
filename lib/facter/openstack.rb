@@ -141,13 +141,13 @@ class Facter::Util::OpenstackClient
   def api_get(request_uri)
     url = api_url(request_uri)
 
-    return nil unless url
+    return {} unless url
 
     _code, _header, body = url_get(url, 'X-Auth-Token' => auth_token)
     body_hash = JSON.parse(body) if body
 
     return body_hash if body_hash.is_a?(Hash)
-    nil
+    {}
   end
 
   def api_get_list_array(request_uri, object_list = nil)
@@ -156,7 +156,7 @@ class Facter::Util::OpenstackClient
     object_list = request_uri unless object_list
 
     return body_hash[object_list] if body_hash.is_a?(Hash)
-    nil
+    []
   end
 
   def api_get_list(request_uri, object_list = nil, key = 'name', filter = [])
@@ -260,7 +260,41 @@ Facter.add(:octavia, type: :aggregate) do
 
   osclient = Facter::Util::OpenstackClient.new
 
-  chunk(:users) do
-    { 'users' => Facter.value(:openstack)['users'].select { |user, _| user == 'octavia' } }
+  chunk(:networks) do
+    { 'networks' => Facter.value(:openstack)['networks'].select { |net, _| net == 'lb-mgmt-net' } }
+  end
+
+  chunk(:subnets) do
+    { 'subnets' => Facter.value(:openstack)['subnets'].select { |subnet, _| subnet == 'lb-mgmt-subnet' } }
+  end
+
+  chunk(:ports) do
+    { 'ports' => osclient.api_get_list_array('ports').select { |port| port['name'] == 'octavia-health-manager-listen-port' } }
+  end
+
+  aggregate do |chunks|
+    summary = chunks
+
+    net = chunks['networks']['lb-mgmt-net']
+    if net
+      netid = net['id']
+      summary['NETID'] = netid
+      if netid
+        summary['BRNAME'] = 'brq' + netid[0...11]
+      end
+    end
+
+    subnet = chunks['subnets']['lb-mgmt-subnet']
+    if subnet
+      summary['SUBNET_ID'] = subnet['id']
+    end
+
+    port = chunks['ports'][0]
+    if port
+      summary['MGMT_PORT_ID'] = port['id']
+      summary['MGMT_PORT_MAC'] = port['mac_address']
+    end
+
+    summary
   end
 end
