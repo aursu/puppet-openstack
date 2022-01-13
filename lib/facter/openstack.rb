@@ -275,26 +275,24 @@ Facter.add(:octavia, type: :aggregate) do
   aggregate do |chunks|
     summary = chunks
 
-    puts chunks
-
     net = chunks[:networks]['lb-mgmt-net']
     if net
       netid = net['id']
-      summary['NETID'] = netid
+      summary[:NETID] = netid
       if netid
-        summary['BRNAME'] = 'brq' + netid[0...11]
+        summary[:BRNAME] = 'brq' + netid[0...11]
       end
     end
 
     subnet = chunks[:subnets]['lb-mgmt-subnet']
     if subnet
-      summary['SUBNET_ID'] = subnet['id']
+      summary[:SUBNET_ID] = subnet['id']
     end
 
     port = chunks[:ports][0]
     if port
-      summary['MGMT_PORT_ID'] = port['id']
-      summary['MGMT_PORT_MAC'] = port['mac_address']
+      summary[:MGMT_PORT_ID] = port['id']
+      summary[:MGMT_PORT_MAC] = port['mac_address']
     end
 
     summary
