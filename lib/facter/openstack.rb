@@ -243,7 +243,7 @@ Facter.add(:openstack, type: :aggregate) do
   end
 
   chunk(:users) do
-    { 'users' => osclient.api_get_list_array('users') }
+    { 'users' => osclient.api_get_list('users') }
   end
 
   chunk(:roles) do
@@ -253,4 +253,12 @@ Facter.add(:openstack, type: :aggregate) do
   chunk(:floatingips) do
     { 'floatingips' => osclient.api_get_list_array('floatingips') }
   end
+end
+
+Facter.add(:octavia, type: :aggregate) do
+  confine { File.exist? '/etc/keystone/admin-openrc.sh' }
+
+  osclient = Facter::Util::OpenstackClient.new
+
+  Facter.value(:openstack)
 end
