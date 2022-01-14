@@ -218,10 +218,6 @@ Facter.add(:openstack, type: :aggregate) do
     { 'networks' => osclient.api_get_list('networks') }
   end
 
-  # chunk(:ports) do
-  #   { 'ports' => osclient.api_get_list_array('ports') }
-  # end
-
   chunk(:projects) do
     { 'projects' => osclient.api_get_list('projects') }
   end
@@ -229,14 +225,6 @@ Facter.add(:openstack, type: :aggregate) do
   chunk(:routers) do
     { 'routers' => osclient.api_get_list('routers') }
   end
-
-  # chunk(:security_groups) do
-  #   { 'security_groups' => osclient.api_get_list_array('security-groups', 'security_groups') }
-  # end
-
-  # chunk(:security_group_rules, require: :security_groups) do
-  #   { 'security_group_rules' => osclient.api_get_list_array('security-group-rules', 'security_group_rules') }
-  # end
 
   chunk(:subnets) do
     { 'subnets' => osclient.api_get_list('subnets') }
@@ -272,6 +260,7 @@ Facter.add(:octavia, type: :aggregate) do
     osclient.api_get_list_array('ports').select { |port| port['name'] == 'octavia-health-manager-listen-port' }
   end
 
+  # https://docs.openstack.org/octavia/latest/install/install-ubuntu.html
   aggregate do |chunks|
     summary = chunks
 
