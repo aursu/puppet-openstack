@@ -63,7 +63,7 @@ class openstack::controller::dashboard (
     $dashboard_openstack_neutron_network = {}
   }
   else {
-    if openstack::cyclecmp($cycle, 'xena') < 0 {
+    if openstack::cyclecmp($cycle, 'wallaby') < 0 {
       $dashboard_openstack_neutron_network = {
         'OPENSTACK_NEUTRON_NETWORK'             => @(EOT),
           {
