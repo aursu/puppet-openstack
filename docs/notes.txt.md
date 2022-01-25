@@ -1,4 +1,18 @@
-## Server setup
+# Server setup
+
+According to [OpenStack Installation Guide](https://docs.openstack.org/install-guide/overview.html):
+
+This example architecture differs from a minimal production architecture as
+follows:
+
+- Networking agents reside on the controller node instead of one or more
+dedicated network nodes.
+
+- Overlay (tunnel) traffic for self-service networks traverses the management
+network instead of a dedicated network.
+
+### [OpenStack Architecture Design Guide](https://docs.openstack.org/arch-design/)
+
 
 ```
 openstack --os-compute-api-version 2.74 server create --flavor m1.small2 \
