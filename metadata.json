@@ -1,6 +1,6 @@
 {
   "name": "aursu-openstack",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "aursu",
   "summary": "Installation and management of OpenStack cluster",
   "license": "Apache-2.0",
