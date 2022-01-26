@@ -18,6 +18,8 @@ class openstack::cinder::core (
   Integer $memcached_port            = $openstack::memcached_port,
   Stdlib::IP::Address
           $mgmt_interface_ip_address = $openstack::mgmt_interface_ip_address,
+  Optional[Stdlib::IP::Address]
+          $storage_network           = $openstack::storage_network,
 )
 {
   openstack::package { 'openstack-cinder':
@@ -89,5 +91,18 @@ class openstack::cinder::core (
       'oslo_concurrency/lock_path'              => '/var/lib/cinder/tmp',
     },
     require => Openstack::Package['openstack-cinder'],
+  }
+
+  if $storage_network {
+    $storage_interface_ip_address = networksetup::local_ips($storage_network)
+    if $storage_interface_ip_address[0] {
+      openstack::config { '/etc/cinder/cinder.conf/address':
+        path    => '/etc/cinder/cinder.conf',
+        content => {
+          'DEFAULT/target_ip_address' => $storage_interface_ip_address[0],
+        },
+        require => Openstack::Config['/etc/cinder/cinder.conf'],
+      }
+    }
   }
 }

@@ -33,6 +33,10 @@
       "version_requirement": ">= 10.1.0 < 13.0.0"
     },
     {
+      "name": "aursu/networksetup",
+      "version_requirement": ">= 1.4.10 < 2.0.0"
+    },
+    {
       "name": "aursu/openssh",
       "version_requirement": ">= 0.4.8 < 1.0.0"
     },

@@ -54,3 +54,6 @@ fixtures:
       ref: tags/v0.6.7
     tlsinfo:
       repo: https://github.com/aursu/puppet-tlsinfo.git
+    networksetup:
+      repo: https://github.com/aursu/puppet-networksetup.git
+      ref: "tags/v1.5.1"
