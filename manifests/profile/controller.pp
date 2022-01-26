@@ -60,4 +60,7 @@ class openstack::profile::controller (
   # systemctl restart openstack-heat-engine.service openstack-heat-api.service openstack-heat-api-cfn.service
   # systemctl restart openstack-nova-api.service openstack-nova-novncproxy.service openstack-nova-conductor.service openstack-nova-scheduler.service
   # systemctl restart openstack-glance-api.service
+
+  Class['openstack::controller::keystoneweb'] -> Class['openstack::controller::nova']
+  Class['openstack::controller::keystoneweb'] -> Class['openstack::controller::octavia']
 }
