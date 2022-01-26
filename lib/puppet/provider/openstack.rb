@@ -38,39 +38,8 @@ class Puppet::Provider::Openstack < Puppet::Provider
     @cmd
   end
 
-  # Optional defaults file
-  def self.openrc_file
-    @conf ||= if File.exist?('/root/.openrc')
-                '/root/.openrc'
-              elsif File.exist?('/etc/keystone/admin-openrc.sh')
-                '/etc/keystone/admin-openrc.sh'
-              else
-                nil
-              end
-    @conf
-  end
-
-  # def self.auth_env
-  #   return @env if @env
-  #   return nil unless openrc_file
-
-  #   @env = nil
-
-  #   # read file content and remove shell quotes
-  #   data = File.open(@conf).readlines
-  #              .map { |l| Puppet::Util::Execution.execute("echo #{l}") }
-
-  #   # translate file data into OpenStack env variables hash
-  #   env = data.map { |l| l.sub('export', '').strip }
-  #             .map { |e| e.split('=', 2) }
-  #             .select { |k, _v| k.include?('OS_') }
-
-  #   @env = Hash[env]
-  # end
-
   def self.auth_env
-    return @env if @env
-    @env = apiclient.auth_env
+    apiclient.auth_env
   end
 
   def self.openstack_caller(subcommand, *args)
@@ -88,7 +57,7 @@ class Puppet::Provider::Openstack < Puppet::Provider
 
     cmd = [@cmd, auth, subcommand, cmdline].compact.join(' ')
 
-    Puppet::Util.withenv(@env) do
+    Puppet::Util.withenv(auth_env) do
       cmdout = Puppet::Util::Execution.execute(cmd)
       return nil if cmdout.nil?
       return nil if cmdout.empty?
