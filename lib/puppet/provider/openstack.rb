@@ -1,5 +1,6 @@
 require 'json'
 require 'shellwords'
+require 'puppet_x/openstack/apiclient'
 
 # Puppet provider for openstack
 class Puppet::Provider::Openstack < Puppet::Provider
@@ -16,6 +17,10 @@ class Puppet::Provider::Openstack < Puppet::Provider
                   else
                     true
                   end
+  end
+
+  def self.apiclient
+    @apiclient ||= PuppetX::OpenStack::APIClient.new
   end
 
   def self.provider_command
@@ -45,22 +50,27 @@ class Puppet::Provider::Openstack < Puppet::Provider
     @conf
   end
 
+  # def self.auth_env
+  #   return @env if @env
+  #   return nil unless openrc_file
+
+  #   @env = nil
+
+  #   # read file content and remove shell quotes
+  #   data = File.open(@conf).readlines
+  #              .map { |l| Puppet::Util::Execution.execute("echo #{l}") }
+
+  #   # translate file data into OpenStack env variables hash
+  #   env = data.map { |l| l.sub('export', '').strip }
+  #             .map { |e| e.split('=', 2) }
+  #             .select { |k, _v| k.include?('OS_') }
+
+  #   @env = Hash[env]
+  # end
+
   def self.auth_env
     return @env if @env
-    return nil unless openrc_file
-
-    @env = nil
-
-    # read file content and remove shell quotes
-    data = File.open(@conf).readlines
-               .map { |l| Puppet::Util::Execution.execute("echo #{l}") }
-
-    # translate file data into OpenStack env variables hash
-    env = data.map { |l| l.sub('export', '').strip }
-              .map { |e| e.split('=', 2) }
-              .select { |k, _v| k.include?('OS_') }
-
-    @env = Hash[env]
+    @env = apiclient.auth_env
   end
 
   def self.openstack_caller(subcommand, *args)
