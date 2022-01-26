@@ -182,12 +182,8 @@ Facter.add(:openstack, type: :aggregate) do
 
   chunk(:cycle) do
     openstack = {}
-    if Puppet::Util.which('nova-manage')
-      nova_version = Puppet::Util::Execution.execute('nova-manage --version', combine: true)
-
-      m = %r{^(\d+)}.match(nova_version)
-      maj = m[0].to_i
-
+    maj = Facter.value(:os_nova_version).to_i
+    if maj > 0
       openstack[:cycle] = {
         14 => 'newton',
         15 => 'ocata',

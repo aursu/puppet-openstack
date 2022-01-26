@@ -18,7 +18,12 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
   end
 
   def self.provider_list
-    get_list_array(provider_subcommand, true, '--all-projects')
+    # OpenStack Victoria is still accept --long flag
+    if Facter.value(:os_nova_version).to_i > 22
+      get_list_array(provider_subcommand, false, '--all-projects')
+    else
+      get_list_array(provider_subcommand, true, '--all-projects')
+    end
   end
 
   def self.provider_create(*args)
