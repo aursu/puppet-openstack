@@ -24,8 +24,8 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   end
 
   def self.provider_list
-    openstack_command
-    get_list(provider_subcommand)
+    apiclient.api_get_list('images')
+    # TODO: add  properties field handling
   end
 
   def self.provider_create(*args)
@@ -85,7 +85,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
                         checksum: entity['checksum'],
                         disk_format: entity['disk_format'],
                         visibility: entity['visibility'],
-                        project: entity['project'],
+                        project: entity['owner'],
                         protected: entity['protected'].to_s.to_sym,
                         size: entity['size'],
                         provider: name)
