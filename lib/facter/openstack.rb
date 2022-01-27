@@ -1,5 +1,6 @@
 require 'json'
 require 'shellwords'
+require 'puppet_x/openstack/apiclient'
 
 # OpenStack client
 class Facter::Util::OpenstackClient
@@ -155,7 +156,7 @@ class Facter::Util::OpenstackClient
 
     object_list = request_uri unless object_list
 
-    return body_hash[object_list] if body_hash.is_a?(Hash)
+    return body_hash[object_list] if body_hash.is_a?(Hash) && body_hash[object_list]
     []
   end
 
@@ -178,7 +179,8 @@ end
 Facter.add(:openstack, type: :aggregate) do
   confine { File.exist? '/etc/keystone/admin-openrc.sh' }
 
-  osclient = Facter::Util::OpenstackClient.new
+  # osclient = Facter::Util::OpenstackClient.new
+  osclient = PuppetX::OpenStack::APIClient.new
 
   chunk(:cycle) do
     openstack = {}
@@ -242,7 +244,8 @@ end
 Facter.add(:octavia, type: :aggregate) do
   confine { File.exist? '/etc/keystone/admin-openrc.sh' }
 
-  osclient = Facter::Util::OpenstackClient.new
+  # osclient = Facter::Util::OpenstackClient.new
+  osclient = PuppetX::OpenStack::APIClient.new
 
   chunk(:networks) do
     Facter.value(:openstack)['networks'].select { |net, _| net == 'lb-mgmt-net' }

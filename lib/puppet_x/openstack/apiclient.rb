@@ -157,7 +157,7 @@ module PuppetX
 
         object_list = request_uri unless object_list
 
-        return body_hash[object_list] if body_hash.is_a?(Hash)
+        return body_hash[object_list] if body_hash.is_a?(Hash) && body_hash[object_list]
         []
       end
 
