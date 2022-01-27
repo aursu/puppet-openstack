@@ -61,6 +61,13 @@ class openstack::profile::controller (
   # systemctl restart openstack-nova-api.service openstack-nova-novncproxy.service openstack-nova-conductor.service openstack-nova-scheduler.service
   # systemctl restart openstack-glance-api.service
 
-  Class['openstack::controller::keystoneweb'] -> Class['openstack::controller::nova']
-  Class['openstack::controller::keystoneweb'] -> Class['openstack::controller::octavia']
+  Class['openstack::controller::keystoneweb'] -> Class['openstack::controller::keystone']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::users']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::glance']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::placement']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::nova']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::neutron']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::cinder']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::heat']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::octavia']
 }
