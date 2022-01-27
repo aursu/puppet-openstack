@@ -14,30 +14,7 @@ class openstack::controller::keystone (
   String  $admin_pass      = $openstack::admin_pass,
 )
 {
-  # Identities
-  group { 'keystone':
-    ensure => present,
-    system => true,
-  }
-
-  user { 'keystone':
-    ensure     => present,
-    system     => true,
-    gid        => 'keystone',
-    comment    => 'OpenStack Keystone Daemons',
-    home       => '/var/lib/keystone',
-    managehome => true,
-    shell      => '/sbin/nologin',
-    require    => Group['keystone'],
-  }
-
-  file { ['/var/lib/keystone', '/var/log/keystone']:
-    ensure  => directory,
-    owner   => 'keystone',
-    group   => 'keystone',
-    mode    => '0711',
-    require => User['keystone'],
-  }
+  include openstack::keystone::core
 
   openstack::database { $keystone_dbname:
     dbuser       => $keystone_dbuser,
@@ -52,13 +29,6 @@ class openstack::controller::keystone (
       'token/provider'      => 'fernet',
     },
     notify  => Exec['keystone-db-sync'],
-  }
-
-  openstack::package { 'openstack-keystone':
-    cycle   => $cycle,
-    configs => [
-      '/etc/keystone/keystone.conf',
-    ],
   }
 
   # environment files password should be escaped

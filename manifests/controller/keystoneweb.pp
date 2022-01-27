@@ -10,6 +10,8 @@ class openstack::controller::keystoneweb (
   String  $httpd_tag = $openstack::httpd_tag,
 )
 {
+  include openstack::keystone::core
+
   # https://docs.openstack.org/keystone/train/install/keystone-install-rdo.html#configure-the-apache-http-server
   if openstack::cyclecmp($cycle, 'queens') < 0 {
     $keystone_wsgi_admin = true
