@@ -7,6 +7,13 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
 
   defaultfor osfamily: :redhat, operatingsystemmajrelease: ['8']
 
+  self::BASE_PROPERTIES = %w[
+    status name container_format created_at size
+    disk_format updated_at visibility min_disk
+    protected id file self checksum owner virtual_size
+    min_ram schema
+  ].freeze
+
   def initialize(value = {})
     super(value)
     @property_flush = {}
@@ -24,8 +31,23 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   end
 
   def self.provider_list
-    apiclient.api_get_list('images')
-    # TODO: add  properties field handling
+    image = apiclient.api_get_list('images')
+
+    properties = {}
+
+    # Additional properties, whose value is always a string data type, are only
+    # included in the response if they have a value.
+    image.each do |key|
+      next if self::BASE_PROPERTIES.include?(key) || %w[tags location].include?(key)
+      if key == 'properties' && image[key].is_a?(Hash)
+        properties.merge(image[key].map { |k, v| [k, v.to_s] }.to_h)
+        next
+      end
+      properties[key] = image[key].to_s
+    end
+    image['properties'] = properties
+
+    image
   end
 
   def self.provider_create(*args)
@@ -41,11 +63,6 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   def self.provider_set(*args)
     glance_command
     openstack_caller('image-update', *args)
-  end
-
-  def self.provider_show(*args)
-    openstack_command
-    openstack_caller(provider_subcommand, 'show', *args)
   end
 
   def self.provider_activate(*args)
@@ -88,6 +105,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
                         project: entity['owner'],
                         protected: entity['protected'].to_s.to_sym,
                         size: entity['size'],
+                        image_properties: entity['properties'],
                         provider: name)
     end
 
@@ -103,28 +121,6 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
       end
     end
     # rubocop:enable Lint/AssignmentInCondition
-  end
-
-  def provider_show
-    return @desc if @desc
-
-    image_id = @property_hash[:id]
-    return {} unless image_id
-
-    args = ['-f', 'json', image_id]
-    cmdout = self.class.provider_show(*args)
-    return {} if cmdout.nil?
-
-    @desc = JSON.parse(cmdout).map { |k, v| [k.downcase.tr(' ', '_'), v] }.to_h
-  end
-
-  def image_properties
-    desc = provider_show
-
-    properties = desc['properties']
-    return {} unless properties
-
-    properties.map { |k, v| [k, v.to_s] }.to_h
   end
 
   # usage: glance image-create [--architecture <ARCHITECTURE>]

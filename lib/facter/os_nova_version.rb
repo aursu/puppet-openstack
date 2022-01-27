@@ -6,5 +6,6 @@ Facter.add(:os_nova_version) do
       m = %r{^(\d+)}.match(nova_version)
       maj = m[0].to_i
     end
+    maj
   end
 end

@@ -1,5 +1,6 @@
 module PuppetX
   module OpenStack
+    # API client for OpenStack API
     class APIClient
       def initialize
         @conf = nil
@@ -22,17 +23,17 @@ module PuppetX
       def auth_env
         return @env if @env
         return nil unless openrc_file
-    
+
         @env = nil
-    
+
         # read file content and remove shell quotes
         data = File.open(@conf).readlines.map { |l| Puppet::Util::Execution.execute("echo #{l}") }
-    
+
         # translate file data into OpenStack env variables hash
         env = data.map { |l| l.sub('export', '').strip }
                   .map { |e| e.split('=', 2) }
                   .select { |k, _v| k.include?('OS_') }
-    
+
         @env = Hash[env]
       end
 
@@ -175,4 +176,4 @@ module PuppetX
       end
     end
   end
-end  
+end
