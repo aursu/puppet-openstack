@@ -148,7 +148,7 @@ module PuppetX
 
         return {} unless url
 
-        _code, _header, body = url_get(url, 'X-Auth-Token' => auth_token)
+        _code, _header, body = url_get(url, 'X-Auth-Token' => auth_token) if auth_token
         body_hash = JSON.parse(body) if body
 
         return body_hash if body_hash.is_a?(Hash)
