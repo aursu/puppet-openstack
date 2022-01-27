@@ -18,6 +18,8 @@ class openstack::controller::placement (
   Integer $memcached_port = $openstack::memcached_port,
 )
 {
+  include openstack::placement::core
+
   # https://docs.openstack.org/placement/train/install/install-rdo.html
   # Verify Installation: https://docs.openstack.org/placement/train/install/verify.html
   openstack::database { $placement_dbname:
@@ -43,30 +45,6 @@ class openstack::controller::placement (
     },
     admin_pass  => $admin_pass,
     require     => Openstack::User['placement'],
-  }
-
-  openstack::package { 'openstack-placement-api':
-    cycle   => $cycle,
-    configs => [
-      '/etc/placement/placement.conf',
-    ],
-    notify  => Class['Apache::Service'],
-  }
-
-  # OpenStack Placement plugin
-  if $facts['os']['name'] in ['RedHat', 'CentOS'] {
-    case $facts['os']['release']['major'] {
-      '7': {
-        package { 'python2-osc-placement':
-          ensure => 'installed',
-        }
-      }
-      default: {
-          package { 'python3-osc-placement':
-            ensure => 'installed',
-          }
-      }
-    }
   }
 
   $conf_default = {
@@ -96,31 +74,6 @@ class openstack::controller::placement (
     'keystone_authtoken/project_name'        => 'service',
     'keystone_authtoken/username'            => 'placement',
     'keystone_authtoken/password'            => $placement_pass,
-  }
-
-  # Identities
-  group { 'placement':
-    ensure => present,
-    system => true,
-  }
-
-  user { 'placement':
-    ensure     => present,
-    system     => true,
-    gid        => 'placement',
-    comment    => 'OpenStack Placement Daemons',
-    home       => '/var/lib/placement',
-    shell      => '/sbin/nologin',
-    managehome => true,
-    require    => Group['placement'],
-  }
-
-  file { '/var/lib/placement':
-    ensure  => directory,
-    owner   => 'placement',
-    group   => 'placement',
-    mode    => '0711',
-    require => User['placement'],
   }
 
   exec { 'placement-db-sync':
