@@ -18,11 +18,7 @@ Puppet::Type.type(:openstack_domain).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
-    if Facter.value(:openstack)
-      Facter.value(:openstack)['domains']
-    else
-      get_list(provider_subcommand, 'name', false)
-    end
+    apiclient.api_get_list('domains')
   end
 
   def self.provider_create(*args)
