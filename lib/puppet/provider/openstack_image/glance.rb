@@ -35,13 +35,13 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
 
     # Additional properties, whose value is always a string data type, are only
     # included in the response if they have a value.
-    image.each do |key|
+    image.each do |key, value|
       next if self::BASE_PROPERTIES.include?(key) || %w[tags location].include?(key)
-      if key == 'properties' && image[key].is_a?(Hash)
-        properties.merge!(image[key].map { |k, v| [k, v.to_s] }.to_h)
+      if key == 'properties' && value.is_a?(Hash)
+        properties.merge!(value.map { |k, v| [k, v.to_s] }.to_h)
         next
       end
-      properties[key] = image[key].to_s
+      properties[key] = value.to_s
     end
 
     properties
