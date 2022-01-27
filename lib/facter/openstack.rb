@@ -205,38 +205,47 @@ Facter.add(:openstack, type: :aggregate) do
   end
 
   chunk(:domains) do
+    osclient.req_params = {)
     { 'domains' => osclient.api_get_list('domains') }
   end
 
   chunk(:flavors) do
+    osclient.req_params = { is_public: 'none' }
     { 'flavors' => osclient.api_get_list('flavors/detail', 'flavors') }
   end
 
   chunk(:networks) do
+    osclient.req_params = {)
     { 'networks' => osclient.api_get_list('networks') }
   end
 
   chunk(:projects) do
+    osclient.req_params = {)
     { 'projects' => osclient.api_get_list('projects') }
   end
 
   chunk(:routers) do
+    osclient.req_params = {)
     { 'routers' => osclient.api_get_list('routers') }
   end
 
   chunk(:subnets) do
+    osclient.req_params = {)
     { 'subnets' => osclient.api_get_list('subnets') }
   end
 
   chunk(:users) do
+    osclient.req_params = {)
     { 'users' => osclient.api_get_list('users') }
   end
 
   chunk(:roles) do
+    osclient.req_params = {)
     { 'roles' => osclient.api_get_list('roles') }
   end
 
   chunk(:floatingips) do
+    osclient.req_params = {)
     { 'floatingips' => osclient.api_get_list_array('floatingips') }
   end
 end
@@ -256,6 +265,7 @@ Facter.add(:octavia, type: :aggregate) do
   end
 
   chunk(:ports) do
+    osclient.req_params = {)
     osclient.api_get_list_array('ports').select { |port| port['name'] == 'octavia-health-manager-listen-port' }
   end
 
