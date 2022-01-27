@@ -18,6 +18,7 @@ Puppet::Type.type(:openstack_domain).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
+    apiclient.req_params = {}
     apiclient.api_get_list('domains')
   end
 

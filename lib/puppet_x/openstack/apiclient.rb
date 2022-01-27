@@ -7,6 +7,19 @@ module PuppetX
         @env = nil
         @token_expire = Time.now
         @token = nil
+        @req_params = {}
+      end
+
+      def req_params
+        @req_params
+      end
+
+      def req_params!(params)
+        @req_params = params if params.is_a?(Hash) && params.size > 0
+      end
+
+      def req_params=(params)
+        req_params!(params)
       end
 
       def openrc_file
@@ -72,6 +85,8 @@ module PuppetX
       # use HTTP GET request to the server
       def url_get(url, header = {})
         uri = URI(url)
+        uri.query = URI.encode_www_form(req_params) if req_params.is_a?(Hash) && req_params.size > 0
+
         req = Net::HTTP::Get.new(uri, header)
 
         req_submit(uri, req)

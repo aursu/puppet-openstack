@@ -18,6 +18,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.provider_list
+    apiclient.req_params = {}
     apiclient.api_get_list('ports', 'ports', 'id')
   end
 

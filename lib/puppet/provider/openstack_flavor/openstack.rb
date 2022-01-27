@@ -13,6 +13,7 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
+    apiclient.req_params = { is_public: 'none' }
     apiclient.api_get_list('flavors/detail', 'flavors')
   end
 

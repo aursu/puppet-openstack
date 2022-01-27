@@ -18,6 +18,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_list
+    apiclient.req_params = {}
     apiclient.api_get_list('networks')
   end
 

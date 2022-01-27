@@ -48,6 +48,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   end
 
   def self.provider_list
+    apiclient.req_params = {}
     apiclient.api_get_list('images')
   end
 
