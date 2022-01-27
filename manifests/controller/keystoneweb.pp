@@ -50,7 +50,7 @@ class openstack::controller::keystoneweb (
     tag                         => $httpd_tag,
     require                     => [
       User['keystone'],
-      Package['openstack-keystone'],
+      Openstack::Package['openstack-keystone'],
     ]
   }
 
