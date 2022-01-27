@@ -13,7 +13,7 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
-    get_list(provider_subcommand, 'name', true, '--all')
+    apiclient.api_get_list('flavors/detail', 'flavors')
   end
 
   def self.provider_create(*args)
@@ -37,7 +37,7 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
                         ensure: :present,
                         ram: flavor['ram'],
                         disk: flavor['disk'],
-                        ephemeral: flavor['ephemeral'],
+                        ephemeral: flavor['OS-FLV-EXT-DATA:ephemeral'],
                         swap: swap,
                         vcpus: flavor['vcpus'],
                         provider: name)

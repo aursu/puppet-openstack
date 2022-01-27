@@ -93,7 +93,7 @@ class Facter::Util::OpenstackClient
     api_scheme = api_uri.scheme
 
     case request_uri
-    when 'flavors'
+    when 'flavors', 'flavors/detail'
       api = "#{api_scheme}://#{api_host}:8774/v2.1"
     when 'networks', 'ports', 'security-groups', 'security-group-rules', 'routers', 'subnets', 'floatingips'
       api = "#{api_scheme}://#{api_host}:9696/v2.0"
@@ -207,7 +207,7 @@ Facter.add(:openstack, type: :aggregate) do
   end
 
   chunk(:flavors) do
-    { 'flavors' => osclient.api_get_list('flavors') }
+    { 'flavors' => osclient.api_get_list('flavors/detail', 'flavors') }
   end
 
   chunk(:networks) do
