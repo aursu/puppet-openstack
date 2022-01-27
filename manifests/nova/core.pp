@@ -88,8 +88,6 @@ class openstack::nova::core (
     }
 
     Sshkey <<| tag == $sshkey_export_tag |>>
-
-    File['/var/lib/nova/.ssh'] -> Sshkey <| tag == $sshkey_export_tag |>
   }
 
   $conf_default = {
