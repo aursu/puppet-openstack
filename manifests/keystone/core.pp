@@ -4,7 +4,11 @@
 #
 # @example
 #   include openstack::keystone::core
-class openstack::keystone::core {
+class openstack::keystone::core (
+  Openstack::Release
+          $cycle     = $openstack::cycle,
+)
+{
   # Identities
   group { 'keystone':
     ensure => present,
