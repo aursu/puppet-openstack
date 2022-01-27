@@ -61,7 +61,10 @@ module PuppetX
             return res.code, res.to_hash, nil
           end
         end
-      rescue SocketError, Net::OpenTimeout
+      rescue SocketError, Net::OpenTimeout, Errno::ECONNREFUSED
+        # Failed to open TCP connection to controller:5000
+        # (Connection refused - connect(2) for "controller" port 5000)
+        # (Errno::ECONNREFUSED)
         Puppet.warning "URL #{uri} fetch error"
         nil
       end
@@ -136,8 +139,8 @@ module PuppetX
         body_hash          = JSON.parse(body) if body
         expires_at         = body_hash['token']['expires_at'] if body_hash.is_a?(Hash) && body_hash['token'].is_a?(Hash)
 
-        @token_expire = Time.parse(expires_at)
-        @token        = header['x-subject-token'][0]
+        @token_expire = Time.parse(expires_at) if expires_at
+        @token        = header['x-subject-token'][0] if header && header['x-subject-token']
       end
 
       def api_get(request_uri)
@@ -163,7 +166,10 @@ module PuppetX
 
       def api_get_list(request_uri, object_list = nil, key = 'name', filter = [])
         ret = {}
+
         jout = api_get_list_array(request_uri, object_list)
+        return {} unless jout
+
         jout.each do |p|
           if key.is_a?(Array)
             idx = key.map { |i| p[i] }.join(':')
