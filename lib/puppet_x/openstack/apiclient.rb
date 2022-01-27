@@ -15,7 +15,7 @@ module PuppetX
       end
 
       def req_params!(params)
-        @req_params = params if params.is_a?(Hash) && params.size > 0
+        @req_params = params if params.is_a?(Hash)
       end
 
       def req_params=(params)
