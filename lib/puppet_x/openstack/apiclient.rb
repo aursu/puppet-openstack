@@ -99,6 +99,7 @@ module PuppetX
         when 'images'
           api = "#{api_scheme}://#{api_host}:9292/v2"
         else
+          # 'projects'
           api = api_auth
         end
 

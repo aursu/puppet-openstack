@@ -18,7 +18,7 @@ Puppet::Type.type(:openstack_project).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_list
-    get_list_array(provider_subcommand)
+    apiclient.api_get_list_array('projects')
   end
 
   def self.provider_create(*args)
