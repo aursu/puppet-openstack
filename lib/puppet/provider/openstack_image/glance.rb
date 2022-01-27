@@ -30,9 +30,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
     'image'
   end
 
-  def self.provider_list
-    image = apiclient.api_get_list('images')
-
+  def self.image_properties(image)
     properties = {}
 
     # Additional properties, whose value is always a string data type, are only
@@ -45,9 +43,12 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
       end
       properties[key] = image[key].to_s
     end
-    image['properties'] = properties
 
-    image
+    properties
+  end
+
+  def self.provider_list
+    apiclient.api_get_list('images')
   end
 
   def self.provider_create(*args)
@@ -105,7 +106,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
                         project: entity['owner'],
                         protected: entity['protected'].to_s.to_sym,
                         size: entity['size'],
-                        image_properties: entity['properties'],
+                        image_properties: image_properties(entity),
                         provider: name)
     end
 
