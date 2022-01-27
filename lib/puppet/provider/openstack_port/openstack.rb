@@ -18,16 +18,7 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.provider_list
-    get_list(provider_subcommand, 'id', false,
-             '-c', 'id',
-             '-c', 'fixed_ips',
-             '-c', 'mac_address',
-             '-c', 'name',
-             '-c', 'status',
-             '-c', 'device_id',
-             '-c', 'network_id',
-             '-c', 'is_port_security_enabled',
-             '-c', 'project_id')
+    apiclient.api_get_list('ports', 'ports', 'id')
   end
 
   def self.provider_create(*args)
@@ -73,10 +64,10 @@ Puppet::Type.type(:openstack_port).provide(:openstack, parent: Puppet::Provider:
                         network: entity['network_id'],
                         description: entity['description'],
                         enabled: port_enabled.to_s.to_sym,
-                        port_security: entity['is_port_security_enabled'].to_s.to_sym,
+                        port_security: entity['port_security_enabled'].to_s.to_sym,
                         device_id: entity['device_id'],
                         mac_address: entity['mac_address'],
-                        fixed_ips: entity['fixed_ip_addresses'],
+                        fixed_ips: entity['fixed_ips'],
                         provider: name)
     end
 
