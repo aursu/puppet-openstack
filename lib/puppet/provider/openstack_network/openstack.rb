@@ -18,11 +18,7 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_list
-    if Facter.value(:openstack)
-      Facter.value(:openstack)['networks']
-    else
-      get_list(provider_subcommand)
-    end
+    apiclient.api_get_list('networks')
   end
 
   def self.provider_create(*args)
@@ -40,22 +36,18 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   def self.add_instance(entity_name, entity = {})
     @instances = [] unless @instances
 
-    project_id            = entity['project']      || entity['project_id']
-    external              = entity['router_type']  || entity['router:external']
-    admin_state_up        = entity['state']        || entity['admin_state_up']
-    provider_network_type = entity['network_type'] || entity['provider:network_type']
-
+    project_id     = entity['project_id']
     project_domain = project_instances[project_id]['domain']
 
     @instances << new(name: entity_name,
                       ensure: :present,
                       id: entity['id'],
                       subnets: entity['subnets'],
-                      external: external.to_s.to_sym,
+                      external: entity['router:external'].to_s.to_sym,
                       shared: entity['shared'].to_s.to_sym,
                       description: entity['description'],
-                      enabled: admin_state_up.to_s.to_sym,
-                      provider_network_type: provider_network_type,
+                      enabled: entity['admin_state_up'].to_s.to_sym,
+                      provider_network_type: entity['provider:network_type'],
                       project: project_id,
                       project_domain: project_domain,
                       provider: name)
