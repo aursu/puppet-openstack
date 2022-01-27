@@ -38,7 +38,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
     image.each do |key|
       next if self::BASE_PROPERTIES.include?(key) || %w[tags location].include?(key)
       if key == 'properties' && image[key].is_a?(Hash)
-        properties.merge(image[key].map { |k, v| [k, v.to_s] }.to_h)
+        properties.merge!(image[key].map { |k, v| [k, v.to_s] }.to_h)
         next
       end
       properties[key] = image[key].to_s
