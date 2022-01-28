@@ -51,6 +51,8 @@ class openstack::controller::octavia (
     user_pass    => $octavia_pass,
     setup_openrc => true,
     require      => Openstack::Project['service'],
+    # it is required for authentication 
+    before       => Class['openstack::octavia::ssh'],
   }
 
   openstack::service { 'octavia':
@@ -226,7 +228,8 @@ class openstack::controller::octavia (
     ]
   }
 
-  # if $facts['openstack'] {
+  if $facts['octavia'] {
+
   #   $mgmt_net = $facts['openstack']['networks']['lb-mgmt-net']
   #   if $mgmt_net {
   #     $netid = $mgmt_net['id']
@@ -242,5 +245,5 @@ class openstack::controller::octavia (
   #     $brname = undef
   #     $mgmt_port_mac = undef
   #   }
-  # }
+  }
 }

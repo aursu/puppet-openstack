@@ -74,5 +74,6 @@ class openstack::profile::controller (
   Class['openstack::controller::keystone'] -> Class['openstack::controller::cinder']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::heat']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::octavia']
-  Class['openstack::controller::keystone'] -> Class['openstack::controller::networking']
+
+  Class['openstack::controller::neutron'] -> Class['openstack::controller::networking']
 }
