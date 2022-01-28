@@ -11,47 +11,48 @@ class openstack::profile::controller (
   include openstack
   include openstack::install
 
+  # Identity service WEB
+  include openstack::controller::keystoneweb
+
+  # Placement service WEB
+  include openstack::controller::placementweb
+
+  # Dashboard – [horizon installation for Train](https://docs.openstack.org/horizon/xena/install/)
+  include openstack::controller::dashboard
+
   # Minimal deployment for Train
   # At a minimum, you need to install the following services. Install the
   # services in the order specified below:
   #
-  # Identity service – [keystone installation for Train](https://docs.openstack.org/keystone/train/install/)
+  # Identity service – [keystone installation for Train](https://docs.openstack.org/keystone/xena/install/)
   include openstack::controller::keystone
-  include openstack::controller::keystoneweb
   include openstack::controller::users
 
-  # Image service – [glance installation for Train](https://docs.openstack.org/glance/train/install/)
+  # Image service – [glance installation for Train](https://docs.openstack.org/glance/xena/install/)
   include openstack::controller::glance
 
-  # Placement service – [placement installation for Train](https://docs.openstack.org/placement/train/install/)
+  # Placement service – [placement installation for Train](https://docs.openstack.org/placement/xena/install/)
   include openstack::controller::placement
-  include openstack::controller::placementweb
 
-  # Compute service – [nova installation for Train](https://docs.openstack.org/nova/train/install/)
+  # Compute service – [nova installation for Train](https://docs.openstack.org/nova/xena/install/)
   include openstack::controller::nova
 
-  # Networking service – [neutron installation for Train](https://docs.openstack.org/neutron/train/install/)
+  # Networking service – [neutron installation for Train](https://docs.openstack.org/neutron/xena/install/)
   include openstack::controller::neutron
 
-  # We advise to also install the following components after you have installed
-  # the minimal deployment services:
-  #
-  # Dashboard – [horizon installation for Train](https://docs.openstack.org/horizon/train/install/)
-  include openstack::controller::dashboard
-
-  # Block Storage service – [cinder installation for Train](https://docs.openstack.org/cinder/train/install/index-rdo.html)
+  # Block Storage service – [cinder installation for Train](https://docs.openstack.org/cinder/xena/install/index-rdo.html)
   include openstack::controller::cinder
 
   # https://docs.openstack.org/newton/install-guide-ubuntu/launch-instance-networks-provider.html
   include openstack::controller::networking
 
-  # https://docs.openstack.org/heat/train/install/install-rdo.html
+  # https://docs.openstack.org/heat/xena/install/install-rdo.html
   include openstack::controller::heat
 
   # https://docs.openstack.org/octavia/latest/install/install.html
   include openstack::controller::octavia
 
-  # TODO: [backup service](https://docs.openstack.org/cinder/train/install/cinder-backup-install-rdo.html)
+  # TODO: [backup service](https://docs.openstack.org/cinder/xena/install/cinder-backup-install-rdo.html)
   # TODO: [Object storage](https://docs.openstack.org/swift/latest/install/)
 
   # Services
