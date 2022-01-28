@@ -57,16 +57,16 @@ class openstack::controller::placementweb (
       }
     ],
     tag                         => $httpd_tag,
-    notify                      => Class['Apache::Service'],
+    notify                      => Class['apache::service'],
     require                     => [
       User['placement'],
-      Package['openstack-placement-api'],
+      Openstack::Package['openstack-placement-api'],
     ],
   }
 
   apache::custom_config { 'wsgi-placement':
     content => template('openstack/wsgi-placement.conf.erb'),
     tag     => $httpd_tag,
-    notify  => Class['Apache::Service'],
+    notify  => Class['apache::service'],
   }
 }

@@ -91,10 +91,7 @@ class openstack::controller::placement (
   openstack::config { '/etc/placement/placement.conf':
     content => $conf_default,
     require => Openstack::Package['openstack-placement-api'],
-    notify  => [
-      Exec['placement-db-sync'],
-      Class['Apache::Service'],
-    ],
+    notify  => Exec['placement-db-sync'],
   }
 
   Mysql_database <| title == $placement_dbname |> ~> Exec['placement-db-sync']

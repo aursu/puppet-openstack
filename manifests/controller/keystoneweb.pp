@@ -63,7 +63,7 @@ class openstack::controller::keystoneweb (
     wsgi_script_aliases => {
       '/' => '/usr/bin/keystone-wsgi-public',
     },
-    notify              => Class['Apache::Service'],
+    notify              => Class['apache::service'],
     *                   => $keystone_web_data,
   }
 
@@ -77,7 +77,7 @@ class openstack::controller::keystoneweb (
       wsgi_script_aliases => {
         '/' => '/usr/bin/keystone-wsgi-admin',
       },
-      notify              => Class['Apache::Service'],
+      notify              => Class['apache::service'],
       *                   => $keystone_web_data,
     }
   }
@@ -87,6 +87,6 @@ class openstack::controller::keystoneweb (
   apache::custom_config { 'wsgi-keystone':
     content => template('openstack/wsgi-keystone.conf.erb'),
     tag     => $httpd_tag,
-    notify  => Class['Apache::Service'],
+    notify  => Class['apache::service'],
   }
 }

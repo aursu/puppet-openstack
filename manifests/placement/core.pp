@@ -39,7 +39,6 @@ class openstack::placement::core (
     configs => [
       '/etc/placement/placement.conf',
     ],
-    notify  => Class['Apache::Service'],
   }
 
   # OpenStack Placement plugin

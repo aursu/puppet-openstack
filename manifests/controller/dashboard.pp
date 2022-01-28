@@ -123,7 +123,7 @@ class openstack::controller::dashboard (
   openstack::djangoconfig { '/etc/openstack-dashboard/local_settings':
     content   => $dashboard_data + $dashboard_openstack_neutron_network,
     subscribe => Openstack::Package['openstack-dashboard'],
-    notify    => Class['Apache::Service'],
+    notify    => Class['apache::service'],
   }
 
   if $allowed_hosts {
@@ -169,14 +169,14 @@ class openstack::controller::dashboard (
         },
       ],
       tag                 => $httpd_tag,
-      notify              => Class['Apache::Service'],
+      notify              => Class['apache::service'],
     }
   }
 
   apache::custom_config { 'openstack-dashboard':
     content => template('openstack/openstack-dashboard.conf.erb'),
     tag     => $httpd_tag,
-    notify  => Class['Apache::Service'],
+    notify  => Class['apache::service'],
   }
 
   Package['openstack-dashboard'] ~> File <| title == $confd_dir |>
