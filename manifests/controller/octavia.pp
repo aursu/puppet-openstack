@@ -228,13 +228,11 @@ class openstack::controller::octavia (
     ]
   }
 
-  if $facts['octavia'] {
-
+  # if $facts['octavia'] {
   #   $mgmt_net = $facts['openstack']['networks']['lb-mgmt-net']
   #   if $mgmt_net {
   #     $netid = $mgmt_net['id']
   #     $brname = $netid[0,10]
-
   #     $mgmt_port_select = $facts['openstack']['ports'].filter |$port| {
   #       $port['name'] == $mgmt_port_name and $port['network_id'] == $netid
   #     }
@@ -245,5 +243,5 @@ class openstack::controller::octavia (
   #     $brname = undef
   #     $mgmt_port_mac = undef
   #   }
-  }
+  # }
 }
