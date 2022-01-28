@@ -24,10 +24,16 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
 
   def self.provider_create(*args)
     openstack_caller(provider_subcommand, 'create', *args)
+
+    # propagate instances on next request
+    @prefetch_done = false
   end
 
   def self.provider_delete(*args)
     openstack_caller(provider_subcommand, 'delete', *args)
+
+    # propagate instances on next request
+    @prefetch_done = false
   end
 
   def self.provider_set(*args)
@@ -55,11 +61,16 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.instances
-    return @instances if @instances
+    if @instances
+      return @instances if @prefetch_done
+      # reset it
+      @instances = []
+    end
 
     openstack_command
 
     provider_list.each { |entity| add_instance(*entity) }
+    @prefetch_done = true
 
     @instances || []
   end

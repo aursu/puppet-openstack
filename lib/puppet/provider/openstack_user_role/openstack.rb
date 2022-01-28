@@ -47,6 +47,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
 
       # in case if group
       next if user_id.to_s.empty?
+      next unless user_instances[user_id]
 
       user_name = user_instances[user_id]['name']
       user_domain = user_instances[user_id]['domain']

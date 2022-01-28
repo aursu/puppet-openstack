@@ -86,11 +86,16 @@ Puppet::Type.type(:openstack_security_group).provide(:openstack, parent: Puppet:
   end
 
   def self.instances
-    return @instances if @instances
+    if @instances
+      return @instances if @prefetch_done
+      # reset it
+      @instances = []
+    end
 
     openstack_command
 
     provider_list.each { |entity| add_instance(entity) }
+    @prefetch_done = true
 
     @instances || []
   end
