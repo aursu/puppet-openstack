@@ -70,10 +70,8 @@ class openstack::profile::controller (
   Class['openstack::controller::keystone'] -> Class['openstack::controller::glance']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::placement']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::nova']
-  Class['openstack::controller::keystone'] -> Class['openstack::controller::neutron']
+  Class['openstack::controller::keystone'] -> Class['openstack::controller::neutron'] -> Class['openstack::controller::networking']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::cinder']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::heat']
   Class['openstack::controller::keystone'] -> Class['openstack::controller::octavia']
-
-  Class['openstack::controller::neutron'] -> Class['openstack::controller::networking']
 }
