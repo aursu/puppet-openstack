@@ -55,11 +55,13 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   def self.provider_create(*args)
     glance_command
     openstack_caller('image-create', *args)
+    @prefetch_done = false
   end
 
   def self.provider_delete(*args)
     glance_command
     openstack_caller('image-delete', *args)
+    @prefetch_done = false
   end
 
   def self.provider_set(*args)
@@ -88,7 +90,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   end
 
   def self.instances
-    return @instances if @instances
+    return @instances if @instances && @prefetch_done
     @instances = []
 
     provider_list.map do |entity_name, entity|
@@ -111,6 +113,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
                         provider: name)
     end
 
+    @prefetch_done = true
     @instances
   end
 

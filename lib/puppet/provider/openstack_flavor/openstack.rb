@@ -19,14 +19,16 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
 
   def self.provider_create(*args)
     openstack_caller(provider_subcommand, 'create', *args)
+    @prefetch_done = false
   end
 
   def self.provider_delete(*args)
     openstack_caller(provider_subcommand, 'delete', *args)
+    @prefetch_done = false
   end
 
   def self.instances
-    return @instances if @instances
+    return @instances if @instances && @prefetch_done
     @instances = []
 
     openstack_command
@@ -44,6 +46,7 @@ Puppet::Type.type(:openstack_flavor).provide(:openstack, parent: Puppet::Provide
                         provider: name)
     end
 
+    @prefetch_done = true
     @instances
   end
 

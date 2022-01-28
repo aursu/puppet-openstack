@@ -18,10 +18,12 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
 
   def self.provider_create(*args)
     openstack_caller(provider_subcommand, 'add', *args)
+    @prefetch_done = false
   end
 
   def self.provider_delete(*args)
     openstack_caller(provider_subcommand, 'remove', *args)
+    @prefetch_done = false
   end
 
   def self.user_instances
@@ -33,7 +35,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
   end
 
   def self.instances
-    return @instances if @instances
+    return @instances if @instances && @prefetch_done
     @instances = []
 
     openstack_command
@@ -98,6 +100,7 @@ Puppet::Type.type(:openstack_user_role).provide(:openstack, parent: Puppet::Prov
                         provider: name)
     end
 
+    @prefetch_done = true
     @instances
   end
 

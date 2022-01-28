@@ -18,20 +18,18 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
   end
 
   def self.provider_list
-    # OpenStack Victoria is still accept --long flag
-    if Facter.value(:os_nova_version).to_i > 22
-      get_list_array(provider_subcommand, false, '--all-projects')
-    else
-      get_list_array(provider_subcommand, true, '--all-projects')
-    end
+    apiclient.req_params = {}
+    apiclient.api_get_list_array('security-group-rules', 'security_group_rules')
   end
 
   def self.provider_create(*args)
     openstack_caller(provider_subcommand, 'create', *args)
+    @prefetch_done = false
   end
 
   def self.provider_delete(*args)
     openstack_caller(provider_subcommand, 'delete', *args)
+    @prefetch_done = false
   end
 
   def self.group_instances
@@ -47,14 +45,34 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
     result[0]
   end
 
-  def self.instances
-    return @instances if @instances
+  def self.port_range(entity)
+    port_range_min = entity['port_range_min']
+    port_range_max = entity['port_range_max']
+    proto = entity['protocol']
+
+    if ['icmp', 'icmpv6', 'ipv6-icmp', '1', '58'].include?(proto)
+      port_range = ''
+      port_range += 'type=' + port_range_min.to_s if port_range_min
+      port_range += ':code=' + port_range_max.to_s if port_range_max
+    elsif port_range_min || port_range_max
+      port_range_min = port_range_max unless port_range_min
+      port_range_max = port_range_min unless port_range_max
+      port_range = "#{port_range_min}:#{port_range_max}"
+    end
+    port_range = 'any' if port_range.to_s.empty?
+    
+    port_range
+  end
+
+  def self.instances 
+    return @instances if @instances && @prefetch_done
+    # reset it
     @instances = []
 
     openstack_command
 
     provider_list.each do |entity|
-      group_id = entity['security_group']
+      group_id = entity['security_group_id']
 
       # group could be just created or deleted therefore not existing in group_instances
       next unless group_instances[group_id]
@@ -66,13 +84,12 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
 
       direction = entity['direction']
 
-      proto = entity['ip_protocol']
+      proto = entity['protocol']
       proto = 'any' if proto.to_s.empty?
 
-      remote = entity['ip_range']
+      remote = entity['remote_ip_prefix']
 
-      range = entity['port_range']
-      range = 'any' if range.to_s.empty?
+      range = port_range(entity)
 
       entity_name = "#{group_project_name}/#{direction}/#{proto}/#{remote}/#{range}"
 
@@ -87,11 +104,12 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
                         protocol: proto,
                         ethertype: entity['ethertype'],
                         remote_ip: remote,
-                        remote_group: entity['remote_security_group'],
+                        remote_group: entity['remote_group_id'],
                         port_range: range,
                         provider: name)
     end
 
+    @prefetch_done = true
     @instances
   end
 
