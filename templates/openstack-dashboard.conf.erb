@@ -2,10 +2,10 @@ WSGIDaemonProcess dashboard
 WSGIProcessGroup dashboard
 WSGISocketPrefix run/wsgi
 
-WSGIScriptAlias /dashboard /usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi
+WSGIScriptAlias /dashboard <%= @wsgi_script %>
 Alias /dashboard/static /usr/share/openstack-dashboard/static
 
-<Directory /usr/share/openstack-dashboard/openstack_dashboard/wsgi>
+<Directory <%= @wsgi_script_path %>>
   Options All
   AllowOverride All
   Require all granted

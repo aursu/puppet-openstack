@@ -126,6 +126,15 @@ class openstack::controller::dashboard (
     notify    => Class['apache::service'],
   }
 
+  if openstack::cyclecmp($cycle, 'wallaby') < 0 {
+    $wsgi_script = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi'
+    $wsgi_script_path = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi'
+  }
+  else {
+    $wsgi_script = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi.py'
+    $wsgi_script_path = '/usr/share/openstack-dashboard/openstack_dashboard'
+  }
+
   if $allowed_hosts {
     $servername = $allowed_hosts[0]
     if size($allowed_hosts) > 1 {
@@ -144,7 +153,7 @@ class openstack::controller::dashboard (
       wsgi_daemon_process => 'dashboard',
       wsgi_process_group  => 'dashboard',
       wsgi_script_aliases => {
-        '/dashboard' => '/usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi',
+        '/dashboard' => $wsgi_script,
       },
       aliases             => [
         {
@@ -155,7 +164,7 @@ class openstack::controller::dashboard (
       directories         => [
         {
           provider       => 'directory',
-          path           => '/usr/share/openstack-dashboard/openstack_dashboard/wsgi',
+          path           => $wsgi_script_path,
           options        => [ 'All' ],
           allow_override => [ 'All' ],
           require        => 'all granted',
