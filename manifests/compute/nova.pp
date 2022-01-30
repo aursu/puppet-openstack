@@ -28,6 +28,8 @@ class openstack::compute::nova (
 
   $conf_default = {
     'DEFAULT/compute_driver'                  => 'libvirt.LibvirtDriver',
+    'DEFAULT/instances_path'                  => '$state_path/instances',
+    'DEFAULT/state_path'                      => '/var/lib/nova',
     ### remote console access
     # [vnc]
     # enabled = true
