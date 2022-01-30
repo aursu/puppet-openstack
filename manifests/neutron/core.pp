@@ -37,6 +37,11 @@ class openstack::neutron::core (
     'ebtables': ;
   }
 
+  # neutron needs sqlalchemy-1.3.23+
+  package { 'python3-sqlalchemy':
+    ensure => 'latest',
+  }
+
   openstack::package {
     default:
       cycle => $cycle,
