@@ -10,28 +10,27 @@ define openstack::service (
     'orchestration', 'cloudformation', 'placement', 'load-balancer']
           $service,
   Openstack::Service::Url $endpoint,
-
   String  $admin_pass,
-
+  String  $service_name = $name,
   Enum['present', 'absent']
-          $ensure      = 'present',
-  String  $region_id   = 'RegionOne',
+          $ensure       = 'present',
+  String  $region_id    = 'RegionOne',
   Optional[String]
-          $description = undef,
+          $description  = undef,
 ) {
   # $defined_description = $description ? {
   #   String  => shell_escape($description),
-  #   default => "OpenStack\\ ${name}\\ service",
+  #   default => "OpenStack\\ ${service_name}\\ service",
   # }
 
   if $ensure == 'present' {
     # openstack::command { "openstack-service-${service}":
     #   admin_pass => $admin_pass,
-    #   command    => "openstack service create --name ${name} --description ${defined_description} ${service}",
+    #   command    => "openstack service create --name ${service_name} --description ${defined_description} ${service}",
     #   unless     => "openstack service show ${service}",
     # }
 
-    openstack_service { $name:
+    openstack_service { $service_name:
       ensure      => $ensure,
       description => $description,
       type        => $service,
@@ -46,7 +45,7 @@ define openstack::service (
       #   unless     => "openstack endpoint list --interface ${iface} --service ${service} | grep -w ${iface}",
       # }
 
-      openstack_endpoint { "${service}/${iface}":
+      openstack_endpoint { "${service_name}/${iface}":
         ensure => $ensure,
         region => $region_id,
         url    => $url,
