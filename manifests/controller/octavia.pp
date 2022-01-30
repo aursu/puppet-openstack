@@ -196,7 +196,8 @@ class openstack::controller::octavia (
   }
 
   openstack_network { 'lb-mgmt-net':
-    *      => $auth_octavia,
+    *       => $auth_octavia,
+    require => Openstack::User['octavia'],
   }
 
   openstack_subnet { 'lb-mgmt-subnet':
