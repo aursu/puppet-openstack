@@ -27,6 +27,7 @@ class openstack::compute::nova (
   }
 
   $conf_default = {
+    'DEFAULT/compute_driver'                  => 'libvirt.LibvirtDriver',
     ### remote console access
     # [vnc]
     # enabled = true
