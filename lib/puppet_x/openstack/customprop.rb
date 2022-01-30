@@ -18,11 +18,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('Project name or ID must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # proj = resource.project_instance(value) || resource.project_resource(value)
-        # raise ArgumentError, _("Project #{value} must be defined in catalog or exist in OpenStack environment") unless proj
       end
     end
 
@@ -41,11 +36,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('Network must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # net = resource.network_instance(value) || resource.network_resource(value)
-        # raise ArgumentError, _("Network #{value} must be defined in catalog or exist in OpenStack environment") unless net
       end
     end
 
@@ -64,11 +54,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('Network must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # subnet = resource.subnet_instance(value) || resource.subnet_resource(value)
-        # raise ArgumentError, _("Subnet #{value} must be defined in catalog or exist in OpenStack environment") unless subnet
       end
     end
 
@@ -87,11 +72,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('Network must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # role = resource.role_instance(value) || resource.role_resource(value)
-        # raise ArgumentError, _("Subnet #{value} must be defined in catalog or exist in OpenStack environment") unless role
       end
     end
 
@@ -110,11 +90,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('User must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # user = resource.user_instance(value) || resource.user_resource(value)
-        # raise ArgumentError, _("User #{value} must be defined in catalog or exist in OpenStack environment") unless user
       end
     end
 
@@ -133,11 +108,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('Domain must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # domain = resource.domain_instance(value) || resource.domain_resource(value)
-        # raise ArgumentError, _("Domain #{value} must be defined in catalog or exist in OpenStack environment") unless domain
       end
     end
 
@@ -149,11 +119,6 @@ module PuppetX
         raise ArgumentError, _('Domain name or ID must be a String not %{klass} for %{value}') % { klass: value.class, value: value } unless value.is_a?(String)
 
         next if value.to_s == 'default'
-
-        # return true unless resource.catalog
-
-        # domain = resource.domain_instance(value) || resource.domain_resource(value)
-        # raise ArgumentError, _("Domain #{value} must be defined in catalog or exist in OpenStack environment") unless domain
       end
     end
 
@@ -199,11 +164,6 @@ module PuppetX
         next if value.to_s == 'absent'
 
         raise ArgumentError, _('Security group must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
-
-        # return true unless resource.catalog
-
-        # group = resource.security_group_instance(value) || resource.security_group_resource(value)
-        # raise ArgumentError, _("Security group #{value} must be defined in catalog or exist in OpenStack environment") unless group
       end
     end
   end

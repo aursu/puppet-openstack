@@ -23,17 +23,13 @@ Puppet::Type.type(:openstack_network).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', *args)
-
-    # propagate instances on next request
     @prefetch_done = false
+    openstack_caller(provider_subcommand, 'create', *args)
   end
 
   def self.provider_delete(*args)
-    openstack_caller(provider_subcommand, 'delete', *args)
-
-    # propagate instances on next request
     @prefetch_done = false
+    openstack_caller(provider_subcommand, 'delete', *args)
   end
 
   def self.provider_set(*args)

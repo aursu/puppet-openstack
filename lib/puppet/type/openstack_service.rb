@@ -1,18 +1,14 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', '..'))
+require 'puppet_x/openstack/customcomm'
 require 'puppet_x/openstack/customtype'
 
 Puppet::Type.newtype(:openstack_service) do
+  extend CustomComm
   include CustomType
 
   @doc = <<-PUPPET
     @summary
-      The process of engaging an OpenStack cloud is started through the
-      querying of an API endpoint.
-
-      OpenStack provides both public facing and private API endpoints. By
-      default, OpenStack components use the publicly defined endpoints.
-
-      https://docs.openstack.org/security-guide/api-endpoints/api-endpoint-configuration-recommendations.html
+      A service is an OpenStack web service that you can access through a URL, i.e. an endpoint.
     PUPPET
 
   ensurable
@@ -25,8 +21,21 @@ Puppet::Type.newtype(:openstack_service) do
     desc 'The UUID of the service to which the endpoint belongs.'
   end
 
+  newproperty(:type) do
+    desc 'The service type, which describes the API implemented by the service.'
+
+    newvalues('identity', 'image', 'compute', 'placement', 'network', 'volume',
+    'volumev2', 'volumev3', 'share', 'sharev2', 'object-store',
+    'orchestration', 'cloudformation', 'placement', 'load-balancer')
+  end
+
   newproperty(:description) do
     desc 'The service description.'
+
+    defaultto do
+      service_type = @resource[:type]
+      "OpenStack #{service_type} service"
+    end
   end
 
   newproperty(:enabled) do
@@ -34,13 +43,5 @@ Puppet::Type.newtype(:openstack_service) do
 
     newvalues(:true, :false)
     defaultto :true
-  end
-
-  newproperty(:type) do
-    desc 'The service type, which describes the API implemented by the service.'
-
-    newvalues('identity', 'image', 'compute', 'placement', 'network', 'volume',
-    'volumev2', 'volumev3', 'share', 'sharev2', 'object-store',
-    'orchestration', 'cloudformation', 'placement', 'load-balancer')
   end
 end

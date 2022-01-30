@@ -1,7 +1,7 @@
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'openstack'))
 
 Puppet::Type.type(:openstack_service).provide(:openstack, parent: Puppet::Provider::Openstack) do
-  desc 'Manage domains for OpenStack.'
+  desc 'Manage API services for OpenStack.'
 
   commands openstack: 'openstack'
 
@@ -23,13 +23,13 @@ Puppet::Type.type(:openstack_service).provide(:openstack, parent: Puppet::Provid
   end
 
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', *args)
     @prefetch_done = false
+    openstack_caller(provider_subcommand, 'create', *args)
   end
 
   def self.provider_delete(*args)
-    openstack_caller(provider_subcommand, 'delete', *args)
     @prefetch_done = false
+    openstack_caller(provider_subcommand, 'delete', *args)
   end
 
   def self.provider_set(*args)
@@ -88,6 +88,8 @@ Puppet::Type.type(:openstack_service).provide(:openstack, parent: Puppet::Provid
             end
     args << type
 
+    auth_args
+
     return if self.class.provider_create(*args) == false
 
     @property_hash[:ensure] = :present
@@ -95,6 +97,8 @@ Puppet::Type.type(:openstack_service).provide(:openstack, parent: Puppet::Provid
 
   def destroy
     svc_id = @property_hash[:id]
+
+    auth_args
 
     self.class.provider_delete(svc_id)
 
@@ -127,6 +131,9 @@ Puppet::Type.type(:openstack_service).provide(:openstack, parent: Puppet::Provid
 
     return if args.empty?
     args << name
+
+    auth_args
+
     self.class.provider_set(*args)
   end
 end

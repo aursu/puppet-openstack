@@ -19,25 +19,37 @@ define openstack::service (
   Optional[String]
           $description = undef,
 ) {
-  $defined_description = $description ? {
-    String  => shell_escape($description),
-    default => "OpenStack\\ ${name}\\ service",
-  }
+  # $defined_description = $description ? {
+  #   String  => shell_escape($description),
+  #   default => "OpenStack\\ ${name}\\ service",
+  # }
 
   if $ensure == 'present' {
-    openstack::command { "openstack-service-${service}":
-      admin_pass => $admin_pass,
-      command    => "openstack service create --name ${name} --description ${defined_description} ${service}",
-      unless     => "openstack service show ${service}",
+    # openstack::command { "openstack-service-${service}":
+    #   admin_pass => $admin_pass,
+    #   command    => "openstack service create --name ${name} --description ${defined_description} ${service}",
+    #   unless     => "openstack service show ${service}",
+    # }
+
+    openstack_service { $name:
+      ensure      => $ensure,
+      description => $description,
+      type        => $service,
     }
 
     $endpoint.each |$iface, $url| {
-      $shell_url = shell_escape($url)
+      # $shell_url = shell_escape($url)
 
-      openstack::command { "endpoint-${service}-${iface}":
-        admin_pass => $admin_pass,
-        command    => "openstack endpoint create --region ${region_id} ${service} ${iface} ${shell_url}",
-        unless     => "openstack endpoint list --interface ${iface} --service ${service} | grep -w ${iface}",
+      # openstack::command { "endpoint-${service}-${iface}":
+      #   admin_pass => $admin_pass,
+      #   command    => "openstack endpoint create --region ${region_id} ${service} ${iface} ${shell_url}",
+      #   unless     => "openstack endpoint list --interface ${iface} --service ${service} | grep -w ${iface}",
+      # }
+
+      openstack_endpoint { "${service}/${iface}":
+        ensure => $ensure,
+        region => $region_id,
+        url    => $url,
       }
     }
   }

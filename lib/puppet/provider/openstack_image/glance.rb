@@ -53,15 +53,15 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   end
 
   def self.provider_create(*args)
+    @prefetch_done = false
     glance_command
     openstack_caller('image-create', *args)
-    @prefetch_done = false
   end
 
   def self.provider_delete(*args)
+    @prefetch_done = false
     glance_command
     openstack_caller('image-delete', *args)
-    @prefetch_done = false
   end
 
   def self.provider_set(*args)

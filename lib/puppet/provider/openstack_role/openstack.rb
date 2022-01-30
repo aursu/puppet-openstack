@@ -17,13 +17,13 @@ Puppet::Type.type(:openstack_role).provide(:openstack, parent: Puppet::Provider:
   end
 
   def self.provider_create(*args)
-    openstack_caller(provider_subcommand, 'create', *args)
     @prefetch_done = false
+    openstack_caller(provider_subcommand, 'create', *args)
   end
 
   def self.provider_delete(*args)
-    openstack_caller(provider_subcommand, 'delete', *args)
     @prefetch_done = false
+    openstack_caller(provider_subcommand, 'delete', *args)
   end
 
   def self.instances
