@@ -99,7 +99,8 @@ class openstack::cinder::core (
       openstack::config { '/etc/cinder/cinder.conf/address':
         path    => '/etc/cinder/cinder.conf',
         content => {
-          'DEFAULT/target_ip_address' => $storage_interface_ip_address[0],
+          'DEFAULT/target_ip_address'          => $storage_interface_ip_address[0],
+          'backend_defaults/target_ip_address' => $storage_interface_ip_address[0],
         },
         require => Openstack::Config['/etc/cinder/cinder.conf'],
       }

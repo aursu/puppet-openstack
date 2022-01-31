@@ -86,6 +86,8 @@ class openstack::cinder::storage (
       # [DEFAULT]
       # glance_api_servers = http://controller:9292
       'DEFAULT/glance_api_servers' => 'http://controller:9292',
+      # debug
+      'DEFAULT/debug'              => 'true',
     },
     notify  => Service['openstack-cinder-volume'],
     require => Openstack::Config['/etc/cinder/cinder.conf'],
