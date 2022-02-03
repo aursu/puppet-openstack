@@ -24,41 +24,11 @@ class openstack::neutron::core (
   Integer $memcached_port            = $openstack::memcached_port,
   Stdlib::Host
           $controller_host           = $openstack::controller_host,
+  Enum['linuxbridge', 'openvswitch']
+          $network_plugin            = $openstack::neutron_network_plugin,
 )
 {
-
   $overlay_interface_ip_address = $mgmt_interface_ip_address
-
-  package {
-    default:
-      ensure => present,
-    ;
-    'ipset': ;
-    'ebtables': ;
-  }
-
-  # neutron needs sqlalchemy-1.3.23+
-  package { 'python3-sqlalchemy':
-    ensure => 'latest',
-  }
-
-  openstack::package {
-    default:
-      cycle => $cycle,
-    ;
-    'openstack-neutron-common':
-      configs => [
-        '/etc/neutron/neutron.conf',
-      ],
-    ;
-    'openstack-neutron-linuxbridge':
-      configs => [
-        '/etc/neutron/plugins/ml2/linuxbridge_agent.ini',
-      ],
-      require => Openstack::Package['openstack-neutron-common'],
-    ;
-    'conntrack-tools': ;
-  }
 
   # Identities
   group { 'neutron':
@@ -84,18 +54,29 @@ class openstack::neutron::core (
     require => User['neutron'],
   }
 
-  # Ensure your Linux operating system kernel supports network bridge filters
-  kmod::load { 'br_netfilter': }
-
-  sysctl {
+  package {
     default:
-      value   => 1,
-      require => Kmod::Load['br_netfilter'],
+      ensure => present,
     ;
-    'net.bridge.bridge-nf-call-iptables':
+    'ipset': ;
+    'ebtables': ;
+  }
+
+  # neutron needs sqlalchemy-1.3.23+
+  package { 'python3-sqlalchemy':
+    ensure => 'latest',
+  }
+
+  openstack::package {
+    default:
+      cycle => $cycle,
     ;
-    'net.bridge.bridge-nf-call-ip6tables':
+    'openstack-neutron-common':
+      configs => [
+        '/etc/neutron/neutron.conf',
+      ],
     ;
+    'conntrack-tools': ;
   }
 
   $lb_default = {
@@ -123,12 +104,72 @@ class openstack::neutron::core (
     'securitygroup/firewall_driver'             => 'neutron.agent.linux.iptables_firewall.IptablesFirewallDriver',
   }
 
-  # The Linux bridge agent builds layer-2 (bridging and switching) virtual
-  # networking infrastructure for instances and handles security groups.
-  openstack::config { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
-    content => $lb_default,
-    require => Openstack::Package['openstack-neutron-linuxbridge'],
-    notify  => Service['neutron-linuxbridge-agent'],
+  $ovs_default = {
+    'ovs/local_ip'        => $overlay_interface_ip_address,
+    'agent/tunnel_types'  => 'vxlan',
+    'agent/l2_population' => 'true',
+  }
+
+  if $network_plugin == 'openvswitch' {
+    # https://docs.openstack.org/newton/networking-guide/deploy-ovs-selfservice.html
+    openstack::package { 'openstack-neutron-openvswitch':
+      cycle   => $cycle,
+      configs => [
+        '/etc/neutron/plugins/ml2/openvswitch_agent.ini',
+      ],
+      require => Openstack::Package['openstack-neutron-common'],
+    }
+
+    openstack::config { '/etc/neutron/plugins/ml2/openvswitch_agent.ini':
+      content => $ovs_default,
+      require => Openstack::Package['openstack-neutron-openvswitch'],
+      notify  => Service['neutron-openvswitch-agent'],
+    }
+
+    service { 'neutron-openvswitch-agent':
+      ensure    => running,
+      enable    => true,
+      require   => File['/var/lib/neutron'],
+      subscribe => Openstack::Config['/etc/neutron/neutron.conf'],
+    }
+  }
+  else {
+    openstack::package { 'openstack-neutron-linuxbridge':
+      cycle   => $cycle,
+      configs => [
+        '/etc/neutron/plugins/ml2/linuxbridge_agent.ini',
+      ],
+      require => Openstack::Package['openstack-neutron-common'],
+    }
+
+    # The Linux bridge agent builds layer-2 (bridging and switching) virtual
+    # networking infrastructure for instances and handles security groups.
+    openstack::config { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
+      content => $lb_default,
+      require => Openstack::Package['openstack-neutron-linuxbridge'],
+      notify  => Service['neutron-linuxbridge-agent'],
+    }
+
+    service { 'neutron-linuxbridge-agent':
+      ensure    => running,
+      enable    => true,
+      require   => File['/var/lib/neutron'],
+      subscribe => Openstack::Config['/etc/neutron/neutron.conf'],
+    }
+  }
+
+  # Ensure your Linux operating system kernel supports network bridge filters
+  kmod::load { 'br_netfilter': }
+
+  sysctl {
+    default:
+      value   => 1,
+      require => Kmod::Load['br_netfilter'],
+    ;
+    'net.bridge.bridge-nf-call-iptables':
+    ;
+    'net.bridge.bridge-nf-call-ip6tables':
+    ;
   }
 
   $conf_default = {
@@ -167,12 +208,5 @@ class openstack::neutron::core (
   openstack::config { '/etc/neutron/neutron.conf':
     content => $conf_default,
     require => Openstack::Package['openstack-neutron-common'],
-    notify  => Service['neutron-linuxbridge-agent'],
-  }
-
-  service { 'neutron-linuxbridge-agent':
-    ensure  => running,
-    enable  => true,
-    require => File['/var/lib/neutron'],
   }
 }

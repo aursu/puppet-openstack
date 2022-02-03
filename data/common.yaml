@@ -33,6 +33,7 @@ openstack::neutron_dbuser: 'neutron'
 openstack::neutron_dbpass: ~
 openstack::neutron_pass:  ~
 openstack::neutron_ml2_extension_drivers: 'port_security'
+openstack::neutron_network_plugin: 'linuxbridge'
 openstack::metadata_secret: ~
 openstack::provider_physical_network: 'provider'
 openstack::provider_interface_name: ~

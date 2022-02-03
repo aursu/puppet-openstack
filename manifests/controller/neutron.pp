@@ -17,10 +17,17 @@ class openstack::controller::neutron (
   String  $nova_pass                 = $openstack::nova_pass,
   String  $provider_physical_network = $openstack::provider_physical_network,
   String  $ml2_extension_drivers     = $openstack::neutron_ml2_extension_drivers,
+  Enum['linuxbridge', 'openvswitch']
+          $network_plugin            = $openstack::neutron_network_plugin,
 )
 {
+  include openstack::params
+
   # https://docs.openstack.org/releasenotes/neutron/victoria.html
-  include openstack::neutron::core
+  class { 'openstack::neutron::core':
+    neutron_pass   => $neutron_pass,
+    network_plugin => $network_plugin,
+  }
 
   # https://docs.openstack.org/neutron/train/install/controller-install-rdo.html
   openstack::database { $neutron_dbname:
@@ -69,6 +76,68 @@ class openstack::controller::neutron (
     ;
   }
 
+  $ovs_bridge = 'br-provider'
+
+  if $network_plugin == 'openvswitch' {
+    if $facts['os']['release']['major'] == '7' {
+      $ovs_package = 'openvswitch'
+    }
+    else {
+      $ovs_package = 'rdo-openvswitch'
+    }
+
+    # Install OVS
+    openstack::package { $ovs_package:
+      cycle => $cycle,
+    }
+
+    # Start the OVS service
+    service { 'openvswitch':
+      ensure  => running,
+      enable  => true,
+      require => Openstack::Package[$ovs_package],
+    }
+
+    # Create the OVS provider bridge
+    exec { "ovs-vsctl add-br ${ovs_bridge}":
+      path    => '/usr/bin:/usr/sbin',
+      unless  => "test -d /sys/devices/virtual/net/${ovs_bridge}",
+      require => Service['openvswitch'],
+    }
+
+    openstack::config { '/etc/neutron/plugins/ml2/openvswitch_agent.ini/controller':
+      path    => '/etc/neutron/plugins/ml2/openvswitch_agent.ini',
+      content => {
+        'ovs/bridge_mappings'           => "provider:${ovs_bridge}",
+        'securitygroup/firewall_driver' => 'iptables_hybrid',
+      },
+      require => [
+        Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'],
+        Exec["ovs-vsctl add-br ${ovs_bridge}"],
+      ],
+      notify  => Service['neutron-openvswitch-agent'],
+    }
+
+    $neutron_interface_driver = 'openvswitch'
+    $ml2_mechanism_drivers = 'openvswitch,l2population'
+    $l3_content  = {
+      # [DEFAULT]
+      # interface_driver = openvswitch
+      # external_network_bridge =
+      'DEFAULT/interface_driver'        => $neutron_interface_driver,
+      'DEFAULT/external_network_bridge' => '',
+    }
+  }
+  else {
+    $neutron_interface_driver = 'linuxbridge'
+    $ml2_mechanism_drivers = 'linuxbridge,l2population'
+    $l3_content  = {
+      # [DEFAULT]
+      # interface_driver = linuxbridge
+      'DEFAULT/interface_driver' => $neutron_interface_driver,
+    }
+  }
+
   $conf_default = {
     # [database]
     # connection = mysql+pymysql://neutron:NEUTRON_DBPASS@controller/neutron
@@ -112,7 +181,7 @@ class openstack::controller::neutron (
     # extension_drivers = port_security
     'ml2/type_drivers'            => 'flat,vlan,vxlan',
     'ml2/tenant_network_types'    => 'vxlan',
-    'ml2/mechanism_drivers'       => 'linuxbridge,l2population',
+    'ml2/mechanism_drivers'       => $ml2_mechanism_drivers,
     'ml2/extension_drivers'       => $ml2_extension_drivers,
     # [ml2_type_flat]
     # flat_networks = provider
@@ -138,7 +207,10 @@ class openstack::controller::neutron (
       Openstack::Package['openstack-neutron'],
       Openstack::Package['openstack-neutron-ml2'],
     ],
-    notify  => Exec['neutron-db-sync'],
+    notify  => [
+      Exec['neutron-db-sync'],
+      Service['neutron-server'],
+    ],
   }
 
   file { '/etc/neutron/plugin.ini':
@@ -147,12 +219,8 @@ class openstack::controller::neutron (
     require => Openstack::Config['/etc/neutron/plugins/ml2/ml2_conf.ini'],
   }
 
-  # [DEFAULT]
-  # interface_driver = linuxbridge
   openstack::config { '/etc/neutron/l3_agent.ini':
-    content => {
-      'DEFAULT/interface_driver' => 'linuxbridge',
-    },
+    content => $l3_content,
     require => Openstack::Package['openstack-neutron'],
     notify  => Service['neutron-l3-agent'],
   }
@@ -164,7 +232,7 @@ class openstack::controller::neutron (
   # enable_isolated_metadata = true
   openstack::config { '/etc/neutron/dhcp_agent.ini':
     content => {
-            'DEFAULT/interface_driver'         => 'linuxbridge',
+            'DEFAULT/interface_driver'         => $neutron_interface_driver,
             'DEFAULT/dhcp_driver'              => 'neutron.agent.linux.dhcp.Dnsmasq',
             'DEFAULT/enable_isolated_metadata' => 'true',
     },
@@ -256,4 +324,15 @@ class openstack::controller::neutron (
 
   Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-linuxbridge-agent']
   Exec['neutron-db-sync'] ~> Service['neutron-linuxbridge-agent']
+
+  if $network_plugin == 'openvswitch' {
+    Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'] ~> Exec['neutron-db-sync']
+    Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-openvswitch-agent']
+    Exec['neutron-db-sync'] ~> Service['neutron-openvswitch-agent']
+  }
+  else {
+    Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] ~> Exec['neutron-db-sync']
+    Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-linuxbridge-agent']
+    Exec['neutron-db-sync'] ~> Service['neutron-linuxbridge-agent']
+  }
 }

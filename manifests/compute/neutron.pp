@@ -8,10 +8,13 @@ class openstack::compute::neutron (
   String  $neutron_pass              = $openstack::neutron_pass,
   Stdlib::Host
           $controller_host           = $openstack::controller_host,
+  Enum['linuxbridge', 'openvswitch']
+          $network_plugin            = $openstack::neutron_network_plugin,
 ){
   class { 'openstack::neutron::core':
     neutron_pass    => $neutron_pass,
     controller_host => $controller_host,
+    network_plugin  => $network_plugin,
   }
 
   # [neutron]

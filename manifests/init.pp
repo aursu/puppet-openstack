@@ -52,7 +52,7 @@ class openstack (
   Optional[String]    $neutron_dbpass,
   Optional[String]    $neutron_pass,
   String              $neutron_ml2_extension_drivers,
-
+  String              $neutron_network_plugin,
   Optional[String]    $metadata_secret,
   String              $provider_physical_network,
   Optional[Stdlib::IP::Address]
@@ -114,7 +114,7 @@ class openstack (
   Stdlib::Host        $octavia_mgmt_port_host = $facts['fqdn'],
 ){
   # setup OS limits for Ussuri release
-  if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['6', '7'] {
+  if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '7' {
     if openstack::cyclecmp($cycle, 'ussuri') >= 0 {
       fail('Starting with the Ussuri release, you will need to use either CentOS8 or RHEL 8')
     }

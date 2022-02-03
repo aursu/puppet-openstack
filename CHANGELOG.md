@@ -39,3 +39,13 @@ All notable changes to this project will be documented in this file.
 **Bugfixes**
 
 **Known Issues**
+
+## Release 1.2.0
+
+**Features**
+
+* Added openvswitch as network plugin
+
+**Bugfixes**
+
+**Known Issues**
