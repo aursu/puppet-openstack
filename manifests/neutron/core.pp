@@ -132,6 +132,14 @@ class openstack::neutron::core (
       require   => File['/var/lib/neutron'],
       subscribe => Openstack::Config['/etc/neutron/neutron.conf'],
     }
+
+    # linuxbridge decomission
+    service { 'neutron-linuxbridge-agent': ensure => stopped, }
+    package { 'openstack-neutron-linuxbridge':
+      ensure  => absent,
+      require => Service['neutron-linuxbridge-agent'],
+      before  => Service['neutron-openvswitch-agent'],
+    }
   }
   else {
     openstack::package { 'openstack-neutron-linuxbridge':
@@ -155,6 +163,14 @@ class openstack::neutron::core (
       enable    => true,
       require   => File['/var/lib/neutron'],
       subscribe => Openstack::Config['/etc/neutron/neutron.conf'],
+    }
+
+    # openvswitch decomission
+    service { 'neutron-openvswitch-agent': ensure => stopped, }
+    package { 'openstack-neutron-openvswitch':
+      ensure  => absent,
+      require => Service['neutron-openvswitch-agent'],
+      before  => Service['neutron-linuxbridge-agent'],
     }
   }
 
