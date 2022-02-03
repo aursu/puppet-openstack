@@ -63,7 +63,6 @@ class openstack::controller::neutron (
         '/etc/neutron/dhcp_agent.ini',
         '/etc/neutron/metadata_agent.ini',
       ],
-      before  => Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'],
     ;
     'openstack-neutron-ml2':
       configs => [
@@ -315,20 +314,18 @@ class openstack::controller::neutron (
 
   Openstack::Package['openstack-neutron'] -> Openstack::Config['/etc/neutron/neutron.conf']
 
-  Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] ~> Exec['neutron-db-sync']
   Openstack::Config['/etc/neutron/neutron.conf'] ~> Exec['neutron-db-sync']
-
-  Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-linuxbridge-agent']
-  Exec['neutron-db-sync'] ~> Service['neutron-linuxbridge-agent']
 
   if $network_plugin == 'openvswitch' {
     Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'] ~> Exec['neutron-db-sync']
     Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-openvswitch-agent']
     Exec['neutron-db-sync'] ~> Service['neutron-openvswitch-agent']
+    Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'] -> Openstack::Package['openstack-neutron']
   }
   else {
     Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] ~> Exec['neutron-db-sync']
     Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-linuxbridge-agent']
     Exec['neutron-db-sync'] ~> Service['neutron-linuxbridge-agent']
+    Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] -> Openstack::Package['openstack-neutron']
   }
 }
