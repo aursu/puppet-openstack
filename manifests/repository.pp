@@ -82,7 +82,7 @@ define openstack::repository (
       }
       '18.04': {
         $available_series = ['queens', 'rocky', 'stein', 'train', 'ussuri']
-      },
+      }
       default: {
         fail("Unsupported Ubuntu version ${maj}")
       }
