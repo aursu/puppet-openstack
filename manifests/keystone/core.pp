@@ -35,8 +35,8 @@ class openstack::keystone::core (
   }
 
   openstack::package { 'openstack-keystone':
-    cycle   => $cycle,
-    configs => [
+    cycle         => $cycle,
+    configs       => [
       '/etc/keystone/keystone.conf',
     ],
     notifyconfigs => false,

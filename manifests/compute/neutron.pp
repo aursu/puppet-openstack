@@ -11,11 +11,7 @@ class openstack::compute::neutron (
   Enum['linuxbridge', 'openvswitch']
           $network_plugin            = $openstack::neutron_network_plugin,
 ){
-  class { 'openstack::neutron::core':
-    neutron_pass    => $neutron_pass,
-    controller_host => $controller_host,
-    network_plugin  => $network_plugin,
-  }
+  include openstack::neutron::core
 
   # [neutron]
   # auth_url = http://controller:5000

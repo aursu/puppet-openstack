@@ -38,7 +38,7 @@ describe 'openstack::controller::keystone' do
       context 'when release cycle is before the Queens release' do
         let(:pre_condition) do
           <<-PRECOND
-          include openstack
+          class { 'openstack': cycle => 'pike', }
           openstack::repository { 'pike': }
           PRECOND
         end

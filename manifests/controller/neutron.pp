@@ -22,12 +22,8 @@ class openstack::controller::neutron (
 )
 {
   include openstack::params
-
   # https://docs.openstack.org/releasenotes/neutron/victoria.html
-  class { 'openstack::neutron::core':
-    neutron_pass   => $neutron_pass,
-    network_plugin => $network_plugin,
-  }
+  include openstack::neutron::core
 
   # https://docs.openstack.org/neutron/train/install/controller-install-rdo.html
   openstack::database { $neutron_dbname:

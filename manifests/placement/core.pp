@@ -35,8 +35,8 @@ class openstack::placement::core (
   }
 
   openstack::package { 'openstack-placement-api':
-    cycle   => $cycle,
-    configs => [
+    cycle         => $cycle,
+    configs       => [
       '/etc/placement/placement.conf',
     ],
     notifyconfigs => false,
