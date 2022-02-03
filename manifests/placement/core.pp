@@ -39,6 +39,7 @@ class openstack::placement::core (
     configs => [
       '/etc/placement/placement.conf',
     ],
+    notifyconfigs => false,
   }
 
   # OpenStack Placement plugin

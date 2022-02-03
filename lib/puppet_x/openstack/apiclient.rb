@@ -10,9 +10,7 @@ module PuppetX
         @req_params = {}
       end
 
-      def req_params
-        @req_params
-      end
+      attr_reader :req_params
 
       def req_params!(params)
         @req_params = params if params.is_a?(Hash)
@@ -85,7 +83,7 @@ module PuppetX
       # use HTTP GET request to the server
       def url_get(url, header = {})
         uri = URI(url)
-        uri.query = URI.encode_www_form(req_params) if req_params.is_a?(Hash) && req_params.size > 0
+        uri.query = URI.encode_www_form(req_params) if req_params.is_a?(Hash) && !req_params.empty?
 
         req = Net::HTTP::Get.new(uri, header)
 

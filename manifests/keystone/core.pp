@@ -39,5 +39,6 @@ class openstack::keystone::core (
     configs => [
       '/etc/keystone/keystone.conf',
     ],
+    notifyconfigs => false,
   }
 }

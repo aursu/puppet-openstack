@@ -28,16 +28,15 @@ describe 'openstack::service' do
       it { is_expected.to compile }
 
       it {
-        is_expected.to contain_exec('openstack-service-image')
-          .with_command('openstack service create --name glance --description OpenStack\ glance\ service image')
-          .with_unless('openstack service show image')
+        is_expected.to contain_openstack_service('glance')
+          .with_type('image')
       }
 
       %w[public internal admin].each do |iface|
         it {
-          is_expected.to contain_exec("endpoint-image-#{iface}")
-            .with_command("openstack endpoint create --region RegionOne image #{iface} http://controller:9292")
-            .with_unless("openstack endpoint list --interface #{iface} --service image | grep -w #{iface}")
+          is_expected.to contain_openstack_endpoint("glance/#{iface}")
+            .with_region('RegionOne')
+            .with_url('http://controller:9292')
         }
       end
 

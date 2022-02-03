@@ -4,8 +4,7 @@ describe 'openstack::controller::keystone' do
   let(:pre_condition) do
     <<-PRECOND
     include openstack
-    openstack::repository { 'train':
-    }
+    openstack::repository { 'train': }
     PRECOND
   end
   let(:params) do
@@ -40,8 +39,7 @@ describe 'openstack::controller::keystone' do
         let(:pre_condition) do
           <<-PRECOND
           include openstack
-          openstack::repository { 'pike':
-          }
+          openstack::repository { 'pike': }
           PRECOND
         end
         let(:params) do

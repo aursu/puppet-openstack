@@ -50,7 +50,7 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
     port_range_max = entity['port_range_max']
     proto = entity['protocol']
 
-    if ['icmp', 'icmpv6', 'ipv6-icmp', '1', '58'].include?(proto)
+    if %w[icmp icmpv6 ipv6-icmp 1 58].include?(proto)
       port_range = ''
       port_range += 'type=' + port_range_min.to_s if port_range_min
       port_range += ':code=' + port_range_max.to_s if port_range_max
@@ -60,11 +60,11 @@ Puppet::Type.type(:openstack_security_rule).provide(:openstack, parent: Puppet::
       port_range = "#{port_range_min}:#{port_range_max}"
     end
     port_range = 'any' if port_range.to_s.empty?
-    
+
     port_range
   end
 
-  def self.instances 
+  def self.instances
     return @instances if @instances && @prefetch_done
     # reset it
     @instances = []

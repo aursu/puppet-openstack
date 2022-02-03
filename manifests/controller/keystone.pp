@@ -14,7 +14,9 @@ class openstack::controller::keystone (
   String  $admin_pass      = $openstack::admin_pass,
 )
 {
-  include openstack::keystone::core
+  class { 'openstack::keystone::core':
+    cycle => $cycle,
+  }
 
   openstack::database { $keystone_dbname:
     dbuser       => $keystone_dbuser,

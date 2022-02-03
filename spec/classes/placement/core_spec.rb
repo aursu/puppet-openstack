@@ -3,6 +3,13 @@
 require 'spec_helper'
 
 describe 'openstack::placement::core' do
+  let(:pre_condition) do
+    <<-PRECOND
+    include openstack
+    openstack::repository { 'train': }
+    PRECOND
+  end
+
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }

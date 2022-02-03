@@ -12,7 +12,14 @@ describe 'openstack::repository' do
 
       it { is_expected.to compile }
 
-      %w[ocata pike queens rocky stein ussuri].each do |cycle|
+      to_remove = case os
+                  when %r{centos-7}
+                    %w[queens rocky stein]
+                  when %r{centos-8}
+                    %w[ussuri victoria]
+                  end
+
+      to_remove.each do |cycle|
         it {
           is_expected.to contain_file("/etc/yum.repos.d/CentOS-OpenStack-#{cycle}.repo")
             .with_ensure('absent')

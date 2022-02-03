@@ -65,7 +65,7 @@ Puppet::Type.newtype(:openstack_endpoint) do
     desc 'The endpoint URL.'
 
     validate do |value|
-      unless value =~ URI.regexp(%w[http https])
+      unless value.match?(URI.regexp(%w[http https]))
         raise ArgumentError, "Invalid endpoint URL: #{value}"
       end
     end
@@ -86,7 +86,7 @@ Puppet::Type.newtype(:openstack_endpoint) do
 
   validate do
     if self[:url].nil? || self[:url].empty?
-      raise Puppet::Error, _("The endpoint URL is required.")
+      raise Puppet::Error, _('The endpoint URL is required.')
     end
   end
 end
