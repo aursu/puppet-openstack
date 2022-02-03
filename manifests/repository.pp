@@ -33,20 +33,23 @@ define openstack::repository (
       }
     }
     else {
-      if $facts['os']['release']['major'] == '7' {
-        $available_series = ['queens', 'rocky', 'stein', 'train']
-      }
-      elsif $facts['os']['release']['major'] == '8' {
-        if $openstack::params::centos_stream {
-          $available_series = ['train', 'ussuri', 'victoria', 'wallaby', 'xena']
+      $maj = $facts['os']['release']['major']
+      case $maj {
+        '7': {
+          $available_series = ['queens', 'rocky', 'stein', 'train']
         }
-        else {
-          $available_series = ['train', 'ussuri', 'victoria']
+        '8': {
+          if $openstack::params::centos_stream {
+            $available_series = ['train', 'ussuri', 'victoria', 'wallaby', 'xena']
+          }
+          else {
+            $available_series = ['train', 'ussuri', 'victoria']
+          }
         }
-      }
-      else {
-        # https://docs.openstack.org/install-guide/preface.html#operating-systems
-        fail('You can install OpenStack by using packages available on both Red Hat Enterprise Linux 7 and 8 and their derivatives')
+        default: {
+          # https://docs.openstack.org/install-guide/preface.html#operating-systems
+          fail("Unsupported CentOS version ${maj}")
+        }
       }
 
       $available_series.each | String $c | {
@@ -68,6 +71,36 @@ define openstack::repository (
           ensure => $package_ensure,
           notify => Class['openstack::repo'],
         }
+      }
+    }
+  }
+  elsif $facts['os']['name'] == 'Ubuntu' {
+    $maj = $facts['os']['release']['major']
+    case $maj {
+      '20.04': {
+        $available_series = ['ussuri', 'victoria', 'wallaby', 'xena']
+      }
+      '18.04': {
+        $available_series = ['queens', 'rocky', 'stein', 'train', 'ussuri']
+      },
+      default: {
+        fail("Unsupported Ubuntu version ${maj}")
+      }
+    }
+
+    $available_series.each | String $c | {
+      $ppa_name = "cloud-archive:${c}"
+
+      if $c == $cycle {
+        $ppa_ensure = 'present'
+      }
+      else {
+        $ppa_ensure = 'absent'
+      }
+
+      apt::ppa { $ppa_name:
+        ensure => $ppa_ensure,
+        notify => Class['openstack::repo'],
       }
     }
   }
