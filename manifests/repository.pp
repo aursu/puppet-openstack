@@ -75,6 +75,8 @@ define openstack::repository (
     }
   }
   elsif $facts['os']['name'] == 'Ubuntu' {
+    include apt
+
     $maj = $facts['os']['release']['major']
     case $maj {
       '20.04': {
