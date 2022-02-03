@@ -11,6 +11,7 @@ class openstack::params {
     $centos_stream = $facts['os']['release']['major'] ? {
       '6' => false,
       '7' => false,
+      '9' => true,
       default => $facts['os']['distro']['id'] ? {
         'CentOSStream' => true,
         default        => false,
@@ -21,6 +22,7 @@ class openstack::params {
     $centos_stream = $facts['os']['release']['full'] ? {
       # for CentOS Stream 8 it is just '8' but for CentOS Linux 8 it is 8.x.x
       '8'     => true,
+      '9'     => true,
       default => false,
     }
   }
