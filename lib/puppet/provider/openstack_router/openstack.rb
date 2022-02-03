@@ -35,6 +35,10 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     openstack_caller(provider_subcommand, 'set', *args)
   end
 
+  def self.provider_unset(*args)
+    openstack_caller(provider_subcommand, 'unset', *args)
+  end
+
   # "External gateway info": {
   #   "network_id": "107ce2d3-68c7-4c4a-bc04-e29c38ab5282",
   #   "enable_snat": true,
@@ -139,6 +143,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
 
   def destroy
     name = @resource[:name]
+
+    return if self.class.provider_unset('--external-gateway', name) == false
 
     self.class.provider_delete(name)
 
