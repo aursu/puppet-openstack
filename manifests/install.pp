@@ -44,7 +44,7 @@ class openstack::install (
       $openstackclient = 'python3-openstackclient'
     }
     default: {
-      fail("OS is not supported")
+      fail('OS is not supported')
     }
   }
 

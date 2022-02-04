@@ -5,24 +5,24 @@
 # @example
 #   include openstack::memcached
 class openstack::memcached {
-  if $::osfamily == 'RedHat' {
+  if $facts['os']['family'] == 'RedHat' {
     # https://docs.openstack.org/install-guide/environment-memcached-rdo.html
-    if $facts['os']['release']['major'] == '8' {
-      package { 'python3-memcached':
-        ensure  => 'present',
-      }
-    }
-    else {
-      # https://docs.openstack.org/install-guide/environment-memcached-rdo.html
-      package { 'python-memcached':
-        ensure  => 'present',
-      }
+    $python_client = $facts['os']['release']['major'] ? {
+      '7'     => 'python-memcached',
+      default => 'python3-memcached',
     }
   }
-  elsif $::operatingsystem == 'Ubuntu' {
+  elsif $facts['os']['name'] == 'Ubuntu' {
     # https://docs.openstack.org/install-guide/environment-memcached-ubuntu.html
-    package { 'python-memcache':
-      ensure  => 'present',
+    if versioncmp($facts['os']['release']['major'], '18.04') >= 0 {
+      $python_client = 'python3-memcache'
     }
+    else {
+      $python_client = 'python-memcache'
+    }
+  }
+
+  package { $python_client:
+    ensure  => 'present',
   }
 }
