@@ -34,7 +34,13 @@ class openstack::keystone::core (
     require => User['keystone'],
   }
 
-  openstack::package { 'openstack-keystone':
+  $keystone_package = $facts['os']['name'] ? {
+    # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
+    'Ubuntu' => 'keystone',
+    default  => 'openstack-keystone',
+  }
+
+  openstack::package { $keystone_package:
     cycle         => $cycle,
     configs       => [
       '/etc/keystone/keystone.conf',
