@@ -15,6 +15,7 @@ class openstack::controller::keystone (
 )
 {
   include openstack::keystone::core
+  $keystone_package = $openstack::keystone::core::keystone_package
 
   openstack::database { $keystone_dbname:
     dbuser       => $keystone_dbuser,
@@ -50,7 +51,7 @@ class openstack::controller::keystone (
       require => [
         File['/var/lib/keystone'],
         File['/var/log/keystone'],
-        Openstack::Package['openstack-keystone'],
+        Openstack::Package[$keystone_package],
       ],
     ;
 

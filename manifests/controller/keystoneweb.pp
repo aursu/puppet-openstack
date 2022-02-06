@@ -11,6 +11,7 @@ class openstack::controller::keystoneweb (
 )
 {
   include openstack::keystone::core
+  $keystone_package = $openstack::keystone::core::keystone_package
 
   # https://docs.openstack.org/keystone/train/install/keystone-install-rdo.html#configure-the-apache-http-server
   if openstack::cyclecmp($cycle, 'queens') < 0 {
@@ -50,7 +51,7 @@ class openstack::controller::keystoneweb (
     tag                         => $httpd_tag,
     require                     => [
       User['keystone'],
-      Openstack::Package['openstack-keystone'],
+      Openstack::Package[$keystone_package],
     ]
   }
 
