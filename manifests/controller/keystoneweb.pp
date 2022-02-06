@@ -64,8 +64,8 @@ class openstack::controller::keystoneweb (
     wsgi_script_aliases => {
       '/' => '/usr/bin/keystone-wsgi-public',
     },
-    notify              => Class['apache::service'],
     priority            => false,
+    notify              => Class['apache::service'],
     *                   => $keystone_web_data,
   }
 
