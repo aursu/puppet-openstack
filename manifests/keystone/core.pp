@@ -34,6 +34,12 @@ class openstack::keystone::core (
     require => User['keystone'],
   }
 
+  file { '/var/log/keystone/keystone-manage.log':
+    owner => 'keystone',
+    group => 'keystone',
+    mode  => '0644',
+  }
+
   $keystone_package = $facts['os']['name'] ? {
     # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
     'Ubuntu' => 'keystone',

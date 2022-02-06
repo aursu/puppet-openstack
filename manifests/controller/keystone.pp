@@ -44,22 +44,25 @@ class openstack::controller::keystone (
     $bootstrap_command = "keystone-manage bootstrap --bootstrap-password ${real_admin_pass} --bootstrap-admin-url http://controller:5000/v3/ --bootstrap-internal-url http://controller:5000/v3/ --bootstrap-public-url http://controller:5000/v3/ --bootstrap-region-id RegionOne"
   }
 
+  # Populate the Identity service database
+  exec { 'keystone-db-sync':
+    command     => 'keystone-manage db_sync',
+    path        => '/bin:/sbin:/usr/bin:/usr/sbin',
+    refreshonly => true,
+    user        => 'keystone',
+    cwd         => '/var/lib/keystone',
+    require     => [
+      File['/var/lib/keystone'],
+      File['/var/log/keystone/keystone-manage.log'],
+      Openstack::Package[$keystone_package],
+    ],
+  }
+
   exec {
     default:
       path    => '/bin:/sbin:/usr/bin:/usr/sbin',
       cwd     => '/var/lib/keystone',
-      require => [
-        File['/var/lib/keystone'],
-        File['/var/log/keystone'],
-        Openstack::Package[$keystone_package],
-      ],
-    ;
-
-    # Populate the Identity service database
-    'keystone-db-sync':
-      command     => 'keystone-manage db_sync',
-      user        => 'keystone',
-      refreshonly => true,
+      require => Exec['keystone-db-sync'],
     ;
 
     # setup a fernet key repository for token encryption
