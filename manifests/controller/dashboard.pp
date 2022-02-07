@@ -22,6 +22,7 @@ class openstack::controller::dashboard (
 
   if $facts['os']['family'] == 'Debian' {
     $dashboard_config = '/etc/openstack-dashboard/local_settings.py'
+    $static_content_path = '/var/lib/openstack-dashboard/static'
 
     package { 'python2':
       ensure => 'present',
@@ -30,6 +31,7 @@ class openstack::controller::dashboard (
   }
   else {
     $dashboard_config = '/etc/openstack-dashboard/local_settings'
+    $static_content_path = '/usr/share/openstack-dashboard/static'
   }
 
   # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
@@ -137,11 +139,22 @@ class openstack::controller::dashboard (
   else {
     $wsgi_script = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi.py'
     $wsgi_script_path = '/usr/share/openstack-dashboard/openstack_dashboard'
+
+    if $facts['os']['family'] == 'Debian' {
+      exec { 'python3 /usr/share/openstack-dashboard/manage.py compress':
+        cwd         => $wsgi_script_path,
+        user        => 'horizon',
+        path        => '/usr/bin:/usr/sbin:/bin:/sbin',
+        refreshonly => true,
+        subcsribe   => [
+          Openstack::Package['openstack-dashboard'],
+          Openstack::Djangoconfig[$dashboard_config],
+        ],
+      }
+    }
   }
 
   if $facts['os']['family'] == 'Debian' {
-    $static_content_path = '/var/lib/openstack-dashboard/static'
-
     $dashboard_web_data = {
       wsgi_daemon_process_options => {
         'processes'    => '3',
@@ -151,7 +164,7 @@ class openstack::controller::dashboard (
         'display-name' => '%{GROUP}'
       },
       wsgi_script_aliases => {
-        '/dashboard' => [$wsgi_script, 'process-group=horizon'],
+        '/dashboard' => [$wsgi_script, 'process-group=dashboard'],
       }
     }
 
@@ -170,13 +183,12 @@ class openstack::controller::dashboard (
     $wsgi_application_group = '%{GLOBAL}'
 
     file { '/etc/apache2/conf-available/openstack-dashboard.conf':
-      ensure    => absent,
+      ensure    => file,
+      content   => '',
       subscribe => Openstack::Package['openstack-dashboard'],
     }
   }
   else {
-    $static_content_path = '/usr/share/openstack-dashboard/static'
-
     $dashboard_web_data = {
       wsgi_script_aliases => {
         '/dashboard' => $wsgi_script,
