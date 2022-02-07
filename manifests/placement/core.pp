@@ -48,7 +48,7 @@ class openstack::placement::core (
   }
 
   # OpenStack Placement plugin
-  if $facts['os']['name'] in ['RedHat', 'CentOS'] {
+  if $facts['os']['family'] == 'RedHat' {
     case $facts['os']['release']['major'] {
       '7': {
         package { 'python2-osc-placement':
