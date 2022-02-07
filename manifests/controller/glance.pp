@@ -51,7 +51,13 @@ class openstack::controller::glance (
   # TODO: Per-Tenant Quotas
   # https://docs.openstack.org/glance/xena/admin/quotas.html
 
-  openstack::package { 'openstack-glance':
+  $glance_package = $facts['os']['name'] ? {
+    # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
+    'Ubuntu' => 'glance',
+    default  => 'openstack-glance',
+  }
+
+  openstack::package { $glance_package:
     cycle   => $cycle,
     configs => [
       '/etc/glance/glance-api.conf',
@@ -116,11 +122,17 @@ class openstack::controller::glance (
 
   openstack::config { '/etc/glance/glance-api.conf':
     content => $conf_default + $glance_store_default,
-    require => Openstack::Package['openstack-glance'],
+    require => Openstack::Package[$glance_package],
     notify  => Exec['glance-db-sync'],
   }
 
-  service { 'openstack-glance-api':
+  $glance_service = $facts['os']['name'] ? {
+    # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
+    'Ubuntu' => 'glance-api',
+    default  => 'openstack-glance-api',
+  }
+
+  service { $glance_service:
     ensure  => running,
     enable  => true,
     require => Exec['glance-db-sync'],
