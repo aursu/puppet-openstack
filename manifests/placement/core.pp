@@ -34,7 +34,12 @@ class openstack::placement::core (
     require => User['placement'],
   }
 
-  openstack::package { 'openstack-placement-api':
+  $placement_package = $facts['os']['name'] ? {
+    'Ubuntu' => 'placement-api',
+    default  => 'openstack-placement-api',
+  }
+
+  openstack::package { $placement_package:
     cycle         => $cycle,
     configs       => [
       '/etc/placement/placement.conf',

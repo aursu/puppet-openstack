@@ -12,18 +12,21 @@ class openstack::controller::placementweb (
 {
   include apache::params
   include openstack::placement::core
+  $placement_package = $openstack::placement::core::placement_package
 
-  $confd_dir = $::apache::params::confd_dir
+  if $facts['os']['family'] == 'RedHat' {
+    $confd_dir = $::apache::params::confd_dir
 
-  # RPM openstack-placement-api provides HTTPd config which must be cleaned up
-  # 1)
-  file { "${confd_dir}/00-placement-api.conf":
-    ensure    => absent,
-    subscribe => Openstack::Package['openstack-placement-api'],
+    # RPM openstack-placement-api provides HTTPd config which must be cleaned up
+    # 1)
+    file { "${confd_dir}/00-placement-api.conf":
+      ensure    => absent,
+      subscribe => Openstack::Package[$placement_package],
+    }
+
+    # 2) in case if 1) does not work
+    Openstack::Package[$placement_package] ~> File <| title == $confd_dir |>
   }
-
-  # 2) in case if 1) does not work
-  Openstack::Package['openstack-placement-api'] ~> File <| title == $confd_dir |>
 
   apache::vhost { 'placement-api':
     ensure                      => 'present',
@@ -56,11 +59,12 @@ class openstack::controller::placementweb (
         require  => 'all granted',
       }
     ],
+    priority                    => false,
     tag                         => $httpd_tag,
     notify                      => Class['apache::service'],
     require                     => [
       User['placement'],
-      Openstack::Package['openstack-placement-api'],
+      Openstack::Package[$placement_package],
     ],
   }
 

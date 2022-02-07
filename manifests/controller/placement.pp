@@ -19,6 +19,7 @@ class openstack::controller::placement (
 )
 {
   include openstack::placement::core
+  $placement_package = $openstack::placement::core::placement_package
 
   # https://docs.openstack.org/placement/train/install/install-rdo.html
   # Verify Installation: https://docs.openstack.org/placement/train/install/verify.html
@@ -90,7 +91,7 @@ class openstack::controller::placement (
 
   openstack::config { '/etc/placement/placement.conf':
     content => $conf_default,
-    require => Openstack::Package['openstack-placement-api'],
+    require => Openstack::Package[$placement_package],
     notify  => Exec['placement-db-sync'],
   }
 
