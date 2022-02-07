@@ -57,10 +57,7 @@ class openstack::cinder::storage (
 
     openstack::package { 'cinder-volume':
       cycle   => $cycle,
-      configs => [
-        '/etc/cinder/cinder.conf',
-      ],
-      before  => Openstack::Config['/etc/cinder/cinder.conf'],
+      require => Openstack::Package['cinder-common'],
     }
   }
   else {

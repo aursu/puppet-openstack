@@ -31,6 +31,15 @@ class openstack::cinder::core (
       before  => Openstack::Config['/etc/cinder/cinder.conf'],
     }
   }
+  else {
+    openstack::package { 'cinder-common':
+      cycle   => $cycle,
+      configs => [
+        '/etc/cinder/cinder.conf',
+      ],
+      before  => Openstack::Config['/etc/cinder/cinder.conf'],
+    }
+  }
 
   # Identities
   group { 'cinder':

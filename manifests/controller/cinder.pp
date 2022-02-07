@@ -33,10 +33,7 @@ class openstack::controller::cinder (
         cycle => $cycle,
       ;
       'cinder-api':
-        configs => [
-          '/etc/cinder/cinder.conf',
-        ],
-        before  => Openstack::Config['/etc/cinder/cinder.conf'],
+        require => Openstack::Package['cinder-common'],
       ;
       'cinder-scheduler': ;
     }
