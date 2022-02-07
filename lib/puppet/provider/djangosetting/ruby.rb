@@ -4,10 +4,14 @@ Puppet::Type.type(:djangosetting).provide(:ruby) do
   # Without initvars commands won't work.
   initvars
 
-  if Facter.value(:osfamily) == 'RedHat' && Facter.value(:operatingsystemmajrelease).to_i > 7
+  if Facter.value(:osfamily) == 'RedHat' 
+    if Facter.value(:operatingsystemmajrelease).to_i > 7
+      commands python: 'python2'
+    else
+      commands python: 'python'
+    end
+  elsif Facter.value(:osfamily) == 'Debian'
     commands python: 'python2'
-  else
-    commands python: 'python'
   end
 
   # https://docs.puppet.com/guides/provider_development.html
@@ -152,6 +156,8 @@ def _astType(v, dq = False):
     return "from %s import " % v.module + ','.join(map(lambda x: _astType(x, dq), v.names))
   elif type(v) == _ast.IfExp:
     return "%s if %s else %s" % (_astType(v.body, dq), _astType(v.test, dq), _astType(v.orelse, dq))
+  elif type(v) == _ast.Attribute:
+    return "%s.%s" % (_astType(v.value, dq), v.attr)
   else:
     return str([ v, v.__dict__ ])
 config   = sys.argv[1] if len(sys.argv) > 1 else None

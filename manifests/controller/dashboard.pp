@@ -20,6 +20,13 @@ class openstack::controller::dashboard (
   include apache::params
   $confd_dir = $::apache::params::confd_dir
 
+  if $facts['os']['family'] == 'Debian' {
+    package { 'python2':
+      ensure => 'present',
+      before => Openstack::Djangoconfig['/etc/openstack-dashboard/local_settings'],
+    }
+  }
+
   # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
   $allowed_hosts_list = $allowed_hosts ? {
     Array => "['${join($allowed_hosts, "','")}']",
