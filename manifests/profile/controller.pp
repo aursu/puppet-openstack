@@ -17,6 +17,9 @@ class openstack::profile::controller (
   # Placement service WEB
   include openstack::controller::placementweb
 
+  # Cinder service WEB
+  include openstack::controller::cinderweb
+
   # Dashboard – [horizon installation for Train](https://docs.openstack.org/horizon/xena/install/)
   include openstack::controller::dashboard
 
