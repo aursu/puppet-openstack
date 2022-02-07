@@ -105,7 +105,7 @@ class openstack::cinder::storage (
       # debug
       'DEFAULT/debug'              => 'false',
     },
-    notify  => Service['openstack-cinder-volume'],
+    notify  => Service[$cinder_volume_service],
     require => Openstack::Config['/etc/cinder/cinder.conf'],
   }
 
