@@ -14,6 +14,7 @@ class openstack::controller::cinder (
   String  $cinder_pass               = $openstack::cinder_pass,
   String  $admin_pass                = $openstack::admin_pass,
   Boolean $cinder_storage            = $openstack::cinder_storage,
+  String  $httpd_tag                 = $openstack::httpd_tag,
 )
 {
   # Notes:
@@ -22,6 +23,87 @@ class openstack::controller::cinder (
   # on /var/lib/cinder/conversion to convert image. Requested: 107374182400, available: 44265283584.
 
   include openstack::cinder::core
+
+  if $facts['os']['family'] == 'Debian' {
+    $nova_service = 'nova-api'
+    $cinder_scheduler_service = 'cinder-scheduler'
+
+    openstack::package {
+      default:
+        cycle => $cycle,
+      ;
+      'cinder-api':
+        configs => [
+          '/etc/cinder/cinder.conf',
+        ],
+        before  => Openstack::Config['/etc/cinder/cinder.conf'],
+      ;
+      'cinder-scheduler': ;
+    }
+
+    # remove config delivered by package cinder-api 
+    file { '/etc/apache2/conf-available/cinder-wsgi.conf':
+      ensure    => 'absent',
+      subscribe => Openstack::Package['cinder-api'],
+    }
+
+    apache::vhost { 'cinder-wsgi':
+      ensure                      => 'present',
+      port                        => '8776',
+      wsgi_daemon_process         => 'cinder-wsgi',
+      wsgi_process_group          => 'cinder-wsgi',
+      wsgi_script_aliases         => {
+        '/' => '/usr/bin/cinder-wsgi',
+      },
+      priority                    => false,
+      manage_docroot              => false,
+      docroot                     => false,
+      servername                  => '',
+      wsgi_daemon_process_options => {
+        'processes'    => '5',
+        'threads'      => '1',
+        'user'         => 'cinder',
+        'group'        => 'cinder',
+        'display-name' => '%{GROUP}'
+      },
+      wsgi_application_group      => '%{GLOBAL}',
+      wsgi_pass_authorization     => 'On',
+      error_log                   => true,
+      error_log_file              => 'cinder_error.log',
+      access_log_file             => 'cinder.log',
+      access_log_format           => 'cinder_combined',
+      directories                 => [
+        {
+          provider => 'directory',
+          path     => '/usr/bin',
+          require  => 'all granted',
+        }
+      ],
+      error_log_format            => [ '%{cu}t %M' ],
+      tag                         => $httpd_tag,
+
+      notify                      => Class['apache::service'],
+      require                     => [
+        User['cinder'],
+        Openstack::Package['cinder-api'],
+        File['/etc/apache2/conf-available/cinder-wsgi.conf'],
+      ]
+    }
+  }
+  else {
+    $nova_service = 'openstack-nova-api'
+    $cinder_scheduler_service = 'openstack-cinder-scheduler'
+
+    service { 'openstack-cinder-api':
+      ensure    => running,
+      enable    => true,
+      require   => File['/var/lib/cinder'],
+      subscribe => [
+        Openstack::Config['/etc/cinder/cinder.conf'],
+        Exec['cinder-db-sync'],
+      ],
+    }
+  }
 
   if $cinder_storage {
     include openstack::cinder::storage
@@ -78,7 +160,7 @@ class openstack::controller::cinder (
       'cinder/os_region_name' => 'RegionOne',
     },
     require => Openstack::Config['/etc/nova/nova.conf'],
-    notify  => Service['openstack-nova-api'],
+    notify  => Service[$nova_service],
   }
 
   # su -s /bin/sh -c "cinder-manage db sync" cinder
@@ -95,20 +177,14 @@ class openstack::controller::cinder (
     subscribe   => Openstack::Config['/etc/cinder/cinder.conf'],
   }
 
-  service {
-    default:
-      ensure    => running,
-      enable    => true,
-      require   => File['/var/lib/cinder'],
-      subscribe => [
-        Openstack::Config['/etc/cinder/cinder.conf'],
-        Exec['cinder-db-sync'],
-      ],
-    ;
-    'openstack-cinder-api':
-    ;
-    'openstack-cinder-scheduler':
-    ;
+  service { $cinder_scheduler_service:
+    ensure    => running,
+    enable    => true,
+    require   => File['/var/lib/cinder'],
+    subscribe => [
+      Openstack::Config['/etc/cinder/cinder.conf'],
+      Exec['cinder-db-sync'],
+    ],
   }
 
   Mysql_database <| title == $cinder_dbname |> ~> Exec['cinder-db-sync']

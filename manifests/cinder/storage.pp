@@ -42,27 +42,46 @@ class openstack::cinder::storage (
     }
   }
 
-  package {
-    default:
-      ensure => present,
-    ;
-    'lvm2': ;
-    'device-mapper-persistent-data': ;
-    'targetcli': ;
+  package { 'lvm2':
+    ensure => present,
   }
 
-  if openstack::cyclecmp($cycle, 'xena') < 0 {
-    if $facts['os']['family'] == 'RedHat' {
-      if $facts['os']['release']['major'] in ['8'] {
-        $python_keystone = 'python3-keystone'
-      }
-      else {
-        $python_keystone = 'python-keystone'
-      }
+  if $facts['os']['family'] == 'Debian' {
+    $lvm_target_helper  = 'lioadm'
+    $lvm_target_service = 'tgt'
+    $cinder_volume_service = 'cinder-volume'
+
+    package { 'thin-provisioning-tools':
+      ensure => present,
     }
 
-    openstack::package { $python_keystone:
-      cycle => $cycle,
+    openstack::package { 'cinder-volume':
+      cycle   => $cycle,
+      configs => [
+        '/etc/cinder/cinder.conf',
+      ],
+      before  => Openstack::Config['/etc/cinder/cinder.conf'],
+    }
+  }
+  else {
+    $lvm_target_helper = 'tgtadm'
+    $lvm_target_service = 'target'
+    $cinder_volume_service = 'openstack-cinder-volume'
+
+    package {
+      default:
+        ensure => present,
+      ;
+      'device-mapper-persistent-data': ;
+      'targetcli':
+        before => Service[$lvm_target_service],
+      ;
+    }
+
+    if $facts['os']['release']['major'] in ['7'] {
+      service { 'lvm2-lvmetad':
+        require => Package['lvm2'],
+      }
     }
   }
 
@@ -79,7 +98,7 @@ class openstack::cinder::storage (
       'lvm/volume_driver'          => 'cinder.volume.drivers.lvm.LVMVolumeDriver',
       'lvm/volume_group'           => $volume_group,
       'lvm/target_protocol'        => 'iscsi',
-      'lvm/target_helper'          => 'lioadm',
+      'lvm/target_helper'          => $lvm_target_helper,
       # [DEFAULT]
       # enabled_backends = lvm
       'DEFAULT/enabled_backends'   => 'lvm',
@@ -98,18 +117,10 @@ class openstack::cinder::storage (
       ensure => running,
       enable => true,
     ;
-    'openstack-cinder-volume':
+    $cinder_volume_service:
       subscribe => Openstack::Config['/etc/cinder/cinder.conf'],
       require   => File['/var/lib/cinder'],
     ;
-    'target':
-      require => Package['targetcli'],
-    ;
-  }
-
-  if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] in ['7'] {
-    service { 'lvm2-lvmetad':
-      require => Package['lvm2'],
-    }
+    $lvm_target_service: ;
   }
 }

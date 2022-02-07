@@ -22,11 +22,14 @@ class openstack::cinder::core (
           $storage_network           = $openstack::storage_network,
 )
 {
-  openstack::package { 'openstack-cinder':
-    cycle   => $cycle,
-    configs => [
-      '/etc/cinder/cinder.conf',
-    ],
+  if $facts['os']['family'] == 'RedHat' {
+    openstack::package { 'openstack-cinder':
+      cycle   => $cycle,
+      configs => [
+        '/etc/cinder/cinder.conf',
+      ],
+      before  => Openstack::Config['/etc/cinder/cinder.conf'],
+    }
   }
 
   # Identities
@@ -90,7 +93,6 @@ class openstack::cinder::core (
       # lock_path = /var/lib/cinder/tmp
       'oslo_concurrency/lock_path'              => '/var/lib/cinder/tmp',
     },
-    require => Openstack::Package['openstack-cinder'],
   }
 
   if $storage_network {
