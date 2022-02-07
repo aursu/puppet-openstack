@@ -52,7 +52,7 @@ class openstack::controller::glance (
   # https://docs.openstack.org/glance/xena/admin/quotas.html
 
   $glance_package = $facts['os']['name'] ? {
-    # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
+    # https://docs.openstack.org/glance/xena/install/install-ubuntu.html#install-and-configure-components
     'Ubuntu' => 'glance',
     default  => 'openstack-glance',
   }
