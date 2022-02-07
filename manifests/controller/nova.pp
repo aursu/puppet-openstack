@@ -59,18 +59,27 @@ class openstack::controller::nova (
     require     => Openstack::User['nova'],
   }
 
+  if $facts['os']['family'] == 'Debian' {
+    $nova_api_package = 'nova-api'
+    $nova_packages    = ['nova-conductor', 'nova-novncproxy', 'nova-scheduler']
+    $nova_services    = [ 'nova-api', 'nova-scheduler', 'nova-conductor', 'nova-novncproxy']
+  }
+  else {
+    $nova_api_package = 'openstack-nova-api'
+    $nova_packages    = ['openstack-nova-conductor', 'openstack-nova-novncproxy', 'openstack-nova-scheduler']
+    $nova_services    = [ 'openstack-nova-api', 'openstack-nova-scheduler', 'openstack-nova-conductor', 'openstack-nova-novncproxy']
+  }
+
   openstack::package {
     default:
       cycle => $cycle,
     ;
-    'openstack-nova-api':
+    $nova_api_package:
       configs => [
           '/etc/nova/nova.conf',
       ],
     ;
-    'openstack-nova-conductor': ;
-    'openstack-nova-novncproxy': ;
-    'openstack-nova-scheduler': ;
+    $nova_packages: ;
   }
 
   exec {
@@ -154,10 +163,7 @@ class openstack::controller::nova (
         Exec['nova-map_cell0'],
       ],
     ;
-    'openstack-nova-api': ;
-    'openstack-nova-scheduler': ;
-    'openstack-nova-conductor': ;
-    'openstack-nova-novncproxy': ;
+    $nova_services: ;
   }
 
   # nova-manage cell_v2 discover_hosts
@@ -167,5 +173,5 @@ class openstack::controller::nova (
   Mysql_database <| title == $nova_dbname |> ~> Exec['nova-db-sync']
   Mysql_database <| title == $nova_placement_dbname |> ~> Exec['nova-map_cell0']
 
-  Openstack::Package['openstack-nova-api'] -> Openstack::Config['/etc/nova/nova.conf']
+  Openstack::Package[$nova_api_package] -> Openstack::Config['/etc/nova/nova.conf']
 }
