@@ -14,7 +14,6 @@ class openstack::controller::cinder (
   String  $cinder_pass               = $openstack::cinder_pass,
   String  $admin_pass                = $openstack::admin_pass,
   Boolean $cinder_storage            = $openstack::cinder_storage,
-  String  $httpd_tag                 = $openstack::httpd_tag,
 )
 {
   # Notes:
@@ -28,63 +27,8 @@ class openstack::controller::cinder (
     $nova_service = 'nova-api'
     $cinder_scheduler_service = 'cinder-scheduler'
 
-    openstack::package {
-      default:
-        cycle => $cycle,
-      ;
-      'cinder-api':
-        require => Openstack::Package['cinder-common'],
-      ;
-      'cinder-scheduler': ;
-    }
-
-    # remove config delivered by package cinder-api 
-    file { '/etc/apache2/conf-available/cinder-wsgi.conf':
-      ensure    => 'absent',
-      subscribe => Openstack::Package['cinder-api'],
-    }
-
-    apache::vhost { 'cinder-wsgi':
-      ensure                      => 'present',
-      port                        => '8776',
-      wsgi_daemon_process         => 'cinder-wsgi',
-      wsgi_process_group          => 'cinder-wsgi',
-      wsgi_script_aliases         => {
-        '/' => '/usr/bin/cinder-wsgi',
-      },
-      priority                    => false,
-      manage_docroot              => false,
-      docroot                     => false,
-      servername                  => '',
-      wsgi_daemon_process_options => {
-        'processes'    => '5',
-        'threads'      => '1',
-        'user'         => 'cinder',
-        'group'        => 'cinder',
-        'display-name' => '%{GROUP}'
-      },
-      wsgi_application_group      => '%{GLOBAL}',
-      wsgi_pass_authorization     => 'On',
-      error_log                   => true,
-      error_log_file              => 'cinder_error.log',
-      access_log_file             => 'cinder.log',
-      access_log_format           => 'cinder_combined',
-      directories                 => [
-        {
-          provider => 'directory',
-          path     => '/usr/bin',
-          require  => 'all granted',
-        }
-      ],
-      error_log_format            => [ '%{cu}t %M' ],
-      tag                         => $httpd_tag,
-
-      notify                      => Class['apache::service'],
-      require                     => [
-        User['cinder'],
-        Openstack::Package['cinder-api'],
-        File['/etc/apache2/conf-available/cinder-wsgi.conf'],
-      ]
+    openstack::package { 'cinder-scheduler':
+      cycle => $cycle,
     }
   }
   else {
