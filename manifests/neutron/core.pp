@@ -67,16 +67,26 @@ class openstack::neutron::core (
     ensure => 'latest',
   }
 
-  openstack::package {
-    default:
-      cycle => $cycle,
-    ;
-    'openstack-neutron-common':
-      configs => [
-        '/etc/neutron/neutron.conf',
-      ],
-    ;
-    'conntrack-tools': ;
+  if $facts['os']['family'] == 'Debian' {
+    $common_package      = 'neutron-common'
+    $openvswitch_package = 'neutron-openvswitch-agent'
+    $linuxbridge_package = 'neutron-linuxbridge-agent'
+  }
+  else {
+    $common_package      = 'openstack-neutron-common'
+    $openvswitch_package = 'openstack-neutron-openvswitch'
+    $linuxbridge_package = 'openstack-neutron-linuxbridge'
+
+    package { 'conntrack-tools':
+      ensure => 'present'
+    }
+  }
+
+  openstack::package { $common_package:
+    cycle   => $cycle,
+    configs => [
+      '/etc/neutron/neutron.conf',
+    ],
   }
 
   $lb_default = {
@@ -112,17 +122,17 @@ class openstack::neutron::core (
 
   if $network_plugin == 'openvswitch' {
     # https://docs.openstack.org/newton/networking-guide/deploy-ovs-selfservice.html
-    openstack::package { 'openstack-neutron-openvswitch':
+    openstack::package { $openvswitch_package:
       cycle   => $cycle,
       configs => [
         '/etc/neutron/plugins/ml2/openvswitch_agent.ini',
       ],
-      require => Openstack::Package['openstack-neutron-common'],
+      require => Openstack::Package[$common_package],
     }
 
     openstack::config { '/etc/neutron/plugins/ml2/openvswitch_agent.ini':
       content => $ovs_default,
-      require => Openstack::Package['openstack-neutron-openvswitch'],
+      require => Openstack::Package[$openvswitch_package],
       notify  => Service['neutron-openvswitch-agent'],
     }
 
@@ -135,26 +145,26 @@ class openstack::neutron::core (
 
     # linuxbridge decomission
     service { 'neutron-linuxbridge-agent': ensure => stopped, }
-    package { 'openstack-neutron-linuxbridge':
+    package { $linuxbridge_package:
       ensure  => absent,
       require => Service['neutron-linuxbridge-agent'],
       before  => Service['neutron-openvswitch-agent'],
     }
   }
   else {
-    openstack::package { 'openstack-neutron-linuxbridge':
+    openstack::package { $linuxbridge_package:
       cycle   => $cycle,
       configs => [
         '/etc/neutron/plugins/ml2/linuxbridge_agent.ini',
       ],
-      require => Openstack::Package['openstack-neutron-common'],
+      require => Openstack::Package[$common_package],
     }
 
     # The Linux bridge agent builds layer-2 (bridging and switching) virtual
     # networking infrastructure for instances and handles security groups.
     openstack::config { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
       content => $lb_default,
-      require => Openstack::Package['openstack-neutron-linuxbridge'],
+      require => Openstack::Package[$linuxbridge_package],
       notify  => Service['neutron-linuxbridge-agent'],
     }
 
@@ -167,7 +177,7 @@ class openstack::neutron::core (
 
     # openvswitch decomission
     service { 'neutron-openvswitch-agent': ensure => stopped, }
-    package { 'openstack-neutron-openvswitch':
+    package { $openvswitch_package:
       ensure  => absent,
       require => Service['neutron-openvswitch-agent'],
       before  => Service['neutron-linuxbridge-agent'],
@@ -223,6 +233,6 @@ class openstack::neutron::core (
 
   openstack::config { '/etc/neutron/neutron.conf':
     content => $conf_default,
-    require => Openstack::Package['openstack-neutron-common'],
+    require => Openstack::Package[$common_package],
   }
 }

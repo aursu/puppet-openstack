@@ -52,19 +52,45 @@ class openstack::controller::neutron (
     require     => Openstack::User['neutron'],
   }
 
+  if $facts['os']['family'] == 'Debian' {
+    $neutron_package    = 'neutron-server'
+    $ml2_plugin_package = 'neutron-plugin-ml2'
+    $nova_service       = 'nova-api'
+
+    openstack::package {
+      default:
+        cycle => $cycle,
+      ;
+      'neutron-l3-agent':
+        before => Service['neutron-l3-agent'],
+      ;
+      'neutron-dhcp-agent':
+        before => Service['neutron-dhcp-agent'],
+      ;
+      'neutron-metadata-agent':
+        before => Service['neutron-metadata-agent'],
+      ;
+    }
+  }
+  else {
+    $neutron_package    = 'openstack-neutron'
+    $ml2_plugin_package = 'openstack-neutron-ml2'
+    $nova_service       = 'openstack-nova-api'
+  }
+
   # https://docs.openstack.org/neutron/train/install/controller-install-option2-rdo.html
   openstack::package {
     default:
       cycle => $cycle,
     ;
-    'openstack-neutron':
+    $neutron_package:
       configs => [
         '/etc/neutron/l3_agent.ini',
         '/etc/neutron/dhcp_agent.ini',
         '/etc/neutron/metadata_agent.ini',
       ],
     ;
-    'openstack-neutron-ml2':
+    $ml2_plugin_package:
       configs => [
         '/etc/neutron/plugins/ml2/ml2_conf.ini',
       ],
@@ -73,13 +99,21 @@ class openstack::controller::neutron (
 
   $ovs_bridge = 'br-provider'
 
+  $ovs_package = $facts['os']['name'] ? {
+    'Ubuntu' => 'openvswitch-switch',
+    'CentOS' => $facts['os']['release']['major'] ? {
+      '7'     => 'openvswitch',
+      default => 'rdo-openvswitch',
+    },
+    default  => 'openvswitch',
+  }
+
+  $ovs_service = $facts['os']['name'] ? {
+    'Ubuntu' => 'openvswitch-switch',
+    default  => 'openvswitch',
+  }
+
   if $network_plugin == 'openvswitch' {
-    if $facts['os']['release']['major'] == '7' {
-      $ovs_package = 'openvswitch'
-    }
-    else {
-      $ovs_package = 'rdo-openvswitch'
-    }
 
     # Install OVS
     openstack::package { $ovs_package:
@@ -87,7 +121,7 @@ class openstack::controller::neutron (
     }
 
     # Start the OVS service
-    service { 'openvswitch':
+    service { $ovs_service:
       ensure  => running,
       enable  => true,
       require => Openstack::Package[$ovs_package],
@@ -97,7 +131,7 @@ class openstack::controller::neutron (
     exec { "ovs-vsctl add-br ${ovs_bridge}":
       path    => '/usr/bin:/usr/sbin',
       unless  => "test -d /sys/devices/virtual/net/${ovs_bridge}",
-      require => Service['openvswitch'],
+      require => Service[$ovs_service],
     }
 
     openstack::config { '/etc/neutron/plugins/ml2/openvswitch_agent.ini/controller':
@@ -199,8 +233,8 @@ class openstack::controller::neutron (
   openstack::config { '/etc/neutron/plugins/ml2/ml2_conf.ini':
     content => $ml2_default,
     require => [
-      Openstack::Package['openstack-neutron'],
-      Openstack::Package['openstack-neutron-ml2'],
+      Openstack::Package[$neutron_package],
+      Openstack::Package[$ml2_plugin_package],
     ],
     notify  => [
       Exec['neutron-db-sync'],
@@ -216,7 +250,7 @@ class openstack::controller::neutron (
 
   openstack::config { '/etc/neutron/l3_agent.ini':
     content => $l3_content,
-    require => Openstack::Package['openstack-neutron'],
+    require => Openstack::Package[$neutron_package],
     notify  => Service['neutron-l3-agent'],
   }
 
@@ -231,7 +265,7 @@ class openstack::controller::neutron (
             'DEFAULT/dhcp_driver'              => 'neutron.agent.linux.dhcp.Dnsmasq',
             'DEFAULT/enable_isolated_metadata' => 'true',
     },
-    require => Openstack::Package['openstack-neutron'],
+    require => Openstack::Package[$neutron_package],
     notify  => Service['neutron-dhcp-agent'],
   }
 
@@ -243,7 +277,7 @@ class openstack::controller::neutron (
       'DEFAULT/nova_metadata_host'           => 'controller',
       'DEFAULT/metadata_proxy_shared_secret' => $metadata_secret,
     },
-    require => Openstack::Package['openstack-neutron'],
+    require => Openstack::Package[$neutron_package],
     notify  => Service['neutron-metadata-agent'],
   }
 
@@ -273,7 +307,7 @@ class openstack::controller::neutron (
       'neutron/metadata_proxy_shared_secret' => $metadata_secret,
     },
     require => Openstack::Config['/etc/nova/nova.conf'],
-    notify  => Service['openstack-nova-api'],
+    notify  => Service[$nova_service],
   }
 
   exec { 'neutron-db-sync':
@@ -312,7 +346,7 @@ class openstack::controller::neutron (
 
   Mysql_database <| title == $neutron_dbname |> ~> Exec['neutron-db-sync']
 
-  Openstack::Package['openstack-neutron'] -> Openstack::Config['/etc/neutron/neutron.conf']
+  Openstack::Package[$neutron_package] -> Openstack::Config['/etc/neutron/neutron.conf']
 
   Openstack::Config['/etc/neutron/neutron.conf'] ~> Exec['neutron-db-sync']
 
@@ -320,12 +354,12 @@ class openstack::controller::neutron (
     Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'] ~> Exec['neutron-db-sync']
     Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-openvswitch-agent']
     Exec['neutron-db-sync'] ~> Service['neutron-openvswitch-agent']
-    Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'] -> Openstack::Package['openstack-neutron']
+    Openstack::Config['/etc/neutron/plugins/ml2/openvswitch_agent.ini'] -> Openstack::Package[$neutron_package]
   }
   else {
     Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] ~> Exec['neutron-db-sync']
     Openstack::Config['/etc/neutron/neutron.conf/controller'] ~> Service['neutron-linuxbridge-agent']
     Exec['neutron-db-sync'] ~> Service['neutron-linuxbridge-agent']
-    Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] -> Openstack::Package['openstack-neutron']
+    Openstack::Config['/etc/neutron/plugins/ml2/linuxbridge_agent.ini'] -> Openstack::Package[$neutron_package]
   }
 }
