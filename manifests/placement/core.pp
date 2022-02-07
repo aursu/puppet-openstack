@@ -56,9 +56,9 @@ class openstack::placement::core (
         }
       }
       default: {
-          openstack::package { 'python3-osc-placement':
-            ensure => 'installed',
-          }
+        openstack::package { 'python3-osc-placement':
+          cycle => $cycle,
+        }
       }
     }
   }
