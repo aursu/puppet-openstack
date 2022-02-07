@@ -147,7 +147,7 @@ class openstack::controller::dashboard (
         user        => 'horizon',
         path        => '/usr/bin:/usr/sbin:/bin:/sbin',
         refreshonly => true,
-        subcsribe   => [
+        subscribe   => [
           Openstack::Package['openstack-dashboard'],
           Openstack::Djangoconfig[$dashboard_config],
         ],
