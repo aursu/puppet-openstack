@@ -120,12 +120,6 @@ class openstack::controller::dashboard (
     notifyconfigs => false,
   }
 
-  openstack::djangoconfig { '/etc/openstack-dashboard/local_settings':
-    content   => $dashboard_data + $dashboard_openstack_neutron_network,
-    subscribe => Openstack::Package['openstack-dashboard'],
-    notify    => Class['apache::service'],
-  }
-
   if openstack::cyclecmp($cycle, 'wallaby') < 0 {
     $wsgi_script = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi'
     $wsgi_script_path = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi'
@@ -133,6 +127,59 @@ class openstack::controller::dashboard (
   else {
     $wsgi_script = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi.py'
     $wsgi_script_path = '/usr/share/openstack-dashboard/openstack_dashboard'
+  }
+
+  if $facts['os']['family'] == 'Debian' {
+    $static_content_path = '/var/lib/openstack-dashboard/static'
+
+    $dashboard_web_data = {
+      wsgi_daemon_process_options => {
+        'processes'    => '3',
+        'threads'      => '10',
+        'user'         => 'horizon',
+        'group'        => 'horizon',
+        'display-name' => '%{GROUP}'
+      },
+      wsgi_script_aliases => {
+        '/dashboard' => [$wsgi_script, 'process-group=horizon'],
+      }
+    }
+
+    $wsgi_daemon_process_options =  {
+      user         => 'horizon',
+      group        => 'horizon',
+      processes    => 3,
+      threads      => 10,
+      display-name => '%{GROUP}',
+    }
+
+    $wsgi_script_options = {
+      process-group => 'horizon',
+    }
+
+    $wsgi_application_group = '%{GLOBAL}'
+
+    file { '/etc/apache2/conf-available/openstack-dashboard.conf':
+      ensure    => absent,
+      subscribe => Openstack::Package['openstack-dashboard'],
+    }
+  }
+  else {
+    $static_content_path = '/usr/share/openstack-dashboard/static'
+
+    $dashboard_web_data = {
+      wsgi_script_aliases => {
+        '/dashboard' => $wsgi_script,
+      },
+    }
+
+    $wsgi_socket_prefix = 'run/wsgi'
+  }
+
+  openstack::djangoconfig { '/etc/openstack-dashboard/local_settings':
+    content   => $dashboard_data + $dashboard_openstack_neutron_network,
+    subscribe => Openstack::Package['openstack-dashboard'],
+    notify    => Class['apache::service'],
   }
 
   if $allowed_hosts {
@@ -144,24 +191,27 @@ class openstack::controller::dashboard (
     }
 
     apache::vhost { 'openstack-dashboard':
-      port                => '80',
-      docroot             => false,
-      servername          => $servername,
-      serveraliases       => $serveraliases,
-      error_log           => false,
-      access_log          => false,
-      wsgi_daemon_process => 'dashboard',
-      wsgi_process_group  => 'dashboard',
-      wsgi_script_aliases => {
-        '/dashboard' => $wsgi_script,
-      },
-      aliases             => [
+      *                      => $dashboard_web_data,
+      port                   => '80',
+      docroot                => false,
+      servername             => $servername,
+      serveraliases          => $serveraliases,
+      error_log              => false,
+      access_log             => false,
+      wsgi_daemon_process    => 'dashboard',
+      wsgi_process_group     => 'dashboard',
+      wsgi_application_group => '%{GLOBAL}',
+      aliases                => [
+        {
+          alias => '/static',
+          path  => $static_content_path,
+        },
         {
           alias => '/dashboard/static',
-          path  => '/usr/share/openstack-dashboard/static',
-        },
+          path  => $static_content_path,
+        }
       ],
-      directories         => [
+      directories            => [
         {
           provider       => 'directory',
           path           => $wsgi_script_path,
@@ -171,14 +221,14 @@ class openstack::controller::dashboard (
         },
         {
           provider       => 'directory',
-          path           => '/usr/share/openstack-dashboard/static',
+          path           => $static_content_path,
           options        => [ 'All' ],
           allow_override => [ 'All' ],
           require        => 'all granted',
         },
       ],
-      tag                 => $httpd_tag,
-      notify              => Class['apache::service'],
+      tag                    => $httpd_tag,
+      notify                 => Class['apache::service'],
     }
   }
 

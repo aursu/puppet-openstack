@@ -1,9 +1,15 @@
-WSGIDaemonProcess dashboard
+WSGIDaemonProcess dashboard<% if @wsgi_daemon_process_options.is_a?(Hash) %> <%= @wsgi_daemon_process_options.map { |o| o.join('=') }.join(' ') %><% end %>
 WSGIProcessGroup dashboard
-WSGISocketPrefix run/wsgi
+<%- if @wsgi_socket_prefix -%>
+WSGISocketPrefix <%= @wsgi_socket_prefix %>
+<%- end -%>
+<%- if @wsgi_application_group -%>
+WSGIApplicationGroup <%= @wsgi_application_group %>
+<%- end -%>
 
-WSGIScriptAlias /dashboard <%= @wsgi_script %>
-Alias /dashboard/static /usr/share/openstack-dashboard/static
+WSGIScriptAlias /dashboard <%= @wsgi_script %><% if @wsgi_script_options.is_a?(Hash) %> <%= @wsgi_script_options.map { |o| o.join('=') }.join(' ') %><% end %>
+Alias /static <%= @static_content_path %>
+Alias /dashboard/static <%= @static_content_path %>
 
 <Directory <%= @wsgi_script_path %>>
   Options All
@@ -11,7 +17,7 @@ Alias /dashboard/static /usr/share/openstack-dashboard/static
   Require all granted
 </Directory>
 
-<Directory /usr/share/openstack-dashboard/static>
+<Directory <%= @static_content_path %>>
   Options All
   AllowOverride All
   Require all granted
