@@ -140,6 +140,7 @@ class openstack::controller::dashboard (
     $wsgi_script = '/usr/share/openstack-dashboard/openstack_dashboard/wsgi.py'
     $wsgi_script_path = '/usr/share/openstack-dashboard/openstack_dashboard'
 
+    # run "python manage.py compress" for offline compression
     if $facts['os']['family'] == 'Debian' {
       exec { 'python3 /usr/share/openstack-dashboard/manage.py compress':
         cwd         => $wsgi_script_path,
@@ -150,37 +151,32 @@ class openstack::controller::dashboard (
           Openstack::Package['openstack-dashboard'],
           Openstack::Djangoconfig[$dashboard_config],
         ],
+        notify      => Class['apache::service'],
       }
     }
   }
 
   if $facts['os']['family'] == 'Debian' {
-    $dashboard_web_data = {
-      wsgi_daemon_process_options => {
-        'processes'    => '3',
-        'threads'      => '10',
-        'user'         => 'horizon',
-        'group'        => 'horizon',
-        'display-name' => '%{GROUP}'
-      },
-      wsgi_script_aliases => {
-        '/dashboard' => [$wsgi_script, 'process-group=dashboard'],
-      }
-    }
-
     $wsgi_daemon_process_options =  {
-      user         => 'horizon',
-      group        => 'horizon',
-      processes    => 3,
-      threads      => 10,
-      display-name => '%{GROUP}',
+      'user'         => 'horizon',
+      'group'        => 'horizon',
+      'processes'    => '3',
+      'threads'      => '10',
+      'display-name' => '%{GROUP}',
     }
 
     $wsgi_script_options = {
-      process-group => 'horizon',
+      'process-group' => 'dashboard',
     }
 
     $wsgi_application_group = '%{GLOBAL}'
+
+    $dashboard_web_data = {
+      wsgi_daemon_process_options => $wsgi_daemon_process_options,
+      wsgi_script_aliases         => {
+        '/dashboard' => [$wsgi_script, 'process-group=dashboard'],
+      }
+    }
 
     file { '/etc/apache2/conf-available/openstack-dashboard.conf':
       ensure    => file,
@@ -189,13 +185,13 @@ class openstack::controller::dashboard (
     }
   }
   else {
+    $wsgi_socket_prefix = 'run/wsgi'
+
     $dashboard_web_data = {
       wsgi_script_aliases => {
         '/dashboard' => $wsgi_script,
       },
     }
-
-    $wsgi_socket_prefix = 'run/wsgi'
   }
 
   openstack::djangoconfig { $dashboard_config:
