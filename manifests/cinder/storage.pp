@@ -51,8 +51,14 @@ class openstack::cinder::storage (
     $lvm_target_service = 'tgt'
     $cinder_volume_service = 'cinder-volume'
 
-    package { 'thin-provisioning-tools':
-      ensure => present,
+    package {
+      default:
+        ensure => present,
+      ;
+      'thin-provisioning-tools': ;
+      'tgt':
+        before => Service[$lvm_target_service],
+      ;
     }
 
     openstack::package { 'cinder-volume':
