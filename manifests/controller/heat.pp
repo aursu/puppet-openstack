@@ -90,17 +90,33 @@ class openstack::controller::heat (
     ensure => present,
   }
 
-  openstack::package {
-    default:
-      cycle   => $cycle,
-    ;
-    'openstack-heat-api':
-      configs => [
-        '/etc/heat/heat.conf',
-      ],
-    ;
-    'openstack-heat-api-cfn': ;
-    'openstack-heat-engine': ;
+  if $facts['os']['family'] == 'Debian' {
+    openstack::package {
+      default:
+        cycle   => $cycle,
+      ;
+      'heat-api':
+        configs => [
+          '/etc/heat/heat.conf',
+        ],
+      ;
+      'heat-api-cfn': ;
+      'heat-engine': ;
+    }
+  }
+  else {
+    openstack::package {
+      default:
+        cycle   => $cycle,
+      ;
+      'openstack-heat-api':
+        configs => [
+          '/etc/heat/heat.conf',
+        ],
+      ;
+      'openstack-heat-api-cfn': ;
+      'openstack-heat-engine': ;
+    }
   }
 
   # Identities
@@ -206,15 +222,29 @@ class openstack::controller::heat (
     notify  => Exec['heat-db-sync'],
   }
 
-  service {
-    default:
-      ensure  => running,
-      enable  => true,
-      require => Exec['heat-db-sync']
-    ;
-    'openstack-heat-api': ;
-    'openstack-heat-api-cfn': ;
-    'openstack-heat-engine': ;
+  if $facts['os']['family'] == 'Debian' {
+    service {
+      default:
+        ensure  => running,
+        enable  => true,
+        require => Exec['heat-db-sync']
+      ;
+      'heat-api': ;
+      'heat-api-cfn': ;
+      'heat-engine': ;
+    }
+  }
+  else {
+    service {
+      default:
+        ensure  => running,
+        enable  => true,
+        require => Exec['heat-db-sync']
+      ;
+      'openstack-heat-api': ;
+      'openstack-heat-api-cfn': ;
+      'openstack-heat-engine': ;
+    }
   }
 
   Mysql_database <| title == $heat_dbname |> ~> Exec['heat-db-sync']
