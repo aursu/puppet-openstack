@@ -71,6 +71,7 @@ class openstack::controller::placementweb (
   apache::custom_config { 'wsgi-placement':
     content => template('openstack/wsgi-placement.conf.erb'),
     tag     => $httpd_tag,
+    require => Apache::Vhost['placement-api'],
     notify  => Class['apache::service'],
   }
 }
