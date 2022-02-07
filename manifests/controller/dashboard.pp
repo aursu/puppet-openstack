@@ -21,10 +21,15 @@ class openstack::controller::dashboard (
   $confd_dir = $::apache::params::confd_dir
 
   if $facts['os']['family'] == 'Debian' {
+    $dashboard_config = '/etc/openstack-dashboard/local_settings.py'
+
     package { 'python2':
       ensure => 'present',
-      before => Openstack::Djangoconfig['/etc/openstack-dashboard/local_settings'],
+      before => Openstack::Djangoconfig[$dashboard_config],
     }
+  }
+  else {
+    $dashboard_config = '/etc/openstack-dashboard/local_settings'
   }
 
   # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
@@ -121,9 +126,7 @@ class openstack::controller::dashboard (
 
   openstack::package { 'openstack-dashboard':
     cycle         => $cycle,
-    configs       => [
-      '/etc/openstack-dashboard/local_settings',
-    ],
+    configs       => [ $dashboard_config ],
     notifyconfigs => false,
   }
 
@@ -183,7 +186,7 @@ class openstack::controller::dashboard (
     $wsgi_socket_prefix = 'run/wsgi'
   }
 
-  openstack::djangoconfig { '/etc/openstack-dashboard/local_settings':
+  openstack::djangoconfig { $dashboard_config:
     content   => $dashboard_data + $dashboard_openstack_neutron_network,
     subscribe => Openstack::Package['openstack-dashboard'],
     notify    => Class['apache::service'],
