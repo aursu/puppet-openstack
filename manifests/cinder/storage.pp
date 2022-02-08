@@ -47,7 +47,7 @@ class openstack::cinder::storage (
   }
 
   if $facts['os']['family'] == 'Debian' {
-    $lvm_target_helper  = 'lioadm'
+    $lvm_target_helper  = 'tgtadm'
     $lvm_target_service = 'tgt'
     $cinder_volume_service = 'cinder-volume'
 
@@ -67,7 +67,7 @@ class openstack::cinder::storage (
     }
   }
   else {
-    $lvm_target_helper = 'tgtadm'
+    $lvm_target_helper = 'lioadm'
     $lvm_target_service = 'target'
     $cinder_volume_service = 'openstack-cinder-volume'
 
