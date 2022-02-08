@@ -53,8 +53,39 @@ Puppet::Type.newtype(:openstack_router) do
     desc 'Router description'
   end
 
-  newproperty(:external_gateway_info, parent: PuppetX::OpenStack::NetworkProperty) do
-    desc "External Network used as router's gateway (name or ID)"
+  newproperty(:external_gateway_network, parent: PuppetX::OpenStack::NetworkProperty) do
+    desc "Network used as router's external gateway network (name or ID)"
+
+    munge do |value|
+      return :absent if value.to_s == 'absent'
+
+      network = resource.network_instance(value)
+      value = network[:id] if network
+
+      value
+    end
+  end
+
+  newproperty(:external_gateway_subnet, parent: PuppetX::OpenStack::SubnetProperty) do
+    desc "Subnet used as router's external gateway subnet (name or ID)"
+
+    munge do |value|
+      return :absent if value.to_s == 'absent'
+
+      subnet = resource.subnet_instance(value)
+      value = subnet[:id] if subnet
+
+      value
+    end
+  end
+
+  newproperty(:external_gateway_ip) do
+    desc "IP on external gateway"
+
+    validate do |value|
+      raise ArgumentError, _('Gateway IP address must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
+      raise ArgumentError, _('Gateway IP address must be a valid IP address') unless resource.validate_ip(value)
+    end
   end
 
   newproperty(:subnets, parent: PuppetX::OpenStack::SubnetProperty, array_matching: :all) do
@@ -72,8 +103,8 @@ Puppet::Type.newtype(:openstack_router) do
     munge do |value|
       return :absent if value.to_s == 'absent'
 
-      sub = resource.subnet_instance(value)
-      value = sub[:id] if sub
+      subnet = resource.subnet_instance(value)
+      value = subnet[:id] if subnet
 
       value
     end
@@ -88,5 +119,17 @@ Puppet::Type.newtype(:openstack_router) do
   autorequire(:openstack_subnet) do
     prop_to_array(self[:subnets]).map { |s| subnet_instance(s) || subnet_resource(s) }.compact
                                  .map { |s| s[:name] }
+  end
+
+  validate do
+    if @parameters[:external_gateway_subnet] || @parameters[:external_gateway_ip]
+      raise Puppet::Error, _('error: argument :external_gateway_ip not allowed without argument :external_gateway_subnet') unless @parameters[:external_gateway_subnet] && @parameters[:external_gateway_ip]
+    end
+  end
+
+  def validate_ip(ip, name = 'IP address')
+    IPAddr.new(ip) if ip
+  rescue ArgumentError
+    raise Puppet::Error, _("'%{ip}' is an invalid %{name}") % { ip: ip, name: name }, $ERROR_INFO
   end
 end

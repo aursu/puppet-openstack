@@ -56,9 +56,9 @@ define openstack::project (
 
     # create router
     openstack_router { "${name}-gw":
-      project               => $name,
-      external_gateway_info => $external_gateway,
-      subnets               => [ "${name}-subnet" ],
+      project                  => $name,
+      external_gateway_network => $external_gateway,
+      subnets                  => [ "${name}-subnet" ],
     }
   }
 
