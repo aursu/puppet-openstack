@@ -91,11 +91,13 @@ class openstack::controller::heat (
   }
 
   if $facts['os']['family'] == 'Debian' {
+    $api_package = 'heat-api'
+
     openstack::package {
       default:
         cycle   => $cycle,
       ;
-      'heat-api':
+      $api_package:
         configs => [
           '/etc/heat/heat.conf',
         ],
@@ -105,11 +107,13 @@ class openstack::controller::heat (
     }
   }
   else {
+    $api_package = 'openstack-heat-api'
+
     openstack::package {
       default:
         cycle   => $cycle,
       ;
-      'openstack-heat-api':
+      $api_package:
         configs => [
           '/etc/heat/heat.conf',
         ],
@@ -218,7 +222,7 @@ class openstack::controller::heat (
 
   openstack::config { '/etc/heat/heat.conf':
     content => $conf_default,
-    require => Openstack::Package['openstack-heat-api'],
+    require => Openstack::Package[$api_package],
     notify  => Exec['heat-db-sync'],
   }
 
