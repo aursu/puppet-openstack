@@ -72,12 +72,14 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
 
       router_subnets = nil if router_subnets.empty?
 
+      enabled = entity['status'].casecmp?('ACTIVE')
+
       @instances << new(name: entity_name,
                         ensure: :present,
                         id: entity['id'],
                         description: entity['description'],
-                        enabled: entity['state'].to_s.to_sym,
-                        project: entity['project'],
+                        enabled: enabled.to_s.to_sym,
+                        project: entity['project_id'],
                         distributed: entity['distributed'].to_s.to_sym,
                         ha: entity['ha'].to_s.to_sym,
                         external_gateway_network: external_gateway_network,
