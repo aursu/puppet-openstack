@@ -18,7 +18,8 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
-    get_list(provider_subcommand)
+    apiclient.req_params = {}
+    apiclient.api_get_list('subnets')
   end
 
   def self.provider_create(*args)
@@ -58,13 +59,13 @@ Puppet::Type.type(:openstack_subnet).provide(:openstack, parent: Puppet::Provide
       @instances << new(name: entity_name,
                         ensure: :present,
                         id: entity['id'],
-                        network: entity['network'],
-                        subnet_range: entity['subnet'],
-                        dns_nameserver: entity['name_servers'],
-                        gateway: entity['gateway'],
-                        project: entity['project'],
+                        network: entity['network_id'],
+                        subnet_range: entity['cidr'],
+                        dns_nameserver: entity['dns_nameservers'],
+                        gateway: entity['gateway_ip'],
+                        project: entity['project_id'],
                         ip_version: entity['ip_version'].to_s,
-                        dhcp: entity['dhcp'].to_s.to_sym,
+                        dhcp: entity['enable_dhcp'].to_s.to_sym,
                         allocation_pool: pool_enabled.to_s.to_sym,
                         allocation_pool_start: pool_start,
                         allocation_pool_end: pool_end,
