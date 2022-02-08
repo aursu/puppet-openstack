@@ -83,37 +83,53 @@ class openstack::controller::octavia (
     *          => $auth_octavia,
   }
 
-  openstack::package {
-    default:
-      cycle   => $cycle,
-    ;
-    'openstack-octavia-api':
-      configs       => [
-        '/etc/octavia/octavia.conf',
-      ],
-      notifyconfigs => false,
-    ;
-    'openstack-octavia-health-manager': ;
-    'openstack-octavia-housekeeping': ;
-    'openstack-octavia-worker': ;
+  if $facts['os']['family'] == 'Debian' {
+    openstack::package {
+      default:
+        cycle   => $cycle,
+      ;
+      'octavia-api':
+        configs       => [
+          '/etc/octavia/octavia.conf',
+        ],
+        notifyconfigs => false,
+      ;
+      'octavia-health-manager': ;
+      'octavia-housekeeping': ;
+      'octavia-worker': ;
+    }
+  }
+  else {
+    openstack::package {
+      default:
+        cycle   => $cycle,
+      ;
+      'openstack-octavia-api':
+        configs       => [
+          '/etc/octavia/octavia.conf',
+        ],
+        notifyconfigs => false,
+      ;
+      'openstack-octavia-health-manager': ;
+      'openstack-octavia-housekeeping': ;
+      'openstack-octavia-worker': ;
+    }
   }
 
-  if $facts['os']['name'] in ['RedHat', 'CentOS'] {
-    case $facts['os']['release']['major'] {
-      '7': {
-        package {
-          default: ensure => 'installed';
-          'python2-octavia': ;
-          'python2-octaviaclient': ;
-        }
-      }
-      default: {
-        package {
-          default: ensure => 'installed';
-          'python3-octavia': ;
-          'python3-octaviaclient': ;
-        }
-      }
+# python3-octavia python3-octaviaclient
+  if $facts['os']['name'] in ['RedHat', 'CentOS'] and $facts['os']['release']['major'] == '7' {
+    package {
+      default: ensure => 'installed';
+      'python2-octavia': ;
+      'python2-octaviaclient': ;
+    }
+  }
+  else {
+    # rest of Red Hat and Debian/Ubuntu
+    package {
+      default: ensure => 'installed';
+      'python3-octavia': ;
+      'python3-octaviaclient': ;
     }
   }
 
