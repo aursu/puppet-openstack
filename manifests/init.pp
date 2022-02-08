@@ -55,6 +55,7 @@ class openstack (
   String              $neutron_network_plugin,
   Optional[String]    $metadata_secret,
   String              $provider_physical_network,
+  String              $provider_physical_subnet,
   Optional[Stdlib::IP::Address]
                       $provider_network_cidr,
   Optional[Stdlib::IP::Address]

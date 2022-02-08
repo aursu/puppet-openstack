@@ -23,6 +23,10 @@ define openstack::project (
   # https://docs.openstack.org/ocata/install-guide-rdo/launch-instance-networks-selfservice.html
   Optional[String]
           $external_gateway            = $openstack::provider_physical_network,
+  Optional[String]
+          $external_gateway_subnet    = $openstack::provider_physical_subnet,
+  Optional[Stdlib::IP::Address]
+          $external_gateway_ip         = undef,
   Boolean $secopen                     = false,
 )
 {
@@ -54,11 +58,22 @@ define openstack::project (
       project        => $name,
     }
 
+    if $external_gateway_ip and $external_gateway_subnet {
+      $external_gateway_info = {
+        external_gateway_ip     => $external_gateway_ip,
+        external_gateway_subnet => $external_gateway_subnet,
+      }
+    }
+    else {
+      $external_gateway_info = {}
+    }
+
     # create router
     openstack_router { "${name}-gw":
       project                  => $name,
       external_gateway_network => $external_gateway,
       subnets                  => [ "${name}-subnet" ],
+      *                        => $external_gateway_info,
     }
   }
 

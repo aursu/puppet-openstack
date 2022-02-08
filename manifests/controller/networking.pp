@@ -6,6 +6,7 @@
 #   include openstack::controller::networking
 class openstack::controller::networking (
   String  $provider_physical_network = $openstack::provider_physical_network,
+  String  $provider_physical_subnet  = $openstack::provider_physical_subnet,
   Stdlib::IP::Address
           $provider_network_cidr     = $openstack::provider_network_cidr,
   Stdlib::IP::Address
@@ -26,7 +27,7 @@ class openstack::controller::networking (
     provider_physical_network => $provider_physical_network,
   }
 
-  openstack_subnet { $provider_physical_network:
+  openstack_subnet { $provider_physical_subnet:
     network               => $provider_physical_network,
     subnet_range          => $provider_network_cidr,
     gateway               => $provider_network_gateway,

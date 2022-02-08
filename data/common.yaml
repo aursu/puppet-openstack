@@ -36,6 +36,7 @@ openstack::neutron_ml2_extension_drivers: 'port_security'
 openstack::neutron_network_plugin: 'linuxbridge'
 openstack::metadata_secret: ~
 openstack::provider_physical_network: 'provider'
+openstack::provider_physical_subnet: 'provider'
 openstack::provider_interface_name: ~
 openstack::provider_network_dns: ['8.8.8.8', '8.8.4.4']
 openstack::provider_network_cidr: ~
