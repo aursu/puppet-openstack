@@ -18,7 +18,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
   end
 
   def self.provider_list
-    get_list(provider_subcommand)
+    apiclient.req_params = {}
+    apiclient.api_get_list('routers')
   end
 
   def self.provider_create(*args)
@@ -39,17 +40,6 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     openstack_caller(provider_subcommand, 'unset', *args)
   end
 
-  # "External gateway info": {
-  #   "network_id": "107ce2d3-68c7-4c4a-bc04-e29c38ab5282",
-  #   "enable_snat": true,
-  #   "external_fixed_ips": [
-  #     {
-  #       "subnet_id": "ac6d8652-c52a-4f31-b610-26bddcecbec2",
-  #       "ip_address": "10.100.16.30"
-  #     }
-  #   ]
-  # },
-
   def self.instances
     return @instances if @instances && @prefetch_done
     @instances = []
@@ -61,12 +51,25 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     provider_list.map do |entity_name, entity|
       router_id = entity['id']
 
+      external_gateway_network = nil
+      external_gateway_subnet  = nil
+      external_gateway_ip      = nil
+
       external_gateway_info = entity['external_gateway_info']
-      external_gateway_info = external_gateway_info['network_id'] if external_gateway_info.is_a?(Hash)
+      if external_gateway_info.is_a?(Hash)
+        external_gateway_network = external_gateway_info['network_id']
+        external_fixed_ips       = external_gateway_info['external_fixed_ips']
+        if external_fixed_ips.is_a?(Array) && external_fixed_ips[0]
+          fixed_ip = external_fixed_ips[0]
+          external_gateway_subnet = fixed_ip['subnet_id']
+          external_gateway_ip     = fixed_ip['ip_address']
+        end
+      end
 
       router_subnets = port_instances.select { |port| port.device_id == router_id }
-                                     .map { |port| port.fixed_ips }.flatten
-                                     .map { |ip| ip['subnet_id'] }.compact
+                                     .map    { |port| port.fixed_ips }.flatten
+                                     .map    { |ip| ip['subnet_id'] }.compact
+
       router_subnets = nil if router_subnets.empty?
 
       @instances << new(name: entity_name,
@@ -77,7 +80,9 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
                         project: entity['project'],
                         distributed: entity['distributed'].to_s.to_sym,
                         ha: entity['ha'].to_s.to_sym,
-                        external_gateway_info: external_gateway_info,
+                        external_gateway_network: external_gateway_network,
+                        external_gateway_subnet: external_gateway_subnet,
+                        external_gateway_ip: external_gateway_ip,
                         subnets: router_subnets,
                         provider: name)
     end
@@ -105,7 +110,10 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     desc        = @resource.value(:description)
     project     = @resource.value(:project)
     subnets     = @resource.value(:subnets)
-    external_gateway_info = @resource.value(:external_gateway_info)
+
+    external_gateway_network = @resource.value(:external_gateway_network)
+    external_gateway_subnet  = @resource.value(:external_gateway_subnet)
+    external_gateway_ip      = @resource.value(:external_gateway_ip)
 
     @property_hash[:enabled] = enabled
     @property_hash[:distributed] = distributed
@@ -130,14 +138,22 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     return if self.class.provider_create(*args) == false
     @property_hash[:ensure] = :present
 
-    return if self.class.provider_set('--external-gateway', external_gateway_info, name) == false
-    # TODO: openstack router set --external-gateway 107ce2d3-68c7-4c4a-bc04-e29c38ab5282 \
-    #       --fixed-ip subnet=ea91d300-c187-4001-900e-0b715edc4b7d,ip-address=10.100.16.58 59c172eb-91b1-49a4-b7a3-7bb3b48a219d
-    @property_hash[:external_gateway_info] = external_gateway_info
+    if external_gateway_network
+      if external_gateway_subnet && external_gateway_ip
+        return if self.class.provider_set('--external-gateway', external_gateway_network, "--fixed-ip subnet=#{external_gateway_subnet},ip-address=#{external_gateway_ip}", name) == false
+
+        @property_hash[:external_gateway_subnet] = external_gateway_subnet
+        @property_hash[:external_gateway_ip] = external_gateway_ip
+      else
+        return if self.class.provider_set('--external-gateway', external_gateway_network, name) == false
+      end
+      @property_hash[:external_gateway_network] = external_gateway_network
+    end
 
     subnets.each do |sub|
       return if self.class.openstack_caller('router', 'add subnet', name, sub) == false # rubocop:disable Lint/NonLocalExitFromIterator:
     end
+
     @property_hash[:subnets] = subnets
   end
 
@@ -171,8 +187,16 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     @property_flush[:ha] = stat
   end
 
-  def external_gateway_info=(info)
-    @property_flush[:external_gateway_info] = info
+  def external_gateway_network=(info)
+    @property_flush[:external_gateway_network] = info
+  end
+
+  def external_gateway_subnet=(info)
+    @property_flush[:external_gateway_subnet] = info
+  end
+
+  def external_gateway_ip=(info)
+    @property_flush[:external_gateway_ip] = info
   end
 
   def subnets=(should)
@@ -193,7 +217,9 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
     args = []
     name        = @resource[:name]
     desc        = @resource.value(:description)
-    external_gateway_info = @resource.value(:external_gateway_info)
+    external_gateway_network = @resource.value(:external_gateway_network)
+    external_gateway_subnet  = @resource.value(:external_gateway_subnet)
+    external_gateway_ip      = @resource.value(:external_gateway_ip)
 
     args += ['--description', desc] if @property_flush[:description]
     args << '--enable' if @property_flush[:enabled] == :true
@@ -206,7 +232,14 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
       args << '--no-ha' if @property_flush[:ha] == :false
     end
 
-    args += ['--external-gateway', external_gateway_info] if @property_flush[:external_gateway_info]
+    if @property_flush[:external_gateway_network] || @property_flush[:external_gateway_subnet] || @property_flush[:external_gateway_ip] 
+      if external_gateway_network
+        args += ['--external-gateway', external_gateway_network]
+        if external_gateway_subnet && external_gateway_ip
+          args += ['--fixed-ip', "subnet=#{external_gateway_subnet},ip-address=#{external_gateway_ip}"]
+        end
+      end
+    end
 
     @property_flush.clear
 
