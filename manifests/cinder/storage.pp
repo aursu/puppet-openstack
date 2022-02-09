@@ -79,6 +79,7 @@ class openstack::cinder::storage (
       'targetcli':
         before => Service[$lvm_target_service],
       ;
+      'libguestfs-tools': ;
     }
 
     if $facts['os']['release']['major'] in ['7'] {
