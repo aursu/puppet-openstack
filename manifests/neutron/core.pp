@@ -71,11 +71,13 @@ class openstack::neutron::core (
     $common_package      = 'neutron-common'
     $openvswitch_package = 'neutron-openvswitch-agent'
     $linuxbridge_package = 'neutron-linuxbridge-agent'
+    $openvswitch_service = ['ovsdb-server', 'ovs-vswitchd']
   }
   else {
     $common_package      = 'openstack-neutron-common'
     $openvswitch_package = 'openstack-neutron-openvswitch'
     $linuxbridge_package = 'openstack-neutron-linuxbridge'
+    $openvswitch_service = ['ovsdb-server', 'ovs-vswitchd', 'openvswitch']
 
     package { 'conntrack-tools':
       ensure => 'present'
@@ -176,7 +178,15 @@ class openstack::neutron::core (
     }
 
     # openvswitch decomission
-    service { 'neutron-openvswitch-agent': ensure => stopped, }
+    service {
+      default:
+        ensure => stopped,
+        enable => false,
+      ;
+      'neutron-openvswitch-agent': ;
+      $openvswitch_service: ;
+    }
+
     package { $openvswitch_package:
       ensure  => absent,
       require => Service['neutron-openvswitch-agent'],
