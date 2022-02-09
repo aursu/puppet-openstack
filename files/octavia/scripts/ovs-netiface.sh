@@ -1,4 +1,5 @@
 #!/bin/bash
+# https://github.com/openstack/neutron/blob/master/devstack/lib/octavia
 
 MGMT_PORT_ID=${MGMT_PORT_ID:-$1}
 MGMT_PORT_MAC=${MGMT_PORT_MAC:-$2}

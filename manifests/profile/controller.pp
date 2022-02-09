@@ -53,7 +53,8 @@ class openstack::profile::controller (
   include openstack::controller::heat
 
   # https://docs.openstack.org/octavia/latest/install/install.html
-  include openstack::controller::octavia
+  # TODO: complete
+  # include openstack::controller::octavia
 
   # TODO: [backup service](https://docs.openstack.org/cinder/xena/install/cinder-backup-install-rdo.html)
   # TODO: [Object storage](https://docs.openstack.org/swift/latest/install/)
