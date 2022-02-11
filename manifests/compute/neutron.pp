@@ -12,6 +12,8 @@ class openstack::compute::neutron (
           $network_plugin            = $openstack::neutron_network_plugin,
 ){
   include openstack::neutron::core
+  include openstack::params
+  $nova_compute_service = $openstack::params::nova_compute_service
 
   # [neutron]
   # auth_url = http://controller:5000
@@ -35,6 +37,6 @@ class openstack::compute::neutron (
       'neutron/password'            => $neutron_pass,
     },
     require => Openstack::Config['/etc/nova/nova.conf'],
-    notify  => Service['openstack-nova-compute'],
+    notify  => Service[$nova_compute_service],
   }
 }

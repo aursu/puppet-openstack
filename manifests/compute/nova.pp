@@ -15,11 +15,29 @@ class openstack::compute::nova (
 ) {
   # https://docs.openstack.org/nova/train/install/compute-install-rdo.html
   include openstack::nova::core
+  include openstack::params
+  $nova_compute_package = $openstack::params::nova_compute_package
+  $nova_compute_service = $openstack::params::nova_compute_service
 
   # Enable KVM-based Nested Virtualization
   include openstack::compute::nested_virtualization
 
-  openstack::package { 'openstack-nova-compute':
+  if $facts['os']['family'] == 'Debian' {
+    $enabled_apis = {}
+  }
+  else {
+    $enabled_apis = {
+      'DEFAULT/enabled_apis' => 'osapi_compute,metadata',
+    }
+
+    service { 'libvirtd':
+        ensure    => running,
+        enable    => true,
+        subscribe => Openstack::Config['/etc/nova/nova.conf'],
+    }
+  }
+
+  openstack::package { $nova_compute_package:
     cycle   => $cycle,
     configs => [
       '/etc/nova/nova.conf',
@@ -73,25 +91,21 @@ class openstack::compute::nova (
 
   openstack::config { '/etc/nova/nova.conf/compute':
     path    => '/etc/nova/nova.conf',
-    content => $conf_default + $virt_type,
+    content => $conf_default + $virt_type + $enabled_apis,
     require => Openstack::Config['/etc/nova/nova.conf'],
-    notify  => Service['openstack-nova-compute'],
+    notify  => Service[$nova_compute_service],
   }
 
-  service {
-    default:
-      ensure    => running,
-      enable    => true,
-      subscribe => Openstack::Config['/etc/nova/nova.conf'],
-    ;
-    'openstack-nova-compute': ;
-    'libvirtd': ;
+  service { $nova_compute_service:
+    ensure    => running,
+    enable    => true,
+    subscribe => Openstack::Config['/etc/nova/nova.conf'],
   }
 
   @@openstack::nova::host { $::hostname:
     tag => $compute_tag,
   }
 
-  Openstack::Package['openstack-nova-compute'] -> Openstack::Config['/etc/nova/nova.conf']
-  File['/var/lib/nova'] -> Service['openstack-nova-compute']
+  Openstack::Package[$nova_compute_package] -> Openstack::Config['/etc/nova/nova.conf']
+  File['/var/lib/nova'] -> Service[$nova_compute_service]
 }

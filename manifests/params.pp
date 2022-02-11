@@ -26,4 +26,13 @@ class openstack::params {
       default => false,
     }
   }
+
+  if $facts['os']['family'] == 'Debian' {
+    $nova_compute_package = 'nova-compute'
+    $nova_compute_service = 'nova-compute'
+  }
+  else {
+    $nova_compute_package = 'openstack-nova-compute'
+    $nova_compute_service = 'openstack-nova-compute'
+  }
 }
