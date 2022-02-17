@@ -54,6 +54,7 @@ openstack::cinder_storage: true
 openstack::cinder_volume_group: 'cinder-volumes'
 openstack::lvm_devices_filter: ~
 openstack::cinder_physical_volumes: ~
+openstack::ceph_release: pacific
 openstack::storage_network: ~
 openstack::heat_dbname: 'heat'
 openstack::heat_dbuser: 'heat'

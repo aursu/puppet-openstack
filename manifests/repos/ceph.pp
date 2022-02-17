@@ -1,15 +1,15 @@
-# @summary A short summary of the purpose of this class
+# @summary Ceph repository setup
 #
-# A description of what this class does
+# Ceph repository setup
+# https://docs.ceph.com/en/latest/install/get-packages/
 #
 # @example
 #   include openstack::repos::ceph
 class openstack::repos::ceph (
   Enum['octopus', 'pacific']
-          $release = 'pacific',
+          $release = $openstack::ceph_release,
 )
 {
-  # https://docs.ceph.com/en/latest/install/get-packages/
   case $facts['os']['family'] {
     'Debian': {
       apt::key { 'ceph.release':

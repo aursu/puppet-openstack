@@ -82,6 +82,7 @@ class openstack (
                       $lvm_devices_filter,
   Optional[Array[Stdlib::Unixpath]]
                       $cinder_physical_volumes,
+  String              $ceph_release,
   Optional[Stdlib::IP::Address]
                       $storage_network,
   # Heat
