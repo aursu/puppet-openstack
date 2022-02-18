@@ -40,7 +40,7 @@ class openstack::keystone::core (
     mode  => '0644',
   }
 
-  $keystone_package = $facts['os']['family'] == 'Debian' ? {
+  $keystone_package = $facts['os']['family'] ? {
     # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
     'Debian' => 'keystone',
     default  => 'openstack-keystone',
