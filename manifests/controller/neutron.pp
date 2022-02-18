@@ -71,9 +71,10 @@ class openstack::controller::neutron (
         before => Service['neutron-metadata-agent'],
       ;
       'neutron-fwaas-common':
-        configs => [
+        configs       => [
           '/etc/neutron/fwaas_driver.ini',
         ],
+        notifyconfigs => false,
       ;
     }
   }
