@@ -1,5 +1,7 @@
+require 'shellwords'
+
 Puppet::Type.type(:ceph_pool).provide(:ceph) do
-  desc 'Manage domains for OpenStack.'
+  desc 'Manage Ceph pools'
 
   commands ceph: 'ceph'
   commands rbd: 'rbd'
