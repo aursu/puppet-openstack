@@ -40,19 +40,23 @@ class openstack::keystone::core (
     mode  => '0644',
   }
 
-  if $facts['os']['family'] == 'Debian' {
+  $keystone_package = $facts['os']['family'] == 'Debian' ? {
     # https://docs.openstack.org/keystone/xena/install/keystone-install-ubuntu.html
-    $keystone_package = 'keystone'
+    'Debian' => 'keystone',
+    default  => 'openstack-keystone',
+  }
 
-    file { '/etc/apache2/sites-available/keystone.conf':
-      ensure  => file,
-      content => '',
-      before  => Openstack::Package[$keystone_package],
-    }
-  }
-  else {
-    $keystone_package = 'openstack-keystone'
-  }
+  # if $facts['os']['family'] == 'Debian' {
+  #   $keystone_package = 'keystone'
+  #   file { '/etc/apache2/sites-available/keystone.conf':
+  #     ensure    => file,
+  #     content   => '',
+  #     subscribe => Openstack::Package[$keystone_package],
+  #   }
+  # }
+  # else {
+  #   $keystone_package = 'openstack-keystone'
+  # }
 
   if openstack::cyclecmp($cycle, 'xena') < 0 {
     if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '7' {

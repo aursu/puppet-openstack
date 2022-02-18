@@ -57,13 +57,14 @@ class openstack::controller::keystoneweb (
 
   # exported resource required only for httpd on other host
   # @@apache::vhost { 'keystone-public':
-  apache::vhost { 'keystone-public':
+  apache::vhost { 'keystone':
     port                => '5000',
     wsgi_daemon_process => 'keystone-public',
     wsgi_process_group  => 'keystone-public',
     wsgi_script_aliases => {
       '/' => '/usr/bin/keystone-wsgi-public',
     },
+    priority            => false,
     notify              => Class['apache::service'],
     *                   => $keystone_web_data,
   }
