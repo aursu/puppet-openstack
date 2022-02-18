@@ -45,9 +45,9 @@ class openstack::keystone::core (
     $keystone_package = 'keystone'
 
     file { '/etc/apache2/sites-available/keystone.conf':
-      ensure    => file,
-      content   => '',
-      subscribe => Openstack::Package[$keystone_package],
+      ensure  => file,
+      content => '',
+      before  => Openstack::Package[$keystone_package],
     }
   }
   else {
