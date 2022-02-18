@@ -46,6 +46,19 @@ class openstack::keystone::core (
     default  => 'openstack-keystone',
   }
 
+  if $facts['os']['family'] == 'Debian' {
+    $keystone_package = 'keystone'
+
+    file { '/etc/apache2/sites-available/keystone.conf':
+      ensure    => file,
+      content   => '',
+      subscribe => Openstack::Package[$keystone_package],
+    }
+  }
+  else {
+    $keystone_package = 'openstack-keystone'
+  }
+
   if openstack::cyclecmp($cycle, 'xena') < 0 {
     if $facts['os']['family'] == 'RedHat' and $facts['os']['release']['major'] == '7' {
       $python_keystone = 'python-keystone'

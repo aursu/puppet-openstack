@@ -19,7 +19,8 @@ class openstack::controller::cinderweb (
 
     # remove config delivered by package cinder-api 
     file { '/etc/apache2/conf-available/cinder-wsgi.conf':
-      ensure    => 'absent',
+      ensure    => file,
+      content   => '',
       subscribe => Openstack::Package['cinder-api'],
     }
 
