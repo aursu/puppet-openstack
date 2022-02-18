@@ -67,7 +67,7 @@ dpkg -P  python3-keystone python3-oslo.db python3-oslo.messaging python3-osprofi
     python3-oslo.metrics python3-oslo.cache keystone-common  python3-oslo.upgradecheck \
     python3-oslo.policy python3-pypowervm  python3-aodhclient apache2  apache2-bin  apache2-data \
     apache2-utils  libapache2-mod-wsgi-py3 python3-keystoneauth1 python3-keystoneclient python3-osc-lib \
-    python3-os-client-config python3-openstacksdk python3-novaclient python3-cinderclient \
+    python3-os-client-config python3-designateclient python3-openstacksdk python3-novaclient python3-cinderclient \
     python3-openstackclient rabbitmq-server
 rm -rf /var/lib/keystone /etc/keystone /etc/apache2
 
