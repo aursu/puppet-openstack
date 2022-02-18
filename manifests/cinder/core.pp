@@ -121,8 +121,8 @@ class openstack::cinder::core (
       openstack::config { '/etc/cinder/cinder.conf/address':
         path    => '/etc/cinder/cinder.conf',
         content => {
-          'DEFAULT/target_ip_address'          => { ensure => absent },
-          'backend_defaults/target_ip_address' => { ensure => absent },
+          'DEFAULT/target_ip_address'          => { value => '$my_ip', ensure => absent },
+          'backend_defaults/target_ip_address' => { value => '$my_ip', ensure => absent },
         },
         require => Openstack::Config['/etc/cinder/cinder.conf'],
       }
