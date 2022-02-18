@@ -85,6 +85,8 @@ class openstack (
   String              $ceph_release,
   Optional[Stdlib::IP::Address]
                       $storage_network,
+  Boolean             $ceph_storage,
+
   # Heat
   String              $heat_dbname,
   String              $heat_dbuser,

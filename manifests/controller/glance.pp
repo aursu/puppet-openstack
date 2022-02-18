@@ -16,6 +16,7 @@ class openstack::controller::glance (
   Stdlib::Host
           $memcached_host = $openstack::memcached_host,
   Integer $memcached_port = $openstack::memcached_port,
+  Boolean $ceph_storage   = $openstack::ceph_storage,
 )
 {
   include openstack::glance::core
@@ -136,6 +137,16 @@ class openstack::controller::glance (
     ensure  => running,
     enable  => true,
     require => Exec['glance-db-sync'],
+  }
+
+  # Ceph
+  # On the glance-api node, you will need the Python bindings for librbd
+  if $ceph_storage {
+    include openstack::ceph::bindings
+
+    Class['openstack::ceph::bindings'] -> Service[$glance_service]
+
+    File <| title == '/etc/ceph/ceph.client.glance.keyring' |>
   }
 
   Mysql_database <| title == $glance_dbname |> ~> Exec['glance-db-sync']

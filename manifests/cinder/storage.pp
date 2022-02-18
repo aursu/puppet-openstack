@@ -12,6 +12,7 @@ class openstack::cinder::storage (
           $lvm_devices_filter = $openstack::lvm_devices_filter,
   Optional[Array[Stdlib::Unixpath, 1]]
           $physical_volumes   = $openstack::cinder_physical_volumes,
+  Boolean $ceph_storage       = $openstack::ceph_storage,
 ){
   include openstack::cinder::core
 
@@ -126,5 +127,12 @@ class openstack::cinder::storage (
       require   => File['/var/lib/cinder'],
     ;
     $lvm_target_service: ;
+  }
+
+  # On the nova-compute, cinder-backup and on the cinder-volume node, use both
+  # the Python bindings and the client command line tools
+  if $ceph_storage {
+    include openstack::ceph::bindings
+    include openstack::ceph::cli_tools
   }
 }

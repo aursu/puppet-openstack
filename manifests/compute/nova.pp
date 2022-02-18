@@ -12,6 +12,7 @@ class openstack::compute::nova (
           $controller_host       = $openstack::controller_host,
   String  $compute_tag           = $openstack::compute_tag,
   Boolean $nested_virtualization = $openstack::nested_virtualization,
+  Boolean $ceph_storage          = $openstack::ceph_storage,
 ) {
   # https://docs.openstack.org/nova/train/install/compute-install-rdo.html
   include openstack::nova::core
@@ -104,6 +105,13 @@ class openstack::compute::nova (
 
   @@openstack::nova::host { $::hostname:
     tag => $compute_tag,
+  }
+
+  # On the nova-compute, cinder-backup and on the cinder-volume node, use both
+  # the Python bindings and the client command line tools
+  if $ceph_storage {
+    include openstack::ceph::bindings
+    include openstack::ceph::cli_tools
   }
 
   Openstack::Package[$nova_compute_package] -> Openstack::Config['/etc/nova/nova.conf']
