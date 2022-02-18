@@ -1,0 +1,66 @@
+# https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/3/html/administration_guide/using-the-ceph-volume-utility-to-deploy-osds
+# https://docs.ceph.com/en/latest/ceph-volume/lvm/prepare/#ceph-volume-lvm-prepare
+
+# https://docs.ceph.com/en/latest/rbd/rbd-openstack/
+
+[root@dev-web-003 ~]# cephadm shell
+Inferring fsid 1ed41b1a-8da7-11ec-acd9-d485647cf828
+Using recent ceph image quay.io/ceph/ceph@sha256:a39107f8d3daab4d756eabd6ee1630d1bc7f31eaa76fff41a77fa32d0b903061
+[ceph: root@dev-web-003 /]# ceph auth get client.bootstrap-osd
+[client.bootstrap-osd]
+	key = AQAhbwpimGqMCBAA/ZgnUYhwksMS3yR5x9JcRg==
+	caps mon = "allow profile bootstrap-osd"
+exported keyring for client.bootstrap-osd
+[ceph: root@dev-web-003 /]# ceph auth get client.bootstrap-osd
+[client.bootstrap-osd]
+	key = AQAhbwpimGqMCBAA/ZgnUYhwksMS3yR5x9JcRg==
+	caps mon = "allow profile bootstrap-osd"
+exported keyring for client.bootstrap-osd
+[ceph: root@dev-web-003 /]# ceph auth get client.bootstrap-osd > /var/lib/ceph/bootstrap-osd/ceph.keyring
+exported keyring for client.bootstrap-osd
+[ceph: root@dev-web-003 /]# 
+[ceph: root@dev-web-003 /]# 
+[ceph: root@dev-web-003 /]# cat /var/lib/ceph/bootstrap-osd/ceph.keyring
+[client.bootstrap-osd]
+	key = AQAhbwpimGqMCBAA/ZgnUYhwksMS3yR5x9JcRg==
+	caps mon = "allow profile bootstrap-osd"
+[ceph: root@dev-web-003 /]# ceph-volume lvm prepare --bluestore --data centos/ceph
+Running command: /usr/bin/ceph-authtool --gen-print-key
+Running command: /usr/bin/ceph --cluster ceph --name client.bootstrap-osd --keyring /var/lib/ceph/bootstrap-osd/ceph.keyring -i - osd new 54a292c2-36d5-4328-beb1-c203c7b6a23e
+Running command: /usr/bin/ceph-authtool --gen-print-key
+Running command: /usr/bin/mount -t tmpfs tmpfs /var/lib/ceph/osd/ceph-7
+Running command: /usr/bin/chown -h ceph:ceph /dev/centos/ceph
+Running command: /usr/bin/chown -R ceph:ceph /dev/dm-2
+Running command: /usr/bin/ln -s /dev/centos/ceph /var/lib/ceph/osd/ceph-7/block
+Running command: /usr/bin/ceph --cluster ceph --name client.bootstrap-osd --keyring /var/lib/ceph/bootstrap-osd/ceph.keyring mon getmap -o /var/lib/ceph/osd/ceph-7/activate.monmap
+ stderr: got monmap epoch 5
+Running command: /usr/bin/ceph-authtool /var/lib/ceph/osd/ceph-7/keyring --create-keyring --name osd.7 --add-key AQD0zgpiA0oqLBAA0Y5TkBQWqpRbDSU45qqKKA==
+ stdout: creating /var/lib/ceph/osd/ceph-7/keyring
+added entity osd.7 auth(key=AQD0zgpiA0oqLBAA0Y5TkBQWqpRbDSU45qqKKA==)
+Running command: /usr/bin/chown -R ceph:ceph /var/lib/ceph/osd/ceph-7/keyring
+Running command: /usr/bin/chown -R ceph:ceph /var/lib/ceph/osd/ceph-7/
+Running command: /usr/bin/ceph-osd --cluster ceph --osd-objectstore bluestore --mkfs -i 7 --monmap /var/lib/ceph/osd/ceph-7/activate.monmap --keyfile - --osd-data /var/lib/ceph/osd/ceph-7/ --osd-uuid 54a292c2-36d5-4328-beb1-c203c7b6a23e --setuser ceph --setgroup ceph
+ stderr: 2022-02-14T21:51:50.155+0000 7fc994f81080 -1 bluestore(/var/lib/ceph/osd/ceph-7/) _read_fsid unparsable uuid
+--> ceph-volume lvm prepare successful for: centos/ceph
+[ceph: root@dev-web-003 /]# 
+[ceph: root@dev-web-003 /]# 
+[ceph: root@dev-web-003 /]# exit
+[root@dev-web-003 ~]#
+[root@dev-web-003 ~]# ceph-volume lvm activate --bluestore 7 54a292c2-36d5-4328-beb1-c203c7b6a23e
+Running command: /usr/bin/mount -t tmpfs tmpfs /var/lib/ceph/osd/ceph-7
+Running command: /usr/bin/chown -R ceph:ceph /var/lib/ceph/osd/ceph-7
+Running command: /usr/bin/ceph-bluestore-tool --cluster=ceph prime-osd-dir --dev /dev/centos/ceph --path /var/lib/ceph/osd/ceph-7 --no-mon-config
+Running command: /usr/bin/ln -snf /dev/centos/ceph /var/lib/ceph/osd/ceph-7/block
+Running command: /usr/bin/chown -h ceph:ceph /var/lib/ceph/osd/ceph-7/block
+Running command: /usr/bin/chown -R ceph:ceph /dev/dm-2
+Running command: /usr/bin/chown -R ceph:ceph /var/lib/ceph/osd/ceph-7
+Running command: /usr/bin/systemctl enable ceph-volume@lvm-7-54a292c2-36d5-4328-beb1-c203c7b6a23e
+ stderr: Created symlink /etc/systemd/system/multi-user.target.wants/ceph-volume@lvm-7-54a292c2-36d5-4328-beb1-c203c7b6a23e.service → /usr/lib/systemd/system/ceph-volume@.service.
+Running command: /usr/bin/systemctl enable --runtime ceph-osd@7
+ stderr: Created symlink /run/systemd/system/ceph-osd.target.wants/ceph-osd@7.service → /usr/lib/systemd/system/ceph-osd@.service.
+Running command: /usr/bin/systemctl start ceph-osd@7
+--> ceph-volume lvm activate successful for osd ID: 7
+
+
+# Find changes
+find / \( -path /dev -o -path /sys -o -path /proc -o -path /var/log -o -path /var/cache \) -prune -o -mmin -5 -type f 

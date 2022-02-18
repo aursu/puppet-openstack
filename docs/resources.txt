@@ -1,0 +1,75 @@
+systemctl stop openstack-cinder-api.service openstack-heat-api-cfn.service openstack-nova-scheduler.service openstack-heat-api.service openstack-heat-engine.service neutron-server.service openstack-glance-api.service openstack-nova-conductor.service openstack-cinder-scheduler.service neutron-dhcp-agent.service openstack-nova-novncproxy.service neutron-l3-agent.service openstack-nova-api.service openstack-cinder-volume.service neutron-metadata-agent.service  neutron-linuxbridge-agent.service rabbitmq-server.service httpd.service memcached.service etcd.service mariadb.service
+
+systemctl kill openstack-heat-engine.service neutron-server.service openstack-cinder-volume.service
+
+killall dnsmasq haproxy
+
+rm -rf /etc/{my.cnf.d,httpd,cinder,keystone,nova,neutron,heat,neutron,glance,placement,openstack-dashboard,octavia,rabbitmq,openvswitch} /var/lib/{cinder,glance,heat,keystone,mysql,nova,octavia,placement,rabbitmq,neutron,iscsi,libvirt,etcd,openvswitch} /var/log/{cinder,glance,horizon,httpd,keystone,libvirt,mariadb,neutron,nova,octavia,rabbitmq,placement,heat,openvswitch}
+
+
+# Ubuntu controller
+
+# Octavia
+dpkg -P octavia-housekeeping neutron-fwaas-common octavia-worker octavia-health-manager \
+    octavia-api octavia-common python3-octavia python3-cotyledon python3-octavia-lib
+
+# Heat/ Stack
+dpkg -P heat-engine heat-api-cfn heat-api python3-heat python3-troveclient python3-gnocchiclient \
+    heat-common python3-ceilometerclient python3-manilaclient python3-senlinclient python3-yaql \
+    python3-blazarclient python3-magnumclient python3-croniter python3-mistralclient \
+    python3-zaqarclient python3-octaviaclient python3-monascaclient python3-saharaclient \
+    python3-ironicclient
+rm -rf /var/log/heat /var/lib/heat
+
+# Horizon / DDashboard
+dpkg -P openstack-dashboard openstack-dashboard-common python3-django-horizon python3-gridfs \
+    python3-django-openstack-auth python3-django-pyscss  python3-django-compressor \
+    python3-django-debreach python3-pymongo-ext python3-pymongo python3-heatclient python3-bson-ext \
+    python3-pint python3-csscompressor python3-django-appconf python3-rcssmin python3-pyscss \
+    python3-django python3-rjsmin
+rm -rf /var/lib/openstack-dashboard
+
+# Cinder
+dpkg -P tgt cinder-scheduler cinder-volume targetcli-fb python3-configshell-fb python3-urwid \
+    cinder-api python3-cinder python3-rtslib-fb cinder-common 
+rm -rf /var/log/cinder /var/lib/cinder 
+
+# Neutron 
+dpkg -P neutron-plugin-ml2 neutron-server neutron-openvswitch-agent neutron-dhcp-agent \
+    dnsmasq-base dnsmasq-utils neutron-l3-agent neutron-l3-agent neutron-metadata-agent haproxy \
+    neutron-linuxbridge-agent  python3-neutron python3-neutron-lib python3-os-ken python3-pecan \
+    copenvswitch-switch  openvswitch-common  neutron-common conntrack
+rm -rf /var/log/neutron /var/lib/neutron /etc/neutron
+
+# Nova 
+dpkg -P nova-scheduler nova-novncproxy novnc websockify python3-novnc nova-conductor nova-api \
+    python3-nova python3-os-xenapi  python3-os-vif python3-libvirt  nova-common  python3-voluptuous \
+    python3-ovsdbapp python3-neutronclient  python3-websockify  python3-zvmcloudconnector \
+    python3-openvswitch python3-sortedcontainers python3-tooz
+rm -rf /var/log/nova /var/lib/nova
+
+# Placement 
+dpkg -P  placement-api  python3-placement python3-os-resource-classes  placement-common \
+    python3-os-traits python3-microversion-parse python3-oslo.versionedobjects
+rm -rf /var/lib/placement
+
+##
+dpkg -P glance  glance-api python3-glance python3-glance-store python3-os-brick \
+    python3-oslo.privsep python3-oslo.reports python3-oslo.vmware python3-castellan \
+    python3-swiftclient  os-brick-common  python3-oslo.rootwrap  python3-glanceclient \
+    python3-os-win glance-common python3-barbicanclient  python3-oslo.limit  keystone \
+    python3-castellan  python3-cursive
+rm -rf /var/log/glance /var/lib/glance
+
+## 
+dpkg -P  python3-keystone python3-oslo.db python3-oslo.messaging python3-osprofiler \
+    python3-oslo.service python3-oslo.concurrency  python3-oslo.middleware  python3-keystonemiddleware \
+    python3-oslo.metrics python3-oslo.cache keystone-common  python3-oslo.upgradecheck \
+    python3-oslo.policy python3-pypowervm  python3-aodhclient apache2  apache2-bin  apache2-data   apache2-utils  libapache2-mod-wsgi-py3
+rm -rf /var/lib/keystone /etc/keystone /etc/apache2
+
+dpkg -P mysql-common libmysqlclient21  mariadb-common mariadb-server-core-10.5   mariadb-server-10.5 \
+    mariadb-client-core-10.5 mariadb-client-10.5 libmariadb3 libdbd-mariadb-perl
+rm -rf /var/lib/mysql /etc/mysql
+
+rm -rf /etc/{cinder,keystone,nova,heat,neutron,glance,placement,openstack-dashboard,octavia,openvswitch} /var/lib/{cinder,glance,heat,keystone,nova,octavia,placement,neutron,openvswitch} /var/log/{cinder,glance,horizon,keystone,neutron,nova,octavia,placement,heat,openvswitch}
