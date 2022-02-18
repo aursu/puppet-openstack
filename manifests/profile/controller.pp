@@ -11,6 +11,8 @@ class openstack::profile::controller (
   include openstack
   include openstack::install
 
+  include openstack::keystone::core
+
   # Identity service WEB
   include openstack::controller::keystoneweb
 
@@ -66,7 +68,8 @@ class openstack::profile::controller (
   # systemctl restart openstack-nova-api.service openstack-nova-novncproxy.service openstack-nova-conductor.service openstack-nova-scheduler.service
   # systemctl restart openstack-glance-api.service
 
-  Class['openstack::controller::keystoneweb']
+  Class['openstack::keystone::core']
+    -> Class['openstack::controller::keystoneweb']
     -> Class['apache::service']
     -> Class['openstack::controller::keystone']
 
