@@ -64,4 +64,25 @@ class openstack::ceph::manager {
       content => $facts['ceph_client_glance'],
     }
   }
+
+  if $facts['ceph_client_glance'] {
+    @@file { '/etc/ceph/ceph.client.glance.keyring':
+      ensure  => file,
+      content => $facts['ceph_client_glance'],
+    }
+  }
+
+  if $facts['ceph_client_cinder'] {
+    @@file { '/etc/ceph/ceph.client.cinder.keyring':
+      ensure  => file,
+      content => $facts['ceph_client_cinder'],
+    }
+  }
+
+  if $facts['ceph_client_cinder_backup'] {
+    @@file { '/etc/ceph/ceph.client.cinder-backup.keyring':
+      ensure  => file,
+      content => $facts['ceph_client_cinder_backup'],
+    }
+  }
 }
