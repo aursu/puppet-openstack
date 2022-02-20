@@ -142,6 +142,7 @@ class openstack::controller::glance (
   # Ceph
   # On the glance-api node, you will need the Python bindings for librbd
   if $ceph_storage {
+    include openstack::ceph::ceph_client
     include openstack::ceph::bindings
 
     Class['openstack::ceph::bindings'] -> Service[$glance_service]

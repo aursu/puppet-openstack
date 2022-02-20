@@ -5,6 +5,7 @@
 # @example
 #   include openstack::ceph::cinder_client
 class openstack::ceph::cinder_client {
+  include openstack::ceph::ceph_client
   # from https://docs.ceph.com/en/latest/rbd/rbd-openstack/#setup-ceph-client-authentication
   #
   # Add the keyrings for client.cinder, client.glance, and client.cinder-backup
