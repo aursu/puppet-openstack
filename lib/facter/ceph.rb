@@ -13,7 +13,7 @@ end
 Facter.add(:ceph_client_glance) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
   setcode do
-    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get client.glance', combine: false) if File.executable?('/usr/bin/ceph')
+    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get-or-create client.glance', combine: false) if File.executable?('/usr/bin/ceph')
 
     if client_keyring && $CHILD_STATUS.success?
        client_keyring
@@ -26,7 +26,7 @@ end
 Facter.add(:ceph_client_cinder) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
   setcode do
-    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get client.cinder', combine: false) if File.executable?('/usr/bin/ceph')
+    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get-or-create client.cinder', combine: false) if File.executable?('/usr/bin/ceph')
 
     return nil unless client_keyring && $CHILD_STATUS.success?
 
@@ -37,7 +37,7 @@ end
 Facter.add(:ceph_client_cinder_backup) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
   setcode do
-    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get client.cinder-backup', combine: false) if File.executable?('/usr/bin/ceph')
+    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get-or-create client.cinder-backup', combine: false) if File.executable?('/usr/bin/ceph')
 
     return nil unless client_keyring && $CHILD_STATUS.success?
 
