@@ -33,6 +33,7 @@ class openstack::ceph::manager {
     cap_mon => 'profile rbd',
     cap_osd => 'profile rbd pool=images',
     cap_mgr => 'profile rbd pool=images',
+    keyring => true,
     require => Ceph_pool['images'],
   }
 
