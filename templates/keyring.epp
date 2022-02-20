@@ -1,7 +1,7 @@
 <%- |
-  String $header,
+  String $entity,
   String $key,
   Optional[Hash[Enum['mgr', 'mon', 'osd', 'mds'], String]] $caps,
 | -%>
-[<%= $header %>]
+[<%= $entity %>]
 	key = <%= $key %>
