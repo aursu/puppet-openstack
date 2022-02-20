@@ -51,6 +51,7 @@ Puppet::Type.newtype(:ceph_auth) do
     keyring = Puppet::Resource.new(:file, path)
     keyring[:ensure] = should
     keyring[:content] = provider.get_or_create
+    keyring.virtual = true
     keyring.exported = true
     [Puppet::Type.type(:file).new(keyring)]
   end
