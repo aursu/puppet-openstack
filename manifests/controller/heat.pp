@@ -93,6 +93,11 @@ class openstack::controller::heat (
   if $facts['os']['family'] == 'Debian' {
     $api_package = 'heat-api'
 
+    package { ['python3-vitrageclient', 'python3-zunclient']:
+      ensure => present,
+      before => Service['heat-engine'],
+    }
+
     openstack::package {
       default:
         cycle   => $cycle,
