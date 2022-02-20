@@ -16,11 +16,7 @@ Puppet::Type.newtype(:ceph_auth) do
     desc 'Ceph client user name'
   end
 
-  newparam(:cluster) do
-    desc 'Ceph cluster name'
 
-    defaultto 'ceph'
-  end
 
   newproperty(:cap_mon) do
     desc 'Monitor capabilities.'
@@ -38,9 +34,23 @@ Puppet::Type.newtype(:ceph_auth) do
     desc 'Metadata server capabilities.'
   end
 
+  newparam(:cluster) do
+    desc 'Ceph cluster name'
+
+    defaultto 'ceph'
+  end
+
+  newparam(:keyring, :boolean => true, :parent => Puppet::Parameter::Boolean) do
+    desc "Set to true if File resource required"
+
+    defaultto false
+  end
+
   # https://docs.ceph.com/en/latest/rados/operations/user-management/#create-a-keyring
   #  eg /etc/ceph/ceph.client.admin.keyring
   def generate
+    return [] unless self[:keyring]
+
     cluster = self[:cluster]
     user    = self[:name]
     should  = self.should(:ensure) || :present
@@ -51,8 +61,6 @@ Puppet::Type.newtype(:ceph_auth) do
     keyring = Puppet::Resource.new(:file, path)
     keyring[:ensure] = should
     keyring[:content] = provider.get_or_create
-    keyring.virtual = true
-    keyring.exported = true
     [Puppet::Type.type(:file).new(keyring)]
   end
 end
