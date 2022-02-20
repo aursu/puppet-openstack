@@ -34,6 +34,13 @@ Facter.add(:ceph_client_cinder) do
   end
 end
 
+Facter.add(:ceph_client_cinder_key) do
+  confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
+  setcode do
+    Facter.value(:ceph_client_cinder)['key']
+  end
+end
+
 Facter.add(:ceph_client_cinder_backup) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
   setcode do
