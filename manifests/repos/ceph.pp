@@ -10,6 +10,8 @@ class openstack::repos::ceph (
           $release = $openstack::ceph_release,
 )
 {
+  include openstack::repo
+
   case $facts['os']['family'] {
     'Debian': {
       apt::key { 'ceph.release':
