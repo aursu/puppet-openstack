@@ -47,6 +47,10 @@ Puppet::Type.newtype(:ceph_auth) do
 
     path    = "/etc/ceph/#{cluster}.#{user}.keyring"
     return [] if catalog.resource(:file, path)
-    [Puppet::Type.type(:file).new(name: path, ensure: should, content: provider.get_or_create, exported: true)]
+
+    keyring = Puppet::Resource.new(:file, path, exported: true)
+    keyring[:ensure] = should
+    keyring[:content] = provider.get_or_create
+    [Puppet::Type.type(:file).new(keyring)]
   end
 end
