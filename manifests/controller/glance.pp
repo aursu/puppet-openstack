@@ -146,7 +146,7 @@ class openstack::controller::glance (
 
     Class['openstack::ceph::bindings'] -> Service[$glance_service]
 
-    File <| title == '/etc/ceph/ceph.client.glance.keyring' |>
+    File <<| title == '/etc/ceph/ceph.client.glance.keyring' |>>
   }
 
   Mysql_database <| title == $glance_dbname |> ~> Exec['glance-db-sync']
