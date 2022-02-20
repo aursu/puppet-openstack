@@ -134,5 +134,6 @@ class openstack::cinder::storage (
   if $ceph_storage {
     include openstack::ceph::bindings
     include openstack::ceph::cli_tools
+    include openstack::ceph::cinder_client
   }
 }

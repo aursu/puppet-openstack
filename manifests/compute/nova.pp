@@ -112,6 +112,7 @@ class openstack::compute::nova (
   if $ceph_storage {
     include openstack::ceph::bindings
     include openstack::ceph::cli_tools
+    include openstack::ceph::cinder_client
   }
 
   Openstack::Package[$nova_compute_package] -> Openstack::Config['/etc/nova/nova.conf']
