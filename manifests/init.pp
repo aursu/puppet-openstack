@@ -86,6 +86,7 @@ class openstack (
   Optional[Stdlib::IP::Address]
                       $storage_network,
   Boolean             $ceph_storage,
+  Optional[String]    $rbd_secret_uuid,
 
   # Heat
   String              $heat_dbname,
