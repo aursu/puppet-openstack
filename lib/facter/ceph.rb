@@ -26,11 +26,11 @@ end
 Facter.add(:ceph_client_cinder) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
   setcode do
-    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get client.cinder', combine: false) if File.executable?('/usr/bin/ceph')
+    client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph -f json auth get client.cinder', combine: false) if File.executable?('/usr/bin/ceph')
 
     return nil unless client_keyring && $CHILD_STATUS.success?
 
-    client_keyring
+    JSON.parse(client_keyring).first
   end
 end
 
