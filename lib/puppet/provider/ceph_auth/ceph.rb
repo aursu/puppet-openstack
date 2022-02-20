@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'json'
 
 Puppet::Type.type(:ceph_auth).provide(:ceph) do
   desc 'Manage Ceph user.'

@@ -1,4 +1,5 @@
 require 'shellwords'
+require 'json'
 
 Puppet::Type.type(:ceph_pool).provide(:ceph) do
   desc 'Manage Ceph pools'
