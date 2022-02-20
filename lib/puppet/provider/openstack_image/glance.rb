@@ -6,6 +6,7 @@ Puppet::Type.type(:openstack_image).provide(:glance, parent: Puppet::Provider::O
   commands glance: 'glance', openstack: 'openstack'
 
   defaultfor osfamily: :redhat, operatingsystemmajrelease: ['8']
+  defaultfor osname: :ubuntu, operatingsystemmajrelease: ['20.04']
 
   self::BASE_PROPERTIES = %w[
     status name container_format created_at size
