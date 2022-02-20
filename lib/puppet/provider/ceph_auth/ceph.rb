@@ -19,7 +19,7 @@ Puppet::Type.type(:ceph_auth).provide(:ceph) do
     cmdline = Shellwords.join(args)
     cmd = [comm, subcomm, cmdline].compact.join(' ')
 
-    cmdout = Puppet::Util::Execution.execute(cmd)
+    cmdout = Puppet::Util::Execution.execute(cmd, combine: false)
     return nil if cmdout.nil?
     return nil if cmdout.empty?
     return cmdout
