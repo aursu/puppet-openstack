@@ -57,4 +57,11 @@ class openstack::ceph::manager {
     cap_osd => 'profile rbd pool=backups',
     cap_mgr => 'profile rbd pool=backups',
   }
+
+  if $facts['ceph_client_glance'] {
+    @@file { '/etc/ceph/ceph.client.glance.keyring':
+      ensure  => file,
+      content => $facts['ceph_client_glance'],
+    }
+  }
 }
