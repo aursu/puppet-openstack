@@ -72,7 +72,7 @@ dpkg -P  python3-keystone python3-oslo.db python3-oslo.messaging python3-osprofi
 rm -rf /var/lib/keystone /etc/keystone /etc/apache2
 
 dpkg -P mysql-common libmysqlclient21  mariadb-common mariadb-server-core-10.5   mariadb-server-10.5 \
-    mariadb-client-core-10.5 mariadb-client-10.5 libmariadb3 libdbd-mariadb-perl
+    mariadb-client-core-10.5 mariadb-client-10.5 libmariadb3 libdbd-mariadb-perl libsnmp35 keepalived
 rm -rf /var/lib/mysql /etc/mysql
 
 rm -rf /etc/{cinder,keystone,nova,heat,neutron,glance,placement,openstack-dashboard,octavia,openvswitch} /var/lib/{cinder,glance,heat,keystone,nova,octavia,placement,neutron,openvswitch} /var/log/{cinder,glance,horizon,keystone,neutron,nova,octavia,placement,heat,openvswitch}
