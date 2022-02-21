@@ -5,8 +5,8 @@
 # @example
 #   include openstack::ceph::cli_tools
 class openstack::ceph::cli_tools (
-  Boolean $manage_epel_repo = true,
-  Boolean $manage_python3   = true,
+  Boolean $manage_epel_repo = false,
+  Boolean $manage_python3   = false,
   Boolean $manage_podman    = true,
 )
 {
