@@ -62,12 +62,12 @@ class openstack::controller::nova (
   if $facts['os']['family'] == 'Debian' {
     $nova_api_package = 'nova-api'
     $nova_packages    = ['nova-conductor', 'nova-novncproxy', 'nova-scheduler']
-    $nova_services    = [ 'nova-api', 'nova-scheduler', 'nova-conductor', 'nova-novncproxy']
+    $nova_services    = ['nova-api', 'nova-scheduler', 'nova-conductor', 'nova-novncproxy']
   }
   else {
     $nova_api_package = 'openstack-nova-api'
     $nova_packages    = ['openstack-nova-conductor', 'openstack-nova-novncproxy', 'openstack-nova-scheduler']
-    $nova_services    = [ 'openstack-nova-api', 'openstack-nova-scheduler', 'openstack-nova-conductor', 'openstack-nova-novncproxy']
+    $nova_services    = ['openstack-nova-api', 'openstack-nova-scheduler', 'openstack-nova-conductor', 'openstack-nova-novncproxy']
   }
 
   openstack::package {

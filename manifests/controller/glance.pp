@@ -52,10 +52,18 @@ class openstack::controller::glance (
   # TODO: Per-Tenant Quotas
   # https://docs.openstack.org/glance/xena/admin/quotas.html
 
-  $glance_package = $facts['os']['name'] ? {
+  if $facts['os']['family'] == 'Debian' {
     # https://docs.openstack.org/glance/xena/install/install-ubuntu.html#install-and-configure-components
-    'Ubuntu' => 'glance',
-    default  => 'openstack-glance',
+    $glance_package = 'glance'
+
+    # Could not load 'glance.store.s3.Store': No module named 'boto3': ModuleNotFoundError: No module named 'boto3'
+    # Could not load 's3': No module named 'boto3': ModuleNotFoundError: No module named 'boto3'
+    package { 'python3-boto3':
+      ensure => 'present',
+    }
+  }
+  else {
+    $glance_package = 'openstack-glance'
   }
 
   openstack::package { $glance_package:
