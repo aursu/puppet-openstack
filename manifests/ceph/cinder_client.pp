@@ -4,7 +4,10 @@
 #
 # @example
 #   include openstack::ceph::cinder_client
-class openstack::ceph::cinder_client {
+class openstack::ceph::cinder_client (
+  Boolean $backup_service = $openstack::cinder_backup_service,
+)
+{
   include openstack::ceph::ceph_client
   # from https://docs.ceph.com/en/latest/rbd/rbd-openstack/#setup-ceph-client-authentication
   #
@@ -20,4 +23,8 @@ class openstack::ceph::cinder_client {
   #
   File <<| title == '/etc/ceph/ceph.client.cinder.keyring' |>>
   File <<| title == '/etc/ceph/ceph.client.cinder.key' |>>
+
+  if $backup_service {
+    File <<| title == '/etc/ceph/ceph.client.cinder-backup.keyring' |>>
+  }
 }

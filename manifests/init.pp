@@ -78,6 +78,7 @@ class openstack (
   Optional[String]    $cinder_pass,
   Boolean             $cinder_storage,
   String              $cinder_volume_group,
+  Boolean             $cinder_backup_service,
   Optional[Array[String]]
                       $lvm_devices_filter,
   Optional[Array[Stdlib::Unixpath]]

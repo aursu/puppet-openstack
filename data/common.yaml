@@ -52,6 +52,7 @@ openstack::cinder_dbpass: ~
 openstack::cinder_pass:  ~
 openstack::cinder_storage: true
 openstack::cinder_volume_group: 'cinder-volumes'
+openstack::cinder_backup_service: true
 openstack::lvm_devices_filter: ~
 openstack::cinder_physical_volumes: ~
 openstack::ceph_storage: false

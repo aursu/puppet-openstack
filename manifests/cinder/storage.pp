@@ -13,6 +13,7 @@ class openstack::cinder::storage (
   Optional[Array[Stdlib::Unixpath, 1]]
           $physical_volumes   = $openstack::cinder_physical_volumes,
   Boolean $ceph_storage       = $openstack::ceph_storage,
+  Boolean $backup_service     = $openstack::cinder_backup_service,
 ){
   include openstack::cinder::core
 
@@ -51,6 +52,7 @@ class openstack::cinder::storage (
     $lvm_target_helper  = 'tgtadm'
     $lvm_target_service = 'tgt'
     $cinder_volume_service = 'cinder-volume'
+    $cinder_backup_service = 'cinder-backup'
 
     package {
       default:
@@ -66,11 +68,19 @@ class openstack::cinder::storage (
       cycle   => $cycle,
       require => Openstack::Package['cinder-common'],
     }
+
+    if $backup_service {
+      openstack::package { 'cinder-backup':
+        cycle   => $cycle,
+        require => Openstack::Package['cinder-common'],
+      }
+    }
   }
   else {
     $lvm_target_helper = 'lioadm'
     $lvm_target_service = 'target'
     $cinder_volume_service = 'openstack-cinder-volume'
+    $cinder_backup_service = 'openstack-cinder-backup'
 
     package {
       default:
@@ -90,11 +100,75 @@ class openstack::cinder::storage (
     }
   }
 
-  # [cinder]
-  # os_region_name = RegionOne
-  openstack::config { '/etc/cinder/cinder.conf/storage':
-    path    => '/etc/cinder/cinder.conf',
-    content => {
+  if $ceph_storage {
+    $conf_default = {
+      # [DEFAULT]
+      # enabled_backends = lvm
+      # glance_api_version = 2
+      'DEFAULT/enabled_backends'   => 'lvm',
+      'DEFAULT/glance_api_version' => 2,
+      # [ceph]
+      # volume_driver = cinder.volume.drivers.rbd.RBDDriver
+      # volume_backend_name = ceph
+      # rbd_pool = volumes
+      # rbd_ceph_conf = /etc/ceph/ceph.conf
+      # rbd_flatten_volume_from_snapshot = false
+      # rbd_max_clone_depth = 5
+      # rbd_store_chunk_size = 4
+      # rados_connect_timeout = -1
+      'ceph/volume_driver'                    => 'cinder.volume.drivers.rbd.RBDDriver',
+      'ceph/volume_backend_name'              => 'ceph',
+      'ceph/rbd_pool'                         => 'volumes',
+      'ceph/rbd_ceph_conf'                    => '/etc/ceph/ceph.conf',
+      'ceph/rbd_flatten_volume_from_snapshot' => 'false',
+      'ceph/rbd_max_clone_depth'              => 5,
+      'ceph/rbd_store_chunk_size'             => 4,
+      'ceph/rados_connect_timeout'            => -1,
+    }
+
+    if $backup_service {
+      # https://docs.ceph.com/en/latest/rbd/rbd-openstack/#configuring-cinder-backup
+      # [DEFAULT]
+      # backup_driver = cinder.backup.drivers.ceph
+      # backup_ceph_conf = /etc/ceph/ceph.conf
+      # backup_ceph_user = cinder-backup
+      # backup_ceph_chunk_size = 134217728
+      # backup_ceph_pool = backups
+      # backup_ceph_stripe_unit = 0
+      # backup_ceph_stripe_count = 0
+      # restore_discard_excess_bytes = true
+      openstack::config { '/etc/cinder/cinder.conf/backup':
+        path    => '/etc/cinder/cinder.conf',
+        content => {
+          'DEFAULT/backup_driver'                => 'cinder.backup.drivers.ceph',
+          'DEFAULT/backup_ceph_conf'             => '/etc/ceph/ceph.conf',
+          'DEFAULT/backup_ceph_user'             => 'cinder-backup',
+          'DEFAULT/backup_ceph_chunk_size'       => 134217728,
+          'DEFAULT/backup_ceph_pool'             => 'backups',
+          'DEFAULT/backup_ceph_stripe_unit'      => 0,
+          'DEFAULT/backup_ceph_stripe_count'     => 0,
+          'DEFAULT/restore_discard_excess_bytes' => 'true',
+        },
+        notify  => [
+          Service[$cinder_volume_service],
+          Service[$cinder_backup_service],
+        ],
+        require => Openstack::Config['/etc/cinder/cinder.conf'],
+      }
+
+      # Install and configure the backup service
+      # https://docs.openstack.org/cinder/latest/install/cinder-backup-install-rdo.html
+      service { $cinder_backup_service:
+        ensure => running,
+        enable => true,
+      }
+    }
+  }
+  else {
+    $conf_default = {
+      # [DEFAULT]
+      # enabled_backends = ceph
+      'DEFAULT/enabled_backends'   => 'ceph',
       # [lvm]
       # volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
       # volume_group = cinder-volumes
@@ -104,9 +178,14 @@ class openstack::cinder::storage (
       'lvm/volume_group'           => $volume_group,
       'lvm/target_protocol'        => 'iscsi',
       'lvm/target_helper'          => $lvm_target_helper,
-      # [DEFAULT]
-      # enabled_backends = lvm
-      'DEFAULT/enabled_backends'   => 'lvm',
+    }
+  }
+
+  # [cinder]
+  # os_region_name = RegionOne
+  openstack::config { '/etc/cinder/cinder.conf/storage':
+    path    => '/etc/cinder/cinder.conf',
+    content => $conf_default + {
       # [DEFAULT]
       # glance_api_servers = http://controller:9292
       'DEFAULT/glance_api_servers' => 'http://controller:9292',
