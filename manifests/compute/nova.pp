@@ -103,9 +103,20 @@ class openstack::compute::nova (
     # boot from volume), you must tell Nova (and libvirt) which user and UUID to
     # refer to when attaching the device. libvirt will refer to this user when
     # connecting and authenticating with the Ceph cluster.
+    # expanded following instructions
+    # https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/4/html/block_device_to_openstack_guide/configuring-openstack-to-use-ceph-block-devices
     $virt_auth = {
-      'libvirt/rbd_user'        => 'cinder',
-      'libvirt/rbd_secret_uuid' => $rbd_secret_uuid,
+      'libvirt/images_type'          => 'rbd',
+      'libvirt/images_rbd_pool'      => 'vms',
+      'libvirt/images_rbd_ceph_conf' => '/etc/ceph/ceph.conf',
+      'libvirt/rbd_user'             => 'cinder',
+      'libvirt/rbd_secret_uuid'      => $rbd_secret_uuid,
+      'libvirt/disk_cachemodes'      => 'network=writeback',
+      'libvirt/inject_password'      => 'false',
+      'libvirt/inject_key'           => 'false',
+      'libvirt/inject_partition'     => -2,
+      'libvirt/live_migration_flag'  => 'VIR_MIGRATE_UNDEFINE_SOURCE,VIR_MIGRATE_PEER2PEER,VIR_MIGRATE_LIVE,VIR_MIGRATE_PERSIST_DEST,VIR_MIGRATE_TUNNELLED',
+      'libvirt/hw_disk_discard'      => 'unmap',
     }
   }
   else  {
