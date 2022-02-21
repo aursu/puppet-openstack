@@ -105,7 +105,12 @@ end
 Facter.add(:ceph_ssh_pub_key_exported) do
   confine { File.exist? '/root/ceph/ceph.pub' }
   setcode do
-    File.read('/root/ceph/ceph.pub')
+    pub_key = File.read('/root/ceph/ceph.pub').strip.split(%r{\s+})
+    {
+      'type' => pub_key[-3],
+      'key'  => pub_key[-2],
+      'name' => pub_key[-1],
+    }
   end
 end
 
