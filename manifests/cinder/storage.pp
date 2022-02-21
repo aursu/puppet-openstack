@@ -134,7 +134,7 @@ class openstack::cinder::storage (
     if $backup_service {
       # https://docs.ceph.com/en/latest/rbd/rbd-openstack/#configuring-cinder-backup
       # [DEFAULT]
-      # backup_driver = cinder.backup.drivers.ceph
+      # backup_driver = cinder.backup.drivers.ceph.CephBackupDriver
       # backup_ceph_conf = /etc/ceph/ceph.conf
       # backup_ceph_user = cinder-backup
       # backup_ceph_chunk_size = 134217728
@@ -145,7 +145,8 @@ class openstack::cinder::storage (
       openstack::config { '/etc/cinder/cinder.conf/backup':
         path    => '/etc/cinder/cinder.conf',
         content => {
-          'DEFAULT/backup_driver'                => 'cinder.backup.drivers.ceph',
+          # https://docs.openstack.org/cinder/latest/configuration/block-storage/backup/ceph-backup-driver.html
+          'DEFAULT/backup_driver'                => 'cinder.backup.drivers.ceph.CephBackupDriver',
           'DEFAULT/backup_ceph_conf'             => '/etc/ceph/ceph.conf',
           'DEFAULT/backup_ceph_user'             => 'cinder-backup',
           'DEFAULT/backup_ceph_chunk_size'       => 134217728,
