@@ -32,10 +32,19 @@ class openstack::compute::nova (
       'DEFAULT/enabled_apis' => 'osapi_compute,metadata',
     }
 
+    package { 'libvirt':
+      ensure => 'present',
+    }
+
     service { 'libvirtd':
         ensure    => running,
         enable    => true,
         subscribe => Openstack::Config['/etc/nova/nova.conf'],
+        require   => Package['libvirt'],
+    }
+
+    if $ceph_storage {
+      Package['libvirt'] -> Class['openstack::ceph::ceph_client_nova']
     }
   }
 
