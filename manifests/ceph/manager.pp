@@ -8,7 +8,9 @@ class openstack::ceph::manager (
   String  $rbd_secret_uuid = $openstack::rbd_secret_uuid,
 )
 {
-
+  # Some info:
+  # https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/4/html/block_device_to_openstack_guide/configuring-openstack-to-use-ceph-block-devices
+  #
   # https://docs.ceph.com/en/latest/rbd/rbd-openstack/#create-a-pool
   # ceph osd pool create volumes
   # ceph osd pool create images
