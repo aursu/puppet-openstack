@@ -103,9 +103,9 @@ class openstack::cinder::storage (
   if $ceph_storage {
     $conf_default = {
       # [DEFAULT]
-      # enabled_backends = lvm
+      # enabled_backends = ceph
       # glance_api_version = 2
-      'DEFAULT/enabled_backends'   => 'lvm',
+      'DEFAULT/enabled_backends'   => 'ceph',
       'DEFAULT/glance_api_version' => 2,
       # [ceph]
       # volume_driver = cinder.volume.drivers.rbd.RBDDriver
@@ -167,8 +167,8 @@ class openstack::cinder::storage (
   else {
     $conf_default = {
       # [DEFAULT]
-      # enabled_backends = ceph
-      'DEFAULT/enabled_backends'   => 'ceph',
+      # enabled_backends = lvm
+      'DEFAULT/enabled_backends'   => 'lvm',
       # [lvm]
       # volume_driver = cinder.volume.drivers.lvm.LVMVolumeDriver
       # volume_group = cinder-volumes
