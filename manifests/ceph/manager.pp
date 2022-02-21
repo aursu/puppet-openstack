@@ -61,7 +61,10 @@ class openstack::ceph::manager {
   if $facts['ceph_conf'] {
     @@file { '/etc/ceph/ceph.conf':
       ensure  => file,
-      content => $facts['ceph_conf'],
+      content => epp('openstack/ceph-conf.epp', {
+        global => $facts['ceph_conf']['global'],
+        client => $facts['ceph_conf']['client'],
+      }),
     }
   }
 

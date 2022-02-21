@@ -1,0 +1,26 @@
+<%- |
+  Struct[{
+    fsid     => String,
+    mon_host => String,
+  }]           $global,
+  Hash[
+    Enum[
+      # to extended further
+      'rbd cache',
+      'rbd cache writethrough until flush',
+      'admin socket',
+      'log file',
+      'rbd concurrent management ops',
+    ], String] $client = {},
+| -%>
+# minimal ceph.conf for <%= $fsid %>
+[global]
+	fsid = <%= $global['fsid'] %>
+	mon_host = <%= $global['mon_host'] %>
+<%- if $client.length > 0 { -%>
+
+[client]
+<%-   $client.each |$param, $value| { -%>
+	<%= $param %> = <%= $value %>
+<%-   } -%>
+<%- } -%>
