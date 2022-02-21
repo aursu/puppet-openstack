@@ -35,6 +35,7 @@ class openstack::compute::nova (
         enable    => true,
         subscribe => Openstack::Config['/etc/nova/nova.conf'],
         require   => Package['libvirt'],
+        before    => Class['openstack::ceph::ceph_client_nova'],
     }
   }
 
