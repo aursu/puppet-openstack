@@ -15,6 +15,7 @@ class openstack::controller::dashboard (
           $memcached_host       = $openstack::memcached_host,
   Integer $memcached_port       = $openstack::memcached_port,
   String  $httpd_tag            = $openstack::httpd_tag,
+  Boolean $manage_python2       = false,
 )
 {
   include apache::params
@@ -24,9 +25,11 @@ class openstack::controller::dashboard (
     $dashboard_config = '/etc/openstack-dashboard/local_settings.py'
     $static_content_path = '/var/lib/openstack-dashboard/static'
 
-    package { 'python2':
-      ensure => 'present',
-      before => Openstack::Djangoconfig[$dashboard_config],
+    if $manage_python2 {
+      package { 'python2':
+        ensure => 'present',
+        before => Openstack::Djangoconfig[$dashboard_config],
+      }
     }
   }
   else {
