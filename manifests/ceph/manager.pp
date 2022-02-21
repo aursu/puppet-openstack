@@ -94,13 +94,6 @@ class openstack::ceph::manager (
       group   => 'cinder',
       content => $facts['ceph_client_cinder_key'],
     }
-
-    @@file { '/etc/ceph/client.cinder.secret.xml':
-      ensure  => file,
-      content => epp('openstack/libvirt-secret.epp', {
-        rbd_secret_uuid => $rbd_secret_uuid,
-      }),
-    }
   }
 
   if $facts['ceph_client_cinder_backup'] {

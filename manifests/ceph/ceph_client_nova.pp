@@ -4,7 +4,10 @@
 #
 # @example
 #   include openstack::ceph::ceph_client_nova
-class openstack::ceph::ceph_client_nova {
+class openstack::ceph::ceph_client_nova (
+  String  $rbd_secret_uuid = $openstack::rbd_secret_uuid,
+)
+{
   include openstack::ceph::ceph_client
 
   # mkdir -p /var/run/ceph/guests/ /var/log/qemu/
@@ -41,5 +44,27 @@ class openstack::ceph::ceph_client_nova {
 
   # Then, on the compute nodes, add the secret key to libvirt and remove the
   # temporary copy of the key:
-  File <<| title == '/etc/ceph/client.cinder.secret.xml' |>>
+  file { '/etc/ceph/client.cinder.secret.xml':
+    ensure  => file,
+    content => epp('openstack/libvirt-secret.epp', {
+      rbd_secret_uuid => $rbd_secret_uuid,
+    }),
+  }
+
+  exec { 'virsh-client-cinder-secret':
+    command => 'virsh secret-define --file /etc/ceph/client.cinder.secret.xml',
+    path    => '/usr/bin:/usr/sbin:/bin:/sbin',
+    unless  => "virsh secret-dumpxml ${rbd_secret_uuid}",
+    require => File['/etc/ceph/client.cinder.secret.xml']
+  }
+
+  $cinder_key = $facts['ceph_client_cinder_key_exported']
+  if $cinder_key {
+    exec { "virsh secret-set-value --secret ${rbd_secret_uuid} --base64 ${cinder_key}":
+      path    => '/usr/bin:/usr/sbin:/bin:/sbin',
+      onlyif  => "virsh secret-dumpxml ${rbd_secret_uuid}",
+      unless  => "virsh secret-get-value ${rbd_secret_uuid}",
+      require => Exec['virsh-client-cinder-secret'],
+    }
+  }
 }

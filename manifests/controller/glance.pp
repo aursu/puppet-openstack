@@ -108,21 +108,47 @@ class openstack::controller::glance (
     'paste_deploy/flavor'                     => 'keystone',
   }
 
-  $glance_store_default = {
-    # [glance_store]
-    # # ...
-    # stores = file,http
-    # default_store = file
-    # filesystem_store_datadir = /var/lib/glance/images/
-    'glance_store/default_store'            => 'file',
-    'glance_store/filesystem_store_datadir' => $filesystem_store_datadir,
-    'glance_store/stores'                   => 'file,http',
+  if $ceph_storage {
+    $conf_default_storage = {
+      # If you want to enable copy-on-write cloning of images, also add under the [DEFAULT] section
+      'DEFAULT/show_image_direct_url' => 'true',
+    }
+
+    $glance_store_default = {
+      # [glance_store]
+      # stores = rbd
+      # default_store = rbd
+      # rbd_store_pool = images
+      # rbd_store_user = glance
+      # rbd_store_ceph_conf = /etc/ceph/ceph.conf
+      # rbd_store_chunk_size = 8
+      'glance_store/stores'               => 'rbd',
+      'glance_store/default_store'        => 'rbd',
+      'glance_store/rbd_store_pool'       => 'images',
+      'glance_store/rbd_store_user'       => 'glance',
+      'glance_store/rbd_store_ceph_conf'  => '/etc/ceph/ceph.conf',
+      'glance_store/rbd_store_chunk_size' => 8,
+    }
+  }
+  else {
+    $conf_default_storage = {}
+
+    $glance_store_default = {
+      # [glance_store]
+      # # ...
+      # stores = file,http
+      # default_store = file
+      # filesystem_store_datadir = /var/lib/glance/images/
+      'glance_store/default_store'            => 'file',
+      'glance_store/filesystem_store_datadir' => $filesystem_store_datadir,
+      'glance_store/stores'                   => 'file,http',
+    }
   }
 
   # https://docs.openstack.org/glance/latest/configuration/configuring.html#configuring-glance-storage-backends
 
   openstack::config { '/etc/glance/glance-api.conf':
-    content => $conf_default + $glance_store_default,
+    content => $conf_default + $conf_default_storage + $glance_store_default,
     require => Openstack::Package[$glance_package],
     notify  => Exec['glance-db-sync'],
   }

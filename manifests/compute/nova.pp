@@ -13,6 +13,7 @@ class openstack::compute::nova (
   String  $compute_tag           = $openstack::compute_tag,
   Boolean $nested_virtualization = $openstack::nested_virtualization,
   Boolean $ceph_storage          = $openstack::ceph_storage,
+  String  $rbd_secret_uuid       = $openstack::rbd_secret_uuid,
 ) {
   # https://docs.openstack.org/nova/train/install/compute-install-rdo.html
   include openstack::nova::core
@@ -90,9 +91,26 @@ class openstack::compute::nova (
     }
   }
 
+  if $ceph_storage {
+    # In order to attach Cinder devices (either normal block or by issuing a
+    # boot from volume), you must tell Nova (and libvirt) which user and UUID to
+    # refer to when attaching the device. libvirt will refer to this user when
+    # connecting and authenticating with the Ceph cluster.
+    $virt_auth = {
+      'libvirt/rbd_user'        => 'cinder',
+      'libvirt/rbd_secret_uuid' => $rbd_secret_uuid,
+    }
+  }
+  else  {
+    $virt_auth = {}
+  }
+
   openstack::config { '/etc/nova/nova.conf/compute':
     path    => '/etc/nova/nova.conf',
-    content => $conf_default + $virt_type + $enabled_apis,
+    content => $conf_default +
+              $virt_type +
+              $virt_auth +
+              $enabled_apis,
     require => Openstack::Config['/etc/nova/nova.conf'],
     notify  => Service[$nova_compute_service],
   }
@@ -113,6 +131,7 @@ class openstack::compute::nova (
     include openstack::ceph::bindings
     include openstack::ceph::cli_tools
     include openstack::ceph::cinder_client
+    include openstack::ceph::ceph_client_nova
   }
 
   Openstack::Package[$nova_compute_package] -> Openstack::Config['/etc/nova/nova.conf']
