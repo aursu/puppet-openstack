@@ -6,7 +6,7 @@
 #   openstack::config { 'namevar': }
 define openstack::config (
   Hash[ String,
-    Variant[ String,
+    Variant[ String, Integer,
       Struct[{
         value                       => String,
         Optional[ensure]            => Enum[present, absent],
@@ -34,6 +34,7 @@ define openstack::config (
 
     $attributes = $value ? {
         String  => { value => $value },
+        Integer => { value => "${value}" }, # lint:ignore:only_variable_string
         default => $value
     }
 
