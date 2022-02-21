@@ -39,5 +39,7 @@ class openstack::ceph::ceph_client_nova {
     }
   }
 
+  # Then, on the compute nodes, add the secret key to libvirt and remove the
+  # temporary copy of the key:
   File <<| title == '/etc/ceph/client.cinder.secret.xml' |>>
 }
