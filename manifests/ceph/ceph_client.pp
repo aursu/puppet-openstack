@@ -9,8 +9,9 @@ class openstack::ceph::ceph_client {
     ensure => directory,
   }
 
-  # if not Ceph admin host
-  unless $facts['ceph_conf'] {
-    File <<| title == '/etc/ceph/ceph.conf' |>>
+  file { '/var/run/ceph':
+    ensure => directory,
   }
+
+  File <<| title == '/etc/ceph/ceph-exported.conf' |>>
 }

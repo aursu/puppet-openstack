@@ -11,7 +11,7 @@
       'admin socket',
       'log file',
       'rbd concurrent management ops',
-    ], String] $client = {},
+    ], Variant[String, Integer]] $client = {},
 | -%>
 # minimal ceph.conf for <%= $global['fsid'] %>
 [global]

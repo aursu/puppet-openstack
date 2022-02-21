@@ -4,7 +4,10 @@
 #
 # @example
 #   include openstack::ceph::manager
-class openstack::ceph::manager {
+class openstack::ceph::manager (
+  String  $rbd_secret_uuid = $openstack::rbd_secret_uuid,
+)
+{
 
   # https://docs.ceph.com/en/latest/rbd/rbd-openstack/#create-a-pool
   # ceph osd pool create volumes
@@ -59,7 +62,7 @@ class openstack::ceph::manager {
   }
 
   if $facts['ceph_conf'] {
-    @@file { '/etc/ceph/ceph.conf':
+    @@file { '/etc/ceph/ceph-exported.conf':
       ensure  => file,
       content => epp('openstack/ceph-conf.epp', {
         global => $facts['ceph_conf']['global'],
@@ -83,6 +86,20 @@ class openstack::ceph::manager {
       owner   => 'cinder',
       group   => 'cinder',
       content => epp('openstack/keyring.epp', $facts['ceph_client_cinder']),
+    }
+
+    @@file { '/etc/ceph/ceph.client.cinder.key':
+      ensure  => file,
+      owner   => 'cinder',
+      group   => 'cinder',
+      content => $facts['ceph_client_cinder_key'],
+    }
+
+    @@file { '/etc/ceph/client.cinder.secret.xml':
+      ensure  => file,
+      content => epp('openstack/libvirt-secret.epp', {
+        rbd_secret_uuid => $rbd_secret_uuid,
+      }),
     }
   }
 

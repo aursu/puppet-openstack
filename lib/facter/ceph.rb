@@ -40,6 +40,45 @@ Facter.add(:ceph_conf) do
   end
 end
 
+Facter.add(:ceph_conf_exported) do
+  confine { File.exist? '/etc/ceph/ceph-exported.conf' }
+  setcode do
+    obj = {}
+
+    content = File.read('/etc/ceph/ceph-exported.conf').gsub(%r{\r*\n+}, "\n")
+
+    section = nil
+    content.each_line do |line|
+      # no spaces
+      line.strip!
+
+      #  no comments
+      next if line.match?(%r{^#})
+
+      # section
+      if (line =~ %r{^\[(.*)\]\s*$})
+        section = $1
+        obj[section] = {}
+
+        next
+      end
+
+      if (line =~ %r{^([^=]+?)\s*=\s*(.*?)\s*$})
+        next if !section
+
+        param, value = line.split(%r{\s*=\s*}, 2)
+
+        param.strip!
+        value.strip!
+
+        obj[section][param] = value
+      end
+    end
+
+    obj
+  end
+end
+
 # It is for default cluster name `ceph`
 # based on https://docs.ceph.com/en/latest/rbd/rbd-openstack/
 Facter.add(:ceph_client_glance) do
