@@ -90,11 +90,19 @@ class openstack::nova::core (
     Sshkey <<| tag == $sshkey_export_tag |>>
   }
 
+  if $facts['os']['family'] == 'Debian' {
+    $enabled_apis = {}
+  }
+  else {
+    $enabled_apis = {
+      ### enable only the compute and metadata APIs
+      # [DEFAULT]
+      # enabled_apis = osapi_compute,metadata
+      'DEFAULT/enabled_apis' => 'osapi_compute,metadata',
+    }
+  }
+
   $conf_default = {
-    ### enable only the compute and metadata APIs
-    # [DEFAULT]
-    # enabled_apis = osapi_compute,metadata
-    'DEFAULT/enabled_apis' => 'osapi_compute,metadata',
     ### RabbitMQ message queue access
     # [DEFAULT]
     # transport_url = rabbit://openstack:RABBIT_PASS@controller:5672/
@@ -153,6 +161,6 @@ class openstack::nova::core (
   }
 
   openstack::config { '/etc/nova/nova.conf':
-    content => $conf_default,
+    content => $conf_default + $enabled_apis,
   }
 }

@@ -25,16 +25,10 @@ class openstack::compute::nova (
   include openstack::compute::nested_virtualization
 
   if $facts['os']['family'] == 'Debian' {
-    $enabled_apis = {}
+    $libvirt_clients = 'libvirt-clients'
   }
   else {
-    $enabled_apis = {
-      'DEFAULT/enabled_apis' => 'osapi_compute,metadata',
-    }
-
-    package { 'libvirt':
-      ensure => 'present',
-    }
+    $libvirt_clients = 'libvirt'
 
     service { 'libvirtd':
         ensure    => running,
@@ -42,10 +36,10 @@ class openstack::compute::nova (
         subscribe => Openstack::Config['/etc/nova/nova.conf'],
         require   => Package['libvirt'],
     }
+  }
 
-    if $ceph_storage {
-      Package['libvirt'] -> Class['openstack::ceph::ceph_client_nova']
-    }
+  package { $libvirt_clients:
+    ensure => 'present',
   }
 
   openstack::package { $nova_compute_package:
@@ -118,8 +112,7 @@ class openstack::compute::nova (
     path    => '/etc/nova/nova.conf',
     content => $conf_default +
               $virt_type +
-              $virt_auth +
-              $enabled_apis,
+              $virt_auth,
     require => Openstack::Config['/etc/nova/nova.conf'],
     notify  => Service[$nova_compute_service],
   }
@@ -141,6 +134,8 @@ class openstack::compute::nova (
     include openstack::ceph::cli_tools
     include openstack::ceph::cinder_client
     include openstack::ceph::ceph_client_nova
+
+    Package[$libvirt_clients] -> Class['openstack::ceph::ceph_client_nova']
   }
 
   Openstack::Package[$nova_compute_package] -> Openstack::Config['/etc/nova/nova.conf']
