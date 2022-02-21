@@ -61,15 +61,7 @@ class openstack::ceph::manager (
     cap_mgr => 'profile rbd pool=backups',
   }
 
-  if $facts['ceph_conf'] {
-    @@file { '/etc/ceph/ceph-exported.conf':
-      ensure  => file,
-      content => epp('openstack/ceph-conf.epp', {
-        global => $facts['ceph_conf']['global'],
-        client => $facts['ceph_conf']['client'],
-      }),
-    }
-  }
+
 
   if $facts['ceph_client_glance'] {
     @@file { '/etc/ceph/ceph.client.glance.keyring':
@@ -88,10 +80,8 @@ class openstack::ceph::manager (
       content => epp('openstack/keyring.epp', $facts['ceph_client_cinder']),
     }
 
-    @@file { '/etc/ceph/ceph.client.cinder.key':
+    @@file { '/root/ceph/ceph.client.cinder.key':
       ensure  => file,
-      owner   => 'cinder',
-      group   => 'cinder',
       content => $facts['ceph_client_cinder_key'],
     }
   }
@@ -102,6 +92,23 @@ class openstack::ceph::manager (
       owner   => 'cinder',
       group   => 'cinder',
       content => $facts['ceph_client_cinder_backup'],
+    }
+  }
+
+  if $facts['ceph_conf'] {
+    @@file { '/root/ceph/ceph.conf':
+      ensure  => file,
+      content => epp('openstack/ceph-conf.epp', {
+        global => $facts['ceph_conf']['global'],
+        client => $facts['ceph_conf']['client'],
+      }),
+    }
+  }
+
+  if $facts['ceph_ssh_pub_key'] {
+    @@file { '/root/ceph/ceph.pub':
+      ensure  => file,
+      content => $facts['ceph_ssh_pub_key'],
     }
   }
 }

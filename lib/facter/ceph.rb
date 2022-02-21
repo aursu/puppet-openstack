@@ -40,45 +40,6 @@ Facter.add(:ceph_conf) do
   end
 end
 
-Facter.add(:ceph_conf_exported) do
-  confine { File.exist? '/etc/ceph/ceph-exported.conf' }
-  setcode do
-    obj = {}
-
-    content = File.read('/etc/ceph/ceph-exported.conf').gsub(%r{\r*\n+}, "\n")
-
-    section = nil
-    content.each_line do |line|
-      # no spaces
-      line.strip!
-
-      #  no comments
-      next if line.match?(%r{^#})
-
-      # section
-      if (line =~ %r{^\[(.*)\]\s*$})
-        section = $1
-        obj[section] = {}
-
-        next
-      end
-
-      if (line =~ %r{^([^=]+?)\s*=\s*(.*?)\s*$})
-        next if !section
-
-        param, value = line.split(%r{\s*=\s*}, 2)
-
-        param.strip!
-        value.strip!
-
-        obj[section][param] = value
-      end
-    end
-
-    obj
-  end
-end
-
 # It is for default cluster name `ceph`
 # based on https://docs.ceph.com/en/latest/rbd/rbd-openstack/
 Facter.add(:ceph_client_glance) do
@@ -112,13 +73,6 @@ Facter.add(:ceph_client_cinder_key) do
   end
 end
 
-Facter.add(:ceph_client_cinder_key_exported) do
-  confine { File.exist? '/etc/ceph/ceph.client.cinder.key' }
-  setcode do
-    File.read('/etc/ceph/ceph.client.cinder.key')
-  end
-end
-
 Facter.add(:ceph_client_cinder_backup) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
   setcode do
@@ -138,5 +92,58 @@ Facter.add(:ceph_ssh_pub_key) do
     return nil unless pub_key && $CHILD_STATUS.success?
 
     pub_key
+  end
+end
+
+Facter.add(:ceph_client_cinder_key_exported) do
+  confine { File.exist? '/root/ceph/ceph.client.cinder.key' }
+  setcode do
+    File.read('/root/ceph/ceph.client.cinder.key')
+  end
+end
+
+Facter.add(:ceph_ssh_pub_key_exported) do
+  confine { File.exist? '/root/ceph/ceph.pub' }
+  setcode do
+    File.read('/root/ceph/ceph.pub')
+  end
+end
+
+Facter.add(:ceph_conf_exported) do
+  confine { File.exist? '/root/ceph/ceph.conf' }
+  setcode do
+    obj = {}
+
+    content = File.read('/root/ceph/ceph.conf').gsub(%r{\r*\n+}, "\n")
+
+    section = nil
+    content.each_line do |line|
+      # no spaces
+      line.strip!
+
+      #  no comments
+      next if line.match?(%r{^#})
+
+      # section
+      if (line =~ %r{^\[(.*)\]\s*$})
+        section = $1
+        obj[section] = {}
+
+        next
+      end
+
+      if (line =~ %r{^([^=]+?)\s*=\s*(.*?)\s*$})
+        next if !section
+
+        param, value = line.split(%r{\s*=\s*}, 2)
+
+        param.strip!
+        value.strip!
+
+        obj[section][param] = value
+      end
+    end
+
+    obj
   end
 end

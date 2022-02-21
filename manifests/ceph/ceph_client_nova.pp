@@ -44,7 +44,7 @@ class openstack::ceph::ceph_client_nova (
 
   # Then, on the compute nodes, add the secret key to libvirt and remove the
   # temporary copy of the key:
-  file { '/etc/ceph/client.cinder.secret.xml':
+  file { '/root/ceph/client.cinder.secret.xml':
     ensure  => file,
     content => epp('openstack/libvirt-secret.epp', {
       rbd_secret_uuid => $rbd_secret_uuid,
@@ -52,10 +52,10 @@ class openstack::ceph::ceph_client_nova (
   }
 
   exec { 'virsh-client-cinder-secret':
-    command => 'virsh secret-define --file /etc/ceph/client.cinder.secret.xml',
+    command => 'virsh secret-define --file /root/ceph/client.cinder.secret.xml',
     path    => '/usr/bin:/usr/sbin:/bin:/sbin',
     unless  => "virsh secret-dumpxml ${rbd_secret_uuid}",
-    require => File['/etc/ceph/client.cinder.secret.xml']
+    require => File['/root/ceph/client.cinder.secret.xml']
   }
 
   $cinder_key = $facts['ceph_client_cinder_key_exported']

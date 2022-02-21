@@ -5,7 +5,7 @@
 # @example
 #   include openstack::ceph::ceph_client
 class openstack::ceph::ceph_client {
-  file { '/etc/ceph':
+  file { ['/etc/ceph', '/root/ceph']:
     ensure => directory,
   }
 
@@ -13,5 +13,6 @@ class openstack::ceph::ceph_client {
     ensure => directory,
   }
 
-  File <<| title == '/etc/ceph/ceph-exported.conf' |>>
+  File <<| title == '/root/ceph/ceph.conf' |>>
+  File <<| title == '/root/ceph/ceph.pub' |>>
 }

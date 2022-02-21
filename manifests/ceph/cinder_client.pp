@@ -22,7 +22,7 @@ class openstack::ceph::cinder_client (
   # ceph auth get-or-create client.cinder | ssh {your-nova-compute-server} sudo tee /etc/ceph/ceph.client.cinder.keyring
   #
   File <<| title == '/etc/ceph/ceph.client.cinder.keyring' |>>
-  File <<| title == '/etc/ceph/ceph.client.cinder.key' |>>
+  File <<| title == '/root/ceph/ceph.client.cinder.key' |>>
 
   if $backup_service {
     File <<| title == '/etc/ceph/ceph.client.cinder-backup.keyring' |>>
