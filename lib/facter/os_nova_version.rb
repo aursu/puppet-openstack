@@ -1,3 +1,5 @@
+require 'puppet/util/execution'
+
 Facter.add(:os_nova_version) do
   setcode do
     maj = 0

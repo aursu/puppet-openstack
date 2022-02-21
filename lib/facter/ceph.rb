@@ -1,4 +1,5 @@
 require 'English'
+require 'puppet/util/execution'
 
 Facter.add(:ceph_conf) do
   confine { File.exist? '/etc/ceph/ceph.client.admin.keyring' }
