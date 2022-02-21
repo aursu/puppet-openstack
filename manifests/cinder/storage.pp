@@ -14,6 +14,7 @@ class openstack::cinder::storage (
           $physical_volumes   = $openstack::cinder_physical_volumes,
   Boolean $ceph_storage       = $openstack::ceph_storage,
   Boolean $backup_service     = $openstack::cinder_backup_service,
+  String  $rbd_secret_uuid    = $openstack::rbd_secret_uuid,
 ){
   include openstack::cinder::core
 
@@ -124,6 +125,10 @@ class openstack::cinder::storage (
       'ceph/rbd_max_clone_depth'              => 5,
       'ceph/rbd_store_chunk_size'             => 4,
       'ceph/rados_connect_timeout'            => -1,
+      # If you are using cephx authentication, also configure the user and uuid
+      # of the secret you added to libvirt
+      'ceph/rbd_user'                         => 'cinder',
+      'ceph/rbd_secret_uuid'                  => $rbd_secret_uuid,
     }
 
     if $backup_service {
