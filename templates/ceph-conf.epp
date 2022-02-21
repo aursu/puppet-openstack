@@ -13,7 +13,7 @@
       'rbd concurrent management ops',
     ], String] $client = {},
 | -%>
-# minimal ceph.conf for <%= $fsid %>
+# minimal ceph.conf for <%= $global['fsid'] %>
 [global]
 	fsid = <%= $global['fsid'] %>
 	mon_host = <%= $global['mon_host'] %>
