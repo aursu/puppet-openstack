@@ -130,7 +130,7 @@ class openstack::controller::glance (
       # rbd_store_user = glance
       # rbd_store_ceph_conf = /etc/ceph/ceph.conf
       # rbd_store_chunk_size = 8
-      'glance_store/stores'               => 'rbd',
+      'glance_store/stores'               => 'rbd,file,http',
       'glance_store/default_store'        => 'rbd',
       'glance_store/rbd_store_pool'       => 'images',
       'glance_store/rbd_store_user'       => 'glance',
