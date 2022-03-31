@@ -24,11 +24,11 @@ Puppet::Type.type(:ceph_pool).provide(:ceph) do
     cmdout = Puppet::Util::Execution.execute(cmd, combine: false)
     return nil if cmdout.nil?
     return nil if cmdout.empty?
-    return cmdout
+    cmdout
   rescue Puppet::ExecutionFailure => detail
     Puppet.debug "Execution of #{comm} command failed: #{detail}"
     false
-  end 
+  end
 
   def self.ceph_caller(subcomm, *args)
     util_caller(command(:ceph), subcomm, *args)

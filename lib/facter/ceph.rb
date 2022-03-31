@@ -18,23 +18,22 @@ Facter.add(:ceph_conf) do
       next if line.match?(%r{^#})
 
       # section
-      if (line =~ %r{^\[(.*)\]\s*$})
-        section = $1
+      if line.match?(%r{^\[(.*)\]\s*$})
+        section = Regexp.last_match(1)
         obj[section] = {}
 
         next
       end
 
-      if (line =~ %r{^([^=]+?)\s*=\s*(.*?)\s*$})
-        next if !section
+      next unless line.match?(%r{^([^=]+?)\s*=\s*(.*?)\s*$})
+      next unless section
 
-        param, value = line.split(%r{\s*=\s*}, 2)
+      param, value = line.split(%r{\s*=\s*}, 2)
 
-        param.strip!
-        value.strip!
+      param.strip!
+      value.strip!
 
-        obj[section][param] = value
-      end
+      obj[section][param] = value
     end
 
     obj
@@ -49,7 +48,7 @@ Facter.add(:ceph_client_glance) do
     client_keyring = Puppet::Util::Execution.execute('/usr/bin/ceph auth get client.glance', combine: false) if File.executable?('/usr/bin/ceph')
 
     if client_keyring && $CHILD_STATUS.success?
-       client_keyring
+      client_keyring
     else
       nil
     end
@@ -131,23 +130,22 @@ Facter.add(:ceph_conf_exported) do
       next if line.match?(%r{^#})
 
       # section
-      if (line =~ %r{^\[(.*)\]\s*$})
-        section = $1
+      if line =~ %r{^\[(.*)\]\s*$}
+        section = Regexp.last_match(1)
         obj[section] = {}
 
         next
       end
 
-      if (line =~ %r{^([^=]+?)\s*=\s*(.*?)\s*$})
-        next if !section
+      next unless line.match?(%r{^([^=]+?)\s*=\s*(.*?)\s*$})
+      next unless section
 
-        param, value = line.split(%r{\s*=\s*}, 2)
+      param, value = line.split(%r{\s*=\s*}, 2)
 
-        param.strip!
-        value.strip!
+      param.strip!
+      value.strip!
 
-        obj[section][param] = value
-      end
+      obj[section][param] = value
     end
 
     obj

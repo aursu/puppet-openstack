@@ -1,5 +1,4 @@
 Puppet::Type.newtype(:ceph_pool) do
-
   @doc = <<-PUPPET
     @summary
       Pools are logical partitions for storing objects.

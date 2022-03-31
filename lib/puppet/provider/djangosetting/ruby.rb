@@ -4,7 +4,7 @@ Puppet::Type.type(:djangosetting).provide(:ruby) do
   # Without initvars commands won't work.
   initvars
 
-  if Facter.value(:osfamily) == 'RedHat' 
+  if Facter.value(:osfamily) == 'RedHat'
     if Facter.value(:operatingsystemmajrelease).to_i > 7
       commands python: 'python2'
     else

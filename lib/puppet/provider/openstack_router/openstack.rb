@@ -146,8 +146,8 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
 
         @property_hash[:external_gateway_subnet] = external_gateway_subnet
         @property_hash[:external_gateway_ip] = external_gateway_ip
-      else
-        return if self.class.provider_set('--external-gateway', external_gateway_network, name) == false
+      elsif self.class.provider_set('--external-gateway', external_gateway_network, name) == false
+        return
       end
       @property_hash[:external_gateway_network] = external_gateway_network
     end
@@ -234,7 +234,7 @@ Puppet::Type.type(:openstack_router).provide(:openstack, parent: Puppet::Provide
       args << '--no-ha' if @property_flush[:ha] == :false
     end
 
-    if @property_flush[:external_gateway_network] || @property_flush[:external_gateway_subnet] || @property_flush[:external_gateway_ip] 
+    if @property_flush[:external_gateway_network] || @property_flush[:external_gateway_subnet] || @property_flush[:external_gateway_ip]
       if external_gateway_network
         args += ['--external-gateway', external_gateway_network]
         if external_gateway_subnet && external_gateway_ip

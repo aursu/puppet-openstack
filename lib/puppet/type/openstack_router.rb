@@ -80,7 +80,7 @@ Puppet::Type.newtype(:openstack_router) do
   end
 
   newproperty(:external_gateway_ip) do
-    desc "IP on external gateway"
+    desc 'IP on external gateway'
 
     validate do |value|
       raise ArgumentError, _('Gateway IP address must be a String not %{klass}') % { klass: value.class } unless value.is_a?(String)
@@ -123,7 +123,8 @@ Puppet::Type.newtype(:openstack_router) do
 
   validate do
     if @parameters[:external_gateway_subnet] || @parameters[:external_gateway_ip]
-      raise Puppet::Error, _('error: argument :external_gateway_ip not allowed without argument :external_gateway_subnet') unless @parameters[:external_gateway_subnet] && @parameters[:external_gateway_ip]
+      raise Puppet::Error, _('error: argument :external_gateway_ip not allowed without argument :external_gateway_subnet') \
+        unless @parameters[:external_gateway_subnet] && @parameters[:external_gateway_ip]
     end
   end
 

@@ -23,11 +23,11 @@ Puppet::Type.type(:ceph_auth).provide(:ceph) do
     cmdout = Puppet::Util::Execution.execute(cmd, combine: false)
     return nil if cmdout.nil?
     return nil if cmdout.empty?
-    return cmdout
+    cmdout
   rescue Puppet::ExecutionFailure => detail
     Puppet.debug "Execution of #{comm} command failed: #{detail}"
     false
-  end 
+  end
 
   def self.ceph_caller(subcomm, *args)
     util_caller(command(:ceph), subcomm, *args)
@@ -48,7 +48,7 @@ Puppet::Type.type(:ceph_auth).provide(:ceph) do
   end
 
   def self.provider_get(name)
-    # first element is a desired  object 
+    # first element is a desired  object
     # empty hash if not exist
     ceph_get_array(provider_subcommand, name).first || {}
   end
@@ -88,6 +88,7 @@ Puppet::Type.type(:ceph_auth).provide(:ceph) do
     args += ['osd', cap_osd] if cap_osd
     args += ['mgr', cap_mgr] if cap_mgr
     args += ['mds', cap_mds] if cap_mds
+    args
   end
 
   def create
@@ -117,38 +118,34 @@ Puppet::Type.type(:ceph_auth).provide(:ceph) do
   end
 
   def cap_mon
-    name = @resource[:name]
     user_info['caps']['mon']
   end
 
-  def cap_mon=(caps)
+  def cap_mon=(_caps)
     self.class.provider_set(*auth_args)
   end
 
   def cap_osd
-    name = @resource[:name]
     user_info['caps']['osd']
   end
 
-  def cap_osd=(caps)
+  def cap_osd=(_caps)
     self.class.provider_set(*auth_args)
   end
 
   def cap_mgr
-    name = @resource[:name]
     user_info['caps']['mgr']
   end
 
-  def cap_mgr=(caps)
+  def cap_mgr=(_caps)
     self.class.provider_set(*auth_args)
   end
 
   def cap_mds
-    name = @resource[:name]
     user_info['caps']['mds']
   end
 
-  def cap_mds=(caps)
+  def cap_mds=(_caps)
     self.class.provider_set(*auth_args)
   end
 

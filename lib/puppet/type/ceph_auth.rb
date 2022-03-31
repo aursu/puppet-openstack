@@ -1,5 +1,4 @@
 Puppet::Type.newtype(:ceph_auth) do
-
   @doc = <<-PUPPET
     @summary
       Ceph Client users, and their authentication and authorization with the Ceph
@@ -15,8 +14,6 @@ Puppet::Type.newtype(:ceph_auth) do
   newparam(:name) do
     desc 'Ceph client user name'
   end
-
-
 
   newproperty(:cap_mon) do
     desc 'Monitor capabilities.'
@@ -40,8 +37,8 @@ Puppet::Type.newtype(:ceph_auth) do
     defaultto 'ceph'
   end
 
-  newparam(:keyring, :boolean => true, :parent => Puppet::Parameter::Boolean) do
-    desc "Set to true if File resource required"
+  newparam(:keyring, boolean: true, parent: Puppet::Parameter::Boolean) do
+    desc 'Set to true if File resource required'
 
     defaultto false
   end
