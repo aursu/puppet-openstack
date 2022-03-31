@@ -33,8 +33,11 @@ rm -rf /var/lib/openstack-dashboard
 dpkg -P tgt cinder-scheduler cinder-volume targetcli-fb python3-configshell-fb python3-urwid \
     cinder-api python3-cinder python3-rtslib-fb cinder-common 
 rm -rf /var/log/cinder /var/lib/cinder 
+dpkg -P python3-os-brick python3-oslo.privsep python3-oslo.reports python3-oslo.vmware \
+    python3-castellan python3-cursive  python3-cinder cinder-backup
 
-# Neutron 
+# Neutron
+dpkg -P podman-plugins podman-machine-cni  podman
 dpkg -P neutron-plugin-ml2 neutron-server neutron-openvswitch-agent neutron-dhcp-agent \
     dnsmasq-base dnsmasq-utils neutron-l3-agent neutron-l3-agent neutron-metadata-agent haproxy \
     neutron-linuxbridge-agent  python3-neutron python3-neutron-lib python3-os-ken python3-pecan \
